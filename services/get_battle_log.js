@@ -7,7 +7,7 @@ const url = `https://api.brawlstars.com/v1`;
 const typeNameArray = ['ranked', 'friendly', 'soloRanked', 'teamRanked', 'challenge', 'championshipChallenge'];
 const resultNameArray = ['victory', 'draw', 'defeat'];
 
-let compareLeaguePlayer;
+let comparePlayers;
 let isPowerLeague = true;
 
 const setRank = (mode, team) => {
@@ -50,19 +50,19 @@ const setResult = (mode, teamPlayer, rank, tag, result) => {
     }
 };
 
-const setType = (typeIndex, trophyChange, trophyGrade, currentLeaguePlayer, mode) => {
+const setType = (typeIndex, trophyChange, trophyGrade, currentPlayers, mode) => {
     if (typeIndex === 3 && [3, 5, 7, 9].includes(trophyChange)) {
-        compareLeaguePlayer = currentLeaguePlayer;
+        comparePlayers = currentPlayers;
         isPowerLeague = false;
         return 6;
     } else if ([1, 2, 3, 4].includes(trophyChange) && trophyGrade <= 27 &&
         !['soloShowdown', 'duoShowdown'].includes(mode)) {
         isPowerLeague = false;
         return 6;
-    } else if (compareLeaguePlayer === currentLeaguePlayer && !isPowerLeague) {
+    } else if (comparePlayers === currentPlayers && !isPowerLeague) {
         return 6;
     } else {
-        compareLeaguePlayer = [];
+        comparePlayers = [];
         isPowerLeague = true;
         return typeIndex;
     }
@@ -96,6 +96,8 @@ export default async (members) => {
                     const typeIndex = typeNameArray.indexOf(typeName);
                     const trophyChange = (log.battle.trophyChange !== undefined) ?
                         log.battle.trophyChange : 0;
+                    const currentPlayers = JSON.stringify(log.battle.teams);
+
                     for (const team in log.battle.teams) {
                         const battleFlatten = log.battle.teams.flat(1);
                         const trophyGrade = () => {
@@ -108,35 +110,36 @@ export default async (members) => {
                                 return Math.max(...battleFlatten.map(item => item.brawler.trophies));
                             }
                         }
-                        const teamPlayer = log.battle.teams[team].map(row => row.tag);
 
                         for (const player of log.battle.teams[team]) {
                             const isStarPlayer = log.battle.starPlayer != null ? log.battle.starPlayer.tag === player.tag ? 1 : 0 : 0;
 
-                            const currentLeaguePlayer = JSON.stringify(battleFlatten.map(row => row.tag));
-
                             const rank = setRank(log.battle.mode, team);
-                            const result = setResult(log.battle.mode, teamPlayer, rank, member, log.battle.result);
-                            const type = setType(typeIndex, trophyChange, trophyGrade, currentLeaguePlayer, log.battle.mode);
+                            const result = setResult(log.battle.mode, player.tag, rank, member, log.battle.result);
+                            const type = await setType(typeIndex, trophyChange, trophyGrade, currentPlayers, log.battle.mode);
 
-                            await BattleLog.upsert({
-                                id: `${dateText}_${member}_${player.tag}`,
-                                member_id: member,
-                                date: dateKST,
-                                duration: duration,
-                                map_id: mapID,
-                                game_type: type,
-                                rank: rank,
-                                game_result: result,
-                                trophy_grade: trophyGrade(),
-                                trophy_change: trophyChange,
-                                is_star_player: isStarPlayer,
-                                player_team: team,
-                                player_tag: player.tag,
-                                player_name: player.name,
-                                player_brawler_id: player.brawler.id,
-                                player_brawler_power: player.brawler.power,
-                                player_brawler_trophy: player.brawler.trophies
+                            await BattleLog.findOrCreate({
+                                where: {
+                                    id: `${dateText}_${member}_${player.tag}`,
+                                },
+                                defaults: {
+                                    member_id: member,
+                                    date: dateKST,
+                                    duration: duration,
+                                    map_id: mapID,
+                                    game_type: type,
+                                    rank: rank,
+                                    game_result: result,
+                                    trophy_grade: trophyGrade(),
+                                    trophy_change: trophyChange,
+                                    is_star_player: isStarPlayer,
+                                    player_team: team,
+                                    player_tag: player.tag,
+                                    player_name: player.name,
+                                    player_brawler_id: player.brawler.id,
+                                    player_brawler_power: player.brawler.power,
+                                    player_brawler_trophy: player.brawler.trophies
+                                }
                             });
                         }
                     }
