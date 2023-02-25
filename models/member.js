@@ -15,11 +15,11 @@ export default class Member extends Sequelize.Model {
                 type: Sequelize.SMALLINT.UNSIGNED,
                 allowNull: false,
             },
-            win_triple: {
+            victory_triple: {
                 type: Sequelize.SMALLINT.UNSIGNED,
                 allowNull: true,
             },
-            win_duo: {
+            victory_duo: {
                 type: Sequelize.SMALLINT.UNSIGNED,
                 allowNull: true,
             },

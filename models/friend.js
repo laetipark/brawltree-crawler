@@ -11,6 +11,10 @@ export default class Friend extends Sequelize.Model {
                 type: Sequelize.STRING(12),
                 allowNull: false,
             },
+            friend_name: {
+                type: Sequelize.STRING(30),
+                allowNull: false,
+            },
             game_type: {
                 type: Sequelize.STRING(1),
                 allowNull: false,
@@ -27,8 +31,12 @@ export default class Friend extends Sequelize.Model {
                 type: Sequelize.INTEGER,
                 allowNull: true,
             },
-            win: {
+            victory: {
                 type: Sequelize.INTEGER,
+                allowNull: true,
+            },
+            point: {
+                type: Sequelize.FLOAT,
                 allowNull: true,
             },
         }, {

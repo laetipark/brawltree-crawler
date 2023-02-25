@@ -7,12 +7,14 @@ import Pick from '../models/pick.js';
 import BattleLog from '../models/battle_log.js';
 import Rotation from '../models/rotation.js';
 import Season from '../models/season.js';
+import Record from "../models/record.js";
+import Friend from "../models/friend.js";
 
 const router = express.Router();
 
 router.get('/member', async (req, res) => {
     const members = await Member.findAll({raw: true}).then((result) => {
-        return result
+        return result;
     });
 
     res.send(members);
@@ -22,19 +24,19 @@ router.get('/brawler', async (req, res) => {
     const brawlers = await Brawler.findAll({
         raw: true
     }).then((result) => {
-        return result
+        return result;
     });
 
     const memberBrawlers = await MemberBrawler.findAll({
         raw: true
     }).then((result) => {
-        return result
+        return result;
     });
 
     const pick = await Pick.findAll({
         raw: true
     }).then((result) => {
-        return result
+        return result;
     });
 
     res.send({brawlers: brawlers, memberBrawlers: memberBrawlers, pick: pick});
@@ -56,11 +58,10 @@ const modeFilter = ['gemGrab', 'brawlBall', 'bounty', 'heist', 'hotZone', 'knock
 
 router.get('/record', async (req, res) => {
 
-
     const members = await Member.findAll({
         raw: true
     }).then((result) => {
-        return result
+        return result;
     });
 
     const {today} = req.query;
@@ -79,7 +80,7 @@ router.get('/record', async (req, res) => {
         },
         raw: true
     }).then((result) => {
-        return result
+        return result;
     });
 
     const battleLog = await BattleLog.findAll({
@@ -141,20 +142,20 @@ router.get('/record', async (req, res) => {
             })
         })
 
-        return membersJson
+        return membersJson;
     });
 
     const season = await Season.findOne({
         order: [['start_date', 'DESC']],
         raw: true,
     }).then((result) => {
-        return result
+        return result;
     });
 
     const rotation = await Rotation.findAll({
         raw: true,
     }).then((result) => {
-        return result
+        return result;
     });
 
     res.send({
@@ -165,15 +166,95 @@ router.get('/record', async (req, res) => {
     });
 });
 
-router.get('/friend', (req, res) => {
-    res.render('blossom/friend', {
-        title: 'Express'
-    });
-});
+router.get('/season', async (req, res) => {
+    const {type} = req.query;
+    const {mode} = req.query;
+    const gameType = typeFilter.filter.includes(type) ? typeFilter[`${type}`] : typeFilter.all;
+    const gameMode = modeFilter.includes(mode) ? Array(mode) : modeFilter;
 
-router.get('/update', (req, res) => {
-    res.render('blossom/update', {
-        title: 'Express'
+    const records = await Record.findAll({
+        where: {
+            game_type: {
+                [Op.in]: gameType
+            },
+            map_mode: {
+                [Op.in]: gameMode
+            }
+        },
+        raw: true
+    }).then((result) => {
+        return result;
+    });
+
+    const friends = await Friend.findAll({
+        where: {
+            game_type: {
+                [Op.in]: gameType
+            },
+            map_mode: {
+                [Op.in]: gameMode
+            }
+        },
+        raw: true
+    }).then((result) => {
+        return result;
+    });
+
+    const members = await Member.findAll({
+        raw: true
+    }).then((result) => {
+        result.map(member => {
+            const filterRecords = records.filter((element) => {
+                return element.member_id === member.id;
+            });
+
+            const filterFriends = friends.filter((element) => {
+                return element.member_id === member.id;
+            });
+
+            const recordMatch = filterRecords.length > 0 ?
+                filterRecords.map(item => item.match)
+                    .reduce((match, total) => match + total) : 0;
+            const recordVictory = filterRecords.length > 0 ?
+                filterRecords.map(item => item.victory)
+                    .reduce((victory, total) => victory + total) : 0;
+            const recordTrophyChange = filterRecords.length > 0 ?
+                filterRecords.map(item => item.trophy_change)
+                    .reduce((trophy, total) => trophy + total) : 0;
+
+            const recordVictoryRate = isNaN(recordVictory / recordMatch) ?
+                0 : Math.round((recordVictory / recordMatch) * 10000) / 100.0;
+
+            const friendTotalPoint = filterFriends.length > 0 ?
+                filterFriends.map(item => item.point)
+                    .reduce((point, total) => point + total).toFixed(2) : 0;
+
+            member.records = filterRecords
+            member.friends = filterFriends
+            member.record_match = recordMatch;
+            member.record_trophy_change = recordTrophyChange;
+            member.record_victory = recordVictory;
+            member.record_victory_rate = recordVictoryRate;
+            member.friend_total_point = friendTotalPoint;
+        });
+
+        result.sort((a, b) => {
+            return b.record_match - a.record_match;
+        });
+
+        return result;
+    });
+
+    const season = await Season.findOne({
+        order: [['start_date', 'DESC']],
+        raw: true,
+    }).then((result) => {
+        return result;
+    });
+
+    res.send({
+        members: members,
+        season: season
     });
 });
 

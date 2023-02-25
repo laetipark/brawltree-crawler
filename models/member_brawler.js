@@ -35,11 +35,11 @@ export default class MemberBrawler extends Sequelize.Model {
                 type: Sequelize.SMALLINT,
                 allowNull: true,
             },
-            win_trophy: {
+            victory_trophy: {
                 type: Sequelize.SMALLINT,
                 allowNull: true,
             },
-            win_league: {
+            victory_league: {
                 type: Sequelize.SMALLINT,
                 allowNull: true,
             },

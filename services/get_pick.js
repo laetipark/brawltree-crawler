@@ -8,7 +8,7 @@ export default async () => {
     const picks = await BattleLog.findAll({
         attributes: ['map_id', 'player_brawler_id', 'game_type', 'trophy_grade',
             [sequelize.literal('count(trophy_grade)'), 'match'],
-            [sequelize.literal('count(case when game_result = 0 then 1 end)'), 'win']],
+            [sequelize.literal('count(case when game_result = 0 then 1 end)'), 'victory']],
         group: ['map_id', 'player_tag', 'player_brawler_id', 'game_type', 'trophy_grade'],
         raw: true
     }).then((res) => {
@@ -23,7 +23,7 @@ export default async () => {
             battle_type: pick.game_type,
             trophy_grade: pick.trophy_grade,
             match: pick.match,
-            win: pick.win
+            victory: pick.victory
         });
     }
 }

@@ -41,18 +41,18 @@ const setMatchCount = (tag, brawlerID) => {
             ], [
                 sequelize.literal(`(select count(*) from battle_log where game_type in (2, 3) and id like '%_${tag}_${tag}' and player_brawler_id = '${brawlerID}')`), `match_league`
             ], [
-                sequelize.literal(`(select count(*) from battle_log where game_result = 0 and game_type = 0 and id like '%_${tag}_${tag}' and player_brawler_id = '${brawlerID}')`), `win_trophy`,
+                sequelize.literal(`(select count(*) from battle_log where game_result = 0 and game_type = 0 and id like '%_${tag}_${tag}' and player_brawler_id = '${brawlerID}')`), `victory_trophy`,
             ], [
-                sequelize.literal(`(select count(*) from battle_log where game_result = 0 and game_type in (2, 3) and id like '%_${tag}_${tag}' and player_brawler_id = '${brawlerID}')`), `win_league`
+                sequelize.literal(`(select count(*) from battle_log where game_result = 0 and game_type in (2, 3) and id like '%_${tag}_${tag}' and player_brawler_id = '${brawlerID}')`), `victory_league`
             ]
         ],
         raw: true
     }).then(result => {
         const matchTrophy = result.match_trophy != null ? result.match_trophy : 0;
         const matchLeague = result.match_league != null ? result.match_league : 0;
-        const winTrophy = result.win_trophy != null ? result.win_trophy : 0;
-        const winLeague = result.win_league != null ? result.win_league : 0;
-        return [matchTrophy, matchLeague, winTrophy, winLeague];
+        const victoryTrophy = result.victory_trophy != null ? result.victory_trophy : 0;
+        const victoryLeague = result.victory_league != null ? result.victory_league : 0;
+        return [matchTrophy, matchLeague, victoryTrophy, victoryLeague];
     });
 }
 
@@ -75,8 +75,8 @@ export default async (members) => {
         },
     });
 
-    for (const item of members) {
-        const memberTag = item.replace('#', '%23');
+    for (const member of members) {
+        const memberTag = member.replace('#', '%23');
         const responseMember = await fetch(`${url}/players/${memberTag}`, {
             method: 'GET',
             headers: config.headers,
@@ -96,8 +96,8 @@ export default async (members) => {
                 name: responseMember.name,
                 trophy_current: responseMember.trophies,
                 trophy_highest: responseMember.highestTrophies,
-                win_triple: responseMember['3vs3Victories'],
-                win_duo: responseMember.duoVictories,
+                victory_triple: responseMember['3vs3Victories'],
+                victory_duo: responseMember.duoVictories,
                 rank_25: responseMember.brawlers.filter((trophy) => trophy.highestTrophies >= 750).length,
                 rank_30: responseMember.brawlers.filter((trophy) => trophy.highestTrophies >= 1000).length,
                 rank_35: responseMember.brawlers.filter((trophy) => trophy.highestTrophies >= 1250).length,
@@ -114,7 +114,7 @@ export default async (members) => {
                 const trophyBegin = await setTrophyBegin(responseMember.tag, brawlerID);
                 const trophyCurrent = brawler.trophies;
                 const trophyHighest = brawler.highestTrophies;
-                const [matchTrophy, matchLeague, winTrophy, winLeague] = await setMatchCount(responseMember.tag, brawlerID);
+                const [matchTrophy, matchLeague, victoryTrophy, victoryLeague] = await setMatchCount(responseMember.tag, brawlerID);
 
                 await MemberBrawler.upsert({
                     id: `${responseMember.tag}_${brawlerID}`,
@@ -126,8 +126,8 @@ export default async (members) => {
                     trophy_highest: trophyHighest,
                     match_trophy: matchTrophy,
                     match_league: matchLeague,
-                    win_trophy: winTrophy,
-                    win_league: winLeague
+                    victory_trophy: victoryTrophy,
+                    victory_league: victoryLeague
                 });
             }
         }

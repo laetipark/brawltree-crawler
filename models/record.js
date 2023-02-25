@@ -19,11 +19,15 @@ export default class Record extends Sequelize.Model {
                 type: Sequelize.STRING(2),
                 allowNull: false,
             },
+            trophy_change: {
+                type: Sequelize.SMALLINT,
+                allowNull: false,
+            },
             match: {
                 type: Sequelize.SMALLINT,
                 allowNull: true,
             },
-            win: {
+            victory: {
                 type: Sequelize.SMALLINT,
                 allowNull: true,
             },

@@ -115,7 +115,7 @@ export default async (members) => {
                             const isStarPlayer = log.battle.starPlayer != null ? log.battle.starPlayer.tag === player.tag ? 1 : 0 : 0;
 
                             const rank = setRank(log.battle.mode, team);
-                            const result = setResult(log.battle.mode, player.tag, rank, member, log.battle.result);
+                            const result = await setResult(log.battle.mode, JSON.stringify(log.battle.teams[team]), rank, member, log.battle.result);
                             const type = await setType(typeIndex, trophyChange, trophyGrade, currentPlayers, log.battle.mode);
 
                             await BattleLog.findOrCreate({

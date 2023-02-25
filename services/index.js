@@ -12,22 +12,29 @@ import Season from './get_season.js';
 
 export default async () => {
     const members = club.map(row => row.tag);
+    Record(members).then(() => {
+        console.log("🌸 GET END : RECORD", new Date());
+    });
+    Friend(members).then(() => {
+        console.log("🌸 GET END : FRIEND", new Date());
+    });
 
     await cron.schedule('0-59/4 * * * *', async () => {
         await BattleLog(members).then(() => {
             console.log("🌸 GET END : BATTLE LOG", new Date());
-        });
-        await Pick().then(() => {
-            console.log("🌸 GET END : PICK", new Date());
-        });
-        await Record(members).then(() => {
-            console.log("🌸 GET END : RECORD", new Date());
-        });
-        await Friend(members).then(() => {
-            console.log("🌸 GET END : FRIEND", new Date());
-        });
-        await Member(members).then(() => {
-            console.log("🌸 GET END : MEMBER", new Date());
+        }).then(async () => {
+            Pick().then(() => {
+                console.log("🌸 GET END : PICK", new Date());
+            });
+            Record(members).then(() => {
+                console.log("🌸 GET END : RECORD", new Date());
+            });
+            Friend(members).then(() => {
+                console.log("🌸 GET END : FRIEND", new Date());
+            });
+            Member(members).then(() => {
+                console.log("🌸 GET END : MEMBER", new Date());
+            });
         });
     });
 

@@ -19,7 +19,7 @@ export default class Pick extends Sequelize.Model {
                 type: Sequelize.SMALLINT,
                 allowNull: true,
             },
-            win: {
+            victory: {
                 type: Sequelize.SMALLINT,
                 allowNull: true,
             },
