@@ -12,12 +12,6 @@ import Season from './get_season.js';
 
 export default async () => {
     const members = club.map(row => row.tag);
-    Record(members).then(() => {
-        console.log("🌸 GET END : RECORD", new Date());
-    });
-    Friend(members).then(() => {
-        console.log("🌸 GET END : FRIEND", new Date());
-    });
 
     await cron.schedule('0-59/4 * * * *', async () => {
         await BattleLog(members).then(() => {

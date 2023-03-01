@@ -59,12 +59,12 @@ const setType = (typeIndex, trophyChange, trophyGrade, currentPlayers, mode) => 
         !['soloShowdown', 'duoShowdown'].includes(mode)) {
         isPowerLeague = false;
         return 6;
-    } else if (comparePlayers === currentPlayers && !isPowerLeague) {
-        return 6;
-    } else {
+    } else if (comparePlayers !== currentPlayers && isPowerLeague) {
         comparePlayers = [];
         isPowerLeague = true;
         return typeIndex;
+    } else {
+        return 6;
     }
 }
 
@@ -111,12 +111,13 @@ export default async (members) => {
                             }
                         }
 
+                        const type = await setType(typeIndex, trophyChange, trophyGrade, currentPlayers, log.battle.mode);
                         for (const player of log.battle.teams[team]) {
                             const isStarPlayer = log.battle.starPlayer != null ? log.battle.starPlayer.tag === player.tag ? 1 : 0 : 0;
 
                             const rank = setRank(log.battle.mode, team);
                             const result = await setResult(log.battle.mode, JSON.stringify(log.battle.teams[team]), rank, member, log.battle.result);
-                            const type = await setType(typeIndex, trophyChange, trophyGrade, currentPlayers, log.battle.mode);
+
 
                             await BattleLog.findOrCreate({
                                 where: {
