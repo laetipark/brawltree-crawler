@@ -1,7 +1,7 @@
 import cron from 'node-cron';
 
 import club from './get_club.js';
-import BattleLog from './get_battle_log.js';
+import Battle from './get_battle.js';
 import Record from './get_record.js';
 import Friend from './get_friend.js';
 import Pick from "./get_pick.js";
@@ -14,8 +14,8 @@ export default async () => {
     const members = club.map(row => row.tag);
 
     await cron.schedule('0-59/4 * * * *', async () => {
-        await BattleLog(members).then(() => {
-            console.log("🌸 GET END : BATTLE LOG", new Date());
+        await Battle(members).then(() => {
+            console.log("🌸 GET END : BATTLE", new Date());
         }).then(async () => {
             Pick().then(() => {
                 console.log("🌸 GET END : PICK", new Date());
@@ -39,9 +39,8 @@ export default async () => {
         await Brawler().then(() => {
             console.log("🌸 GET END : BRAWLER");
         });
-    });
-
-    await cron.schedule('50 17 * * *', async () => {
-        await Season();
+        await Season().then(() => {
+            console.log("🌸 GET END : SEASON");
+        });
     });
 }

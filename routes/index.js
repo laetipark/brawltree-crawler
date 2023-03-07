@@ -4,7 +4,7 @@ import Member from '../models/member.js';
 import Brawler from '../models/brawler.js';
 import MemberBrawler from '../models/member_brawler.js';
 import Pick from '../models/pick.js';
-import BattleLog from '../models/battle_log.js';
+import BattleLog from '../models/battle.js';
 import Rotation from '../models/rotation.js';
 import Season from '../models/season.js';
 import Record from "../models/record.js";
@@ -58,12 +58,6 @@ const modeFilter = ['gemGrab', 'brawlBall', 'bounty', 'heist', 'hotZone', 'knock
 
 router.get('/record', async (req, res) => {
 
-    const members = await Member.findAll({
-        raw: true
-    }).then((result) => {
-        return result;
-    });
-
     const {today} = req.query;
     const {tomorrow} = req.query;
     const {type} = req.query;
@@ -84,66 +78,66 @@ router.get('/record', async (req, res) => {
     });
 
     const battleLog = await BattleLog.findAll({
-        include: [
-            {
-                model: Member,
-                required: true,
-                attributes: ['id']
-            },
-        ],
-        attributes: ['member_id', [fn('concat',
-            fn('concat', `{"id":"`, col("date"), `",`),
-            fn('concat', `"member_id":"`, col('member_id'), `",`),
-            fn('concat', `"duration":"`, col('duration'), `",`),
-            fn('concat', `"map_id":"`, col('map_id'), `",`),
-            fn('concat', `"type":"`, col('game_type'), `",`),
-            fn('concat', `"trophy_grade":"`, col('trophy_grade'), `",`),
-            fn('concat', `"trophy_change":"`, col('trophy_change'), `",`),
-            fn('concat', `"battle":[`),
-            fn('group_concat',
-                fn('concat', `{"tag":"`, col('player_tag'), `",`),
-                fn('concat', `"name":"`, fn('replace', fn('replace', col('player_name'), '\\', '\\\\'), '\"', '\\\"'), `",`),
-                fn('concat', `"brawler":"`, col('player_brawler_id'), `",`),
-                fn('concat', `"power":"`, col('player_brawler_power'), `",`),
-                fn('concat', `"trophy":"`, col('player_brawler_trophy'), `",`),
-                fn('concat', `"rank":"`, col('rank'), `",`),
-                fn('concat', `"result":"`, col('game_result'), `",`),
-                fn('concat', `"team":"`, col('player_team'), `",`),
-                fn('concat', `"star_player":"`, col('is_star_player'), `"}`),
-            ), "]}"), 'json']],
+        attributes:
+            ["member_id", [fn('JSON_OBJECT', "id", col('match_date'),
+                "match_duration", col('match_duration'), "map_id", col('map_id'),
+                "raw_type", col('raw_type'), "match_type", col('match_type'), "match_mode", col('match_mode'),
+                "match_grade", col('match_grade'), "match_change", col('match_change')), 'info'],
+                [fn('JSON_ARRAYAGG', fn('JSON_OBJECT',
+                    "player_id", col('player_id'), "player_name", col('player_name'),
+                    "player_team", col('player_team'), "brawler_id", col('brawler_id'),
+                    "brawler_power", col("brawler_power"), "brawler_trophy", col('brawler_trophy'),
+                    "match_rank", col('match_rank'), "match_result", col('match_result'), "raw_change", col('raw_change'))), 'players']],
+        group: ['member_id', 'match_date',
+            'match_duration', 'map_id', 'match_type',
+            'match_mode', 'match_grade', 'match_change', 'raw_type'],
         where: {
             map_id: {
                 [Op.in]: filterGameMode.map(item => item.id)
             },
-            game_type: {
-                [Op.in]: gameType
-            },
-            member_id: {
-                [Op.in]: members.map(item => item.id)
-            },
-            date: {
+            match_date: {
                 [Op.gte]: today,
                 [Op.lt]: tomorrow
-            }
+            },
+            match_type: {
+                [Op.in]: gameType
+            },
         },
-        group: ['member_id', 'date', 'duration', 'map_id', 'game_type', 'trophy_grade', 'trophy_change'],
+        raw: true
+    }).then((res) => {
+
+        const groupBy = prop => data => {
+            return data.reduce((dict, item) => {
+                const {[prop]: _, ...rest} = item;
+                dict[item[prop]] = [...(dict[item[prop]] || []), rest];
+                return dict;
+            }, {});
+        };
+
+        const result = Object.entries(groupBy('member_id')(res))
+            .map(([key, value]) => ({member_id: key, battles: value}));
+
+        return result;
+    });
+
+
+    const members = await Member.findAll({
+        attributes: ["id", "name"],
         raw: true
     }).then((result) => {
-        const membersJson = members.map(item => {
-            return {
-                id: item.id,
-                battles: []
-            }
-        });
-
-        membersJson.map(items => {
-            result.map(item => {
-                item.member_id === items.id ? items.battles.push(JSON.parse(item.json)) : "";
-            })
+        result.map(member => {
+            member.battles = battleLog.find((element) => {
+                return element.member_id === member.id;
+            }) !== undefined ? battleLog.find((element) => {
+                return element.member_id === member.id;
+            }).battles : null;
         })
 
-        return membersJson;
+        return result.filter(items => {
+            return items.battles !== null;
+        });
     });
+
 
     const season = await Season.findOne({
         order: [['start_date', 'DESC']],
@@ -160,7 +154,6 @@ router.get('/record', async (req, res) => {
 
     res.send({
         members: members,
-        battleLog: battleLog,
         season: season,
         rotation: rotation
     });
@@ -174,7 +167,7 @@ router.get('/season', async (req, res) => {
 
     const records = await Record.findAll({
         where: {
-            game_type: {
+            match_type: {
                 [Op.in]: gameType
             },
             map_mode: {
@@ -188,7 +181,7 @@ router.get('/season', async (req, res) => {
 
     const friends = await Friend.findAll({
         where: {
-            game_type: {
+            match_type: {
                 [Op.in]: gameType
             },
             map_mode: {
@@ -213,13 +206,13 @@ router.get('/season', async (req, res) => {
             });
 
             const recordMatch = filterRecords.length > 0 ?
-                filterRecords.map(item => item.match)
+                filterRecords.map(item => item.match_count)
                     .reduce((match, total) => match + total) : 0;
             const recordVictory = filterRecords.length > 0 ?
-                filterRecords.map(item => item.victory)
+                filterRecords.map(item => item.victory_count)
                     .reduce((victory, total) => victory + total) : 0;
             const recordTrophyChange = filterRecords.length > 0 ?
-                filterRecords.map(item => item.trophy_change)
+                filterRecords.map(item => item.match_change)
                     .reduce((trophy, total) => trophy + total) : 0;
 
             const recordVictoryRate = isNaN(recordVictory / recordMatch) ?
@@ -232,7 +225,7 @@ router.get('/season', async (req, res) => {
             member.records = filterRecords
             member.friends = filterFriends
             member.record_match = recordMatch;
-            member.record_trophy_change = recordTrophyChange;
+            member.record_match_change = recordTrophyChange;
             member.record_victory = recordVictory;
             member.record_victory_rate = recordVictoryRate;
             member.friend_total_point = friendTotalPoint;

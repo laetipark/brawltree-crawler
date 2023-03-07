@@ -1,79 +1,63 @@
 import sequelize, {Op} from 'sequelize';
 import fetch from 'node-fetch';
 import Member from '../models/member.js';
-import BattleLog from '../models/battle_log.js';
+import BattleLog from '../models/battle.js';
 import MemberBrawler from '../models/member_brawler.js';
 import config from '../config/config.js';
 
 const url = `https://api.brawlstars.com/v1`;
 
-const setLeagueRank = (typeNum, tag, column) => {
-    return BattleLog.findOne({
-        attributes: ['player_brawler_trophy'],
-        where: {
-            id: {[Op.like]: `%_${tag}_${tag}`},
-            game_type: typeNum,
-        },
-        order: [[column, 'DESC']],
-    }).then(result => {
-        return result != null ? result.player_brawler_trophy - 1 : 0;
-    });
-}
-
-const setTrophyBegin = (tag, brawlerID) => {
-    return BattleLog.findOne({
-        attributes: ['player_brawler_trophy'],
-        where: {
-            id: {[Op.like]: `%_${tag}_${tag}`},
-            player_brawler_id: brawlerID,
-            game_type: 0
-        }
-    }).then(result => {
-        return result != null ? result.player_brawler_trophy : -1;
-    });
-}
-
-const setMatchCount = (tag, brawlerID) => {
-    return BattleLog.findOne({
-        attributes: [
-            [
-                sequelize.literal(`(select count(*) from battle_log where game_type = 0 and id like '%_${tag}_${tag}' and player_brawler_id = '${brawlerID}')`), `match_trophy`,
-            ], [
-                sequelize.literal(`(select count(*) from battle_log where game_type in (2, 3) and id like '%_${tag}_${tag}' and player_brawler_id = '${brawlerID}')`), `match_league`
-            ], [
-                sequelize.literal(`(select count(*) from battle_log where game_result = 0 and game_type = 0 and id like '%_${tag}_${tag}' and player_brawler_id = '${brawlerID}')`), `victory_trophy`,
-            ], [
-                sequelize.literal(`(select count(*) from battle_log where game_result = 0 and game_type in (2, 3) and id like '%_${tag}_${tag}' and player_brawler_id = '${brawlerID}')`), `victory_league`
-            ]
-        ],
-        raw: true
-    }).then(result => {
-        const matchTrophy = result.match_trophy != null ? result.match_trophy : 0;
-        const matchLeague = result.match_league != null ? result.match_league : 0;
-        const victoryTrophy = result.victory_trophy != null ? result.victory_trophy : 0;
-        const victoryLeague = result.victory_league != null ? result.victory_league : 0;
-        return [matchTrophy, matchLeague, victoryTrophy, victoryLeague];
-    });
-}
-
 export default async (members) => {
     console.log('🌸 GET START : MEMBER');
 
-    await Member.destroy({
-        where: {
-            id: {
-                [Op.notIn]: members,
-            }
-        },
-    });
+    const setLeagueRank = (typeNum, tag, column) => {
+        return BattleLog.findOne({
+            attributes: ['brawler_trophy'],
+            where: {
+                id: {[Op.like]: `%_${tag}_${tag}_%`},
+                match_type: typeNum,
+            },
+            order: [[column, 'DESC']],
+        }).then(result => {
+            return result != null ? result.brawler_trophy - 1 : 0;
+        });
+    }
 
-    await MemberBrawler.destroy({
-        where: {
-            member_id: {
-                [Op.notIn]: members,
+    const setTrophyBegin = (tag, brawlerID) => {
+        return BattleLog.findOne({
+            attributes: ['brawler_trophy'],
+            where: {
+                id: {[Op.like]: `%_${tag}_${tag}_%`},
+                brawler_id: brawlerID,
+                match_type: 0
             }
-        },
-    });
+        }).then(result => {
+            return result != null ? result.brawler_trophy : -1;
+        });
+    }
+
+    const setMatchCount = (tag, brawlerID) => {
+        return BattleLog.findOne({
+            attributes: [
+                [
+                    sequelize.literal(`(select count(*) from battle where match_type = 0 and id like '%_${tag}_${tag}' and brawler_id = '${brawlerID}')`), `match_trophy`,
+                ], [
+                    sequelize.literal(`(select count(*) from battle where match_type in (2, 3) and id like '%_${tag}_${tag}' and brawler_id = '${brawlerID}')`), `match_league`
+                ], [
+                    sequelize.literal(`(select count(*) from battle where match_result = 0 and match_type = 0 and id like '%_${tag}_${tag}' and brawler_id = '${brawlerID}')`), `victory_trophy`,
+                ], [
+                    sequelize.literal(`(select count(*) from battle where match_result = 0 and match_type in (2, 3) and id like '%_${tag}_${tag}' and brawler_id = '${brawlerID}')`), `victory_league`
+                ]
+            ],
+            raw: true
+        }).then(result => {
+            const matchTrophy = result.match_trophy != null ? result.match_trophy : 0;
+            const matchLeague = result.match_league != null ? result.match_league : 0;
+            const victoryTrophy = result.victory_trophy != null ? result.victory_trophy : 0;
+            const victoryLeague = result.victory_league != null ? result.victory_league : 0;
+            return [matchTrophy, matchLeague, victoryTrophy, victoryLeague];
+        });
+    }
 
     for (const member of members) {
         const memberTag = member.replace('#', '%23');
@@ -88,8 +72,8 @@ export default async (members) => {
             const [soloRankCurrent, teamRankCurrent, soloRankHighest, teamRankHighest] =
                 await Promise.all([setLeagueRank(2, responseMember.tag, 'id'),
                     setLeagueRank(3, responseMember.tag, 'id'),
-                    setLeagueRank(2, responseMember.tag, 'player_brawler_trophy'),
-                    setLeagueRank(3, responseMember.tag, 'player_brawler_trophy')]);
+                    setLeagueRank(2, responseMember.tag, 'brawler_trophy'),
+                    setLeagueRank(3, responseMember.tag, 'brawler_trophy')]);
 
             await Member.upsert({
                 id: responseMember.tag,
@@ -132,4 +116,20 @@ export default async (members) => {
             }
         }
     }
+
+    await Member.destroy({
+        where: {
+            id: {
+                [Op.notIn]: members,
+            }
+        },
+    });
+
+    await MemberBrawler.destroy({
+        where: {
+            member_id: {
+                [Op.notIn]: members,
+            }
+        },
+    });
 };

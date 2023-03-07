@@ -1,4 +1,4 @@
-import BattleLog from '../models/battle_log.js';
+import BattleLog from '../models/battle.js';
 import Pick from '../models/pick.js';
 import sequelize from 'sequelize'
 
@@ -6,10 +6,10 @@ export default async () => {
     console.log('🌸 GET START : PICK');
 
     const picks = await BattleLog.findAll({
-        attributes: ['map_id', 'player_brawler_id', 'game_type', 'trophy_grade',
-            [sequelize.literal('count(trophy_grade)'), 'match'],
-            [sequelize.literal('count(case when game_result = 0 then 1 end)'), 'victory']],
-        group: ['map_id', 'player_tag', 'player_brawler_id', 'game_type', 'trophy_grade'],
+        attributes: ['map_id', 'brawler_id', 'raw_type', 'match_grade',
+            [sequelize.literal('count(match_grade)'), 'match_count'],
+            [sequelize.literal('count(case when match_result = -1 then 1 end)'), 'victory_count']],
+        group: ['map_id', 'brawler_id', 'raw_type', 'match_grade'],
         raw: true
     }).then((res) => {
         return res;
@@ -17,13 +17,13 @@ export default async () => {
 
     for (const pick of picks) {
         await Pick.upsert({
-            id: `${pick.map_id}_${pick.player_brawler_id}_${pick.game_type}`,
+            id: `${pick.map_id}_${pick.brawler_id}_${pick.raw_type}_${pick.match_grade}`,
             map_id: pick.map_id,
-            brawler_id: pick.player_brawler_id,
-            battle_type: pick.game_type,
-            trophy_grade: pick.trophy_grade,
-            match: pick.match,
-            victory: pick.victory
+            brawler_id: pick.brawler_id,
+            match_type: pick.raw_type,
+            match_grade: pick.match_grade,
+            match_count: pick.match_count,
+            victory_count: pick.victory_count
         });
     }
 }

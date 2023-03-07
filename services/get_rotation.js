@@ -36,14 +36,26 @@ export default async () => {
         }
     });
 
+    for (const item of rotationJSON.rotation) {
+        const mapID = item.id;
+        const mapMode = item.mode;
+        const mapName = item.name;
+
+        await Rotation.upsert({
+            id: mapID,
+            mode: mapMode,
+            name: mapName
+        });
+    }
+
     for (const item of responseEvent) {
         const mapID = item.event.id;
-        const mapMode = rotationJSON.rotation.find((element) => {
-            return element.id === item.event.id.toString();
-        }).mode;
+        const mapMode = item.event.mode;
         const mapName = rotationJSON.rotation.find((element) => {
             return element.id === item.event.id.toString();
-        }).name;
+        }) !== undefined ? rotationJSON.rotation.find((element) => {
+            return element.id === item.event.id.toString();
+        }).name : item.event.map;
         const image = `${item.event.mode}/${(item.event.map).replace(/ /g, '-')}`;
 
         const startTime = convertDateFormat(item.startTime);

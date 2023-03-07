@@ -7,27 +7,27 @@ export default class Record extends Sequelize.Model {
                 type: Sequelize.STRING(12),
                 allowNull: false,
             },
-            game_type: {
-                type: Sequelize.STRING(1),
-                allowNull: false,
-            },
             map_mode: {
                 type: Sequelize.STRING(12),
                 allowNull: false,
             },
-            trophy_grade: {
+            match_type: {
+                type: Sequelize.STRING(1),
+                allowNull: false,
+            },
+            match_grade: {
                 type: Sequelize.STRING(2),
                 allowNull: false,
             },
-            trophy_change: {
+            match_change: {
                 type: Sequelize.SMALLINT,
                 allowNull: false,
             },
-            match: {
+            match_count: {
                 type: Sequelize.SMALLINT,
                 allowNull: true,
             },
-            victory: {
+            victory_count: {
                 type: Sequelize.SMALLINT,
                 allowNull: true,
             },

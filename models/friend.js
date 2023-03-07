@@ -15,24 +15,24 @@ export default class Friend extends Sequelize.Model {
                 type: Sequelize.STRING(30),
                 allowNull: false,
             },
-            game_type: {
-                type: Sequelize.STRING(1),
-                allowNull: false,
-            },
             map_mode: {
                 type: Sequelize.STRING(20),
                 allowNull: false,
             },
-            trophy_grade: {
+            match_type: {
+                type: Sequelize.STRING(1),
+                allowNull: false,
+            },
+            match_grade: {
                 type: Sequelize.STRING(2),
                 allowNull: false,
             },
-            match: {
-                type: Sequelize.INTEGER,
+            match_count: {
+                type: Sequelize.SMALLINT,
                 allowNull: true,
             },
-            victory: {
-                type: Sequelize.INTEGER,
+            victory_count: {
+                type: Sequelize.SMALLINT,
                 allowNull: true,
             },
             point: {

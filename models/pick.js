@@ -11,15 +11,19 @@ export default class Pick extends Sequelize.Model {
                 type: Sequelize.STRING(8),
                 allowNull: true,
             },
-            battle_type: {
+            match_type: {
                 type: Sequelize.STRING(1),
                 allowNull: true,
             },
-            match: {
+            match_grade: {
+                type: Sequelize.STRING(2),
+                allowNull: true,
+            },
+            match_count: {
                 type: Sequelize.SMALLINT,
                 allowNull: true,
             },
-            victory: {
+            victory_count: {
                 type: Sequelize.SMALLINT,
                 allowNull: true,
             },

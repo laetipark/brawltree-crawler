@@ -24,8 +24,8 @@ export default async () => {
         }
     });
 
-    if (new Date().getTime() < new Date(recentSeason.start_date).getTime() || new Date().getTime() > new Date(recentSeason.end_date).getTime()) {
-        const id = parseInt(recentSeason.id) + 1;
+    if (new Date().getTime() > new Date(recentSeason.end_date).getTime()) {
+        const id = `${parseInt(recentSeason.id) + 1}`;
         let startDate = new Date(recentSeason.start_date);
         let endDate = new Date(recentSeason.end_date);
         startDate = new Date(startDate.setMonth(startDate.getMonth() + 2));
@@ -44,8 +44,6 @@ export default async () => {
         } else {
             endDate = endDate.setDate(endDate.getDate() + ((-7 + 2) - endDate.getDay()) % 7)
         }
-
-        console.log(id, startDate, endDate)
 
         recentSeason.id = id;
         recentSeason.start_date = startDate;

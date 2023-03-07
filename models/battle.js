@@ -7,68 +7,84 @@ export default class BattleLog extends Sequelize.Model {
                 type: Sequelize.STRING(12),
                 allowNull: false,
             },
-            date: {
+            match_date: {
                 type: Sequelize.DATE,
                 allowNull: false,
             },
-            duration: {
+            match_duration: {
                 type: Sequelize.SMALLINT,
                 allowNull: true,
             },
-            game_type: {
+            map_id: {
+                type: Sequelize.STRING(8),
+                allowNull: false,
+            },
+            match_type: {
+                type: Sequelize.STRING(2),
+                allowNull: false,
+            },
+            match_mode: {
                 type: Sequelize.STRING(1),
                 allowNull: false,
             },
-            rank: {
-                type: Sequelize.STRING(1),
-                allowNull: true,
-            },
-            game_result: {
-                type: Sequelize.STRING(1),
-                allowNull: true,
-            },
-            trophy_grade: {
+            match_rank: {
                 type: Sequelize.STRING(2),
                 allowNull: true,
             },
-            trophy_change: {
-                type: Sequelize.SMALLINT,
-                allowNull: true,
-            },
-            is_star_player: {
-                type: Sequelize.BOOLEAN,
-                allowNull: true,
-            },
-            player_team: {
+            match_result: {
                 type: Sequelize.STRING(1),
-                allowNull: true,
+                allowNull: false,
             },
-            player_tag: {
+            match_grade: {
+                type: Sequelize.STRING(2),
+                allowNull: false,
+            },
+            match_change: {
+                type: Sequelize.TINYINT,
+                allowNull: false,
+            },
+            player_id: {
                 type: Sequelize.STRING(12),
-                allowNull: true,
+                allowNull: false,
             },
             player_name: {
                 type: Sequelize.STRING(30),
-                allowNull: true,
+                allowNull: false,
             },
-            player_brawler_id: {
+            player_team: {
+                type: Sequelize.STRING(1),
+                allowNull: false,
+            },
+            player_star_player: {
+                type: Sequelize.STRING(1),
+                allowNull: false,
+            },
+            brawler_id: {
                 type: Sequelize.STRING(8),
-                allowNull: true,
+                allowNull: false,
             },
-            player_brawler_power: {
+            brawler_power: {
                 type: Sequelize.STRING(2),
-                allowNull: true,
+                allowNull: false,
             },
-            player_brawler_trophy : {
+            brawler_trophy: {
                 type: Sequelize.SMALLINT,
+                allowNull: false,
+            },
+            raw_type: {
+                type: Sequelize.STRING(2),
+                allowNull: false,
+            },
+            raw_change: {
+                type: Sequelize.TINYINT,
                 allowNull: true,
             },
         }, {
             sequelize,
             timestamps: false,
             underscore: false,
-            modelName: 'BattleLog',
-            tableName: 'battle_log',
+            modelName: 'Battle',
+            tableName: 'battle',
             paranoid: false,
             charset: 'utf8mb4',
             collate: 'utf8mb4_unicode_ci',
