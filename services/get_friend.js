@@ -16,7 +16,8 @@ export default async (members) => {
         ],
         attributes: ['member_id', 'player_id', 'player_name', 'match_type', 'match_grade', 'Rotation.mode',
             [sequelize.literal('count(*)'), 'match_count'],
-            [sequelize.literal('count(case when match_result = -1 then 1 end)'), 'victory_count']],
+            [sequelize.literal('count(case when match_result = -1 then 1 end)'), 'victory_count'],
+            [sequelize.literal('count(case when match_result = 1 then 1 end)'), 'defeat_count']],
         group: ['member_id', 'player_id', 'player_name', 'match_type', 'match_grade', 'Rotation.mode'],
         where: {
             player_id: {
@@ -49,15 +50,15 @@ export default async (members) => {
         const point = calculatePoint()
 
         await Friend.upsert({
-            id: `${friend.member_id}_${friend.player_id}_${friend.mode}_${friend.match_type}_${friend.match_grade}`,
             member_id: friend.member_id,
             friend_id: friend.player_id,
-            friend_name: friend.player_name,
             map_mode: friend.mode,
             match_type: friend.match_type,
             match_grade: friend.match_grade,
+            friend_name: friend.player_name,
             match_count: friend.match_count,
             victory_count: friend.victory_count,
+            defeat_count: friend.defeat_count,
             point: point
         });
     }

@@ -5,18 +5,22 @@ export default class Pick extends Sequelize.Model {
         return super.init({
             map_id: {
                 type: Sequelize.STRING(8),
+                primaryKey: true,
                 allowNull: false,
             },
             brawler_id: {
-                type: Sequelize.STRING(8),
+                type: Sequelize.CHAR(8),
+                primaryKey: true,
                 allowNull: true,
             },
             match_type: {
-                type: Sequelize.STRING(1),
+                type: Sequelize.CHAR(1),
+                primaryKey: true,
                 allowNull: true,
             },
             match_grade: {
                 type: Sequelize.STRING(2),
+                primaryKey: true,
                 allowNull: true,
             },
             match_count: {

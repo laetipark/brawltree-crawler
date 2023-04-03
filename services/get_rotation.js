@@ -56,7 +56,6 @@ export default async () => {
         }) !== undefined ? rotationJSON.rotation.find((element) => {
             return element.id === item.event.id.toString();
         }).name : item.event.map;
-        const image = `${item.event.mode}/${(item.event.map).replace(/ /g, '-')}`;
 
         const startTime = convertDateFormat(item.startTime);
         const endTime = convertDateFormat(item.endTime);
@@ -68,8 +67,7 @@ export default async () => {
             name: mapName,
             start_time: startTime,
             end_time: endTime,
-            slot: slotID,
-            image: image
+            slot: slotID
         });
     }
 }

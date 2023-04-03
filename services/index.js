@@ -11,9 +11,10 @@ import Rotation from './get_rotation.js';
 import Season from './get_season.js';
 
 export default async () => {
-    const members = club.map(row => row.tag);
 
     await cron.schedule('0-59/4 * * * *', async () => {
+        const members = club.map(row => row.tag);
+
         await Battle(members).then(() => {
             console.log("🌸 GET END : BATTLE", new Date());
         }).then(async () => {

@@ -1,19 +1,27 @@
 import Sequelize from "sequelize";
 
-export default class BattleLog extends Sequelize.Model {
+export default class Battle extends Sequelize.Model {
     static init(sequelize) {
         return super.init({
             member_id: {
                 type: Sequelize.STRING(12),
+                primaryKey: true,
+                allowNull: false,
+            },
+            player_name: {
+                type: Sequelize.STRING(30),
+                primaryKey: true,
+                allowNull: false,
+            },
+            brawler_id: {
+                type: Sequelize.STRING(8),
+                primaryKey: true,
                 allowNull: false,
             },
             match_date: {
                 type: Sequelize.DATE,
+                primaryKey: true,
                 allowNull: false,
-            },
-            match_duration: {
-                type: Sequelize.SMALLINT,
-                allowNull: true,
             },
             map_id: {
                 type: Sequelize.STRING(8),
@@ -26,6 +34,10 @@ export default class BattleLog extends Sequelize.Model {
             match_mode: {
                 type: Sequelize.STRING(1),
                 allowNull: false,
+            },
+            match_duration: {
+                type: Sequelize.SMALLINT,
+                allowNull: true,
             },
             match_rank: {
                 type: Sequelize.STRING(2),
@@ -47,20 +59,12 @@ export default class BattleLog extends Sequelize.Model {
                 type: Sequelize.STRING(12),
                 allowNull: false,
             },
-            player_name: {
-                type: Sequelize.STRING(30),
-                allowNull: false,
-            },
             player_team: {
                 type: Sequelize.STRING(1),
                 allowNull: false,
             },
             player_star_player: {
                 type: Sequelize.STRING(1),
-                allowNull: false,
-            },
-            brawler_id: {
-                type: Sequelize.STRING(8),
                 allowNull: false,
             },
             brawler_power: {
@@ -92,11 +96,11 @@ export default class BattleLog extends Sequelize.Model {
     }
 
     static associate(db) {
-        db.BattleLog.belongsTo(db.Rotation, {
+        db.Battle.belongsTo(db.Rotation, {
             foreignKey: 'map_id', targetKey: 'id'
         });
 
-        db.BattleLog.belongsTo(db.Member, {
+        db.Battle.belongsTo(db.Member, {
             foreignKey: 'member_id', targetKey: 'id'
         });
     }

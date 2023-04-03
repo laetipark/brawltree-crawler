@@ -14,7 +14,8 @@ export default async (members) => {
         return BattleLog.findOne({
             attributes: ['brawler_trophy'],
             where: {
-                id: {[Op.like]: `%_${tag}_${tag}_%`},
+                member_id: tag,
+                player_id: tag,
                 match_type: typeNum,
             },
             order: [[column, 'DESC']],
@@ -23,16 +24,17 @@ export default async (members) => {
         });
     }
 
-    const setTrophyBegin = (tag, brawlerID) => {
+    const setTrophyBegin = (tag, brawlerID, current) => {
         return BattleLog.findOne({
             attributes: ['brawler_trophy'],
             where: {
-                id: {[Op.like]: `%_${tag}_${tag}_%`},
+                member_id: tag,
+                player_id: tag,
                 brawler_id: brawlerID,
                 match_type: 0
             }
         }).then(result => {
-            return result != null ? result.brawler_trophy : -1;
+            return result != null ? result.brawler_trophy : current;
         });
     }
 
@@ -40,13 +42,17 @@ export default async (members) => {
         return BattleLog.findOne({
             attributes: [
                 [
-                    sequelize.literal(`(select count(*) from battle where match_type = 0 and id like '%_${tag}_${tag}' and brawler_id = '${brawlerID}')`), `match_trophy`,
+                    sequelize.literal(`(select count(*) from battle where match_type = 0 and member_id='${tag}' and player_id='${tag}' and brawler_id = '${brawlerID}')`), `match_trophy`,
                 ], [
-                    sequelize.literal(`(select count(*) from battle where match_type in (2, 3) and id like '%_${tag}_${tag}' and brawler_id = '${brawlerID}')`), `match_league`
+                    sequelize.literal(`(select count(*) from battle where match_type in (2, 3) and member_id='${tag}' and player_id='${tag}' and brawler_id = '${brawlerID}')`), `match_league`
                 ], [
-                    sequelize.literal(`(select count(*) from battle where match_result = 0 and match_type = 0 and id like '%_${tag}_${tag}' and brawler_id = '${brawlerID}')`), `victory_trophy`,
+                    sequelize.literal(`(select count(*) from battle where match_result = -1 and match_type = 0 and member_id='${tag}' and player_id='${tag}' and brawler_id = '${brawlerID}')`), `victory_trophy`,
                 ], [
-                    sequelize.literal(`(select count(*) from battle where match_result = 0 and match_type in (2, 3) and id like '%_${tag}_${tag}' and brawler_id = '${brawlerID}')`), `victory_league`
+                    sequelize.literal(`(select count(*) from battle where match_result = -1 and raw_type in (2, 3) and member_id='${tag}' and player_id='${tag}' and brawler_id = '${brawlerID}')`), `victory_league`
+                ], [
+                    sequelize.literal(`(select count(*) from battle where match_result = 1 and match_type = 0 and member_id='${tag}' and player_id='${tag}' and brawler_id = '${brawlerID}')`), `defeat_trophy`,
+                ], [
+                    sequelize.literal(`(select count(*) from battle where match_result = 1 and raw_type in (2, 3) and member_id='${tag}' and player_id='${tag}' and brawler_id = '${brawlerID}')`), `defeat_league`
                 ]
             ],
             raw: true
@@ -55,7 +61,9 @@ export default async (members) => {
             const matchLeague = result.match_league != null ? result.match_league : 0;
             const victoryTrophy = result.victory_trophy != null ? result.victory_trophy : 0;
             const victoryLeague = result.victory_league != null ? result.victory_league : 0;
-            return [matchTrophy, matchLeague, victoryTrophy, victoryLeague];
+            const defeatTrophy = result.defeat_trophy != null ? result.defeat_trophy : 0;
+            const defeatLeague = result.defeat_league != null ? result.defeat_league : 0;
+            return [matchTrophy, matchLeague, victoryTrophy, victoryLeague, defeatTrophy, defeatLeague];
         });
     }
 
@@ -70,8 +78,8 @@ export default async (members) => {
 
         if (responseMember.tag !== undefined) {
             const [soloRankCurrent, teamRankCurrent, soloRankHighest, teamRankHighest] =
-                await Promise.all([setLeagueRank(2, responseMember.tag, 'id'),
-                    setLeagueRank(3, responseMember.tag, 'id'),
+                await Promise.all([setLeagueRank(2, responseMember.tag, 'match_date'),
+                    setLeagueRank(3, responseMember.tag, 'match_date'),
                     setLeagueRank(2, responseMember.tag, 'brawler_trophy'),
                     setLeagueRank(3, responseMember.tag, 'brawler_trophy')]);
 
@@ -88,20 +96,22 @@ export default async (members) => {
                 league_solo_current: soloRankCurrent,
                 league_solo_highest: soloRankHighest,
                 league_team_current: teamRankCurrent,
-                league_team_highest: teamRankHighest
+                league_team_highest: teamRankHighest,
+                club_tag: responseMember.club.tag,
+                profile_picture: responseMember.icon.id
             });
 
             const brawlerList = responseMember.brawlers;
             for (const brawler of brawlerList) {
                 const brawlerID = brawler.id;
                 const brawlerPower = brawler.power;
-                const trophyBegin = await setTrophyBegin(responseMember.tag, brawlerID);
+                const trophyBegin = await setTrophyBegin(responseMember.tag, brawlerID, brawler.trophies);
                 const trophyCurrent = brawler.trophies;
                 const trophyHighest = brawler.highestTrophies;
-                const [matchTrophy, matchLeague, victoryTrophy, victoryLeague] = await setMatchCount(responseMember.tag, brawlerID);
+                const [matchTrophy, matchLeague, victoryTrophy, victoryLeague, defeatTrophy, defeatLeague] =
+                    await setMatchCount(responseMember.tag, brawlerID);
 
                 await MemberBrawler.upsert({
-                    id: `${responseMember.tag}_${brawlerID}`,
                     member_id: responseMember.tag,
                     brawler_id: brawlerID,
                     power: brawlerPower,
@@ -111,7 +121,9 @@ export default async (members) => {
                     match_trophy: matchTrophy,
                     match_league: matchLeague,
                     victory_trophy: victoryTrophy,
-                    victory_league: victoryLeague
+                    victory_league: victoryLeague,
+                    defeat_trophy: defeatTrophy,
+                    defeat_league: defeatLeague
                 });
             }
         }

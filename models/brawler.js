@@ -36,5 +36,8 @@ export default class Brawler extends Sequelize.Model {
     }
 
     static associate(db) {
+        db.Brawler.hasMany(db.MemberBrawler, {
+            foreignKey: 'brawler_id', sourceKey: 'id'
+        });
     }
 }

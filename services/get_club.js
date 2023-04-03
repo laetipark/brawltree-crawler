@@ -7,25 +7,28 @@ const merge = (...arrays) => {
     const merged = {};
 
     arrays.forEach(data => {
+        if (data !== undefined) {
             data.forEach(o => Object.assign(merged[o.name] ??= {}, o));
         }
-    );
+    });
 
     return Object.values(merged);
 }
 
-const club_member_1st = await fetch(`${url}/clubs/%23C2RCY8C2/members`, {
+const club_member = await fetch(`${url}/clubs/%23C2RCY8C2/members`, {
     method: 'GET',
     headers: config.headers,
 }).then(res => {
     return res.json();
 });
 
+/*
 const club_member_2nd = await fetch(`${url}/clubs/%232GUG89CYV/members`, {
     method: 'GET',
     headers: config.headers,
 }).then(res => {
     return res.json();
 });
+*/
 
-export default merge(club_member_1st.items, club_member_2nd.items);
+export default merge(club_member.items);

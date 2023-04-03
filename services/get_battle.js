@@ -19,16 +19,13 @@ export default async (members) => {
 
     /** addMaps : 신규 전투 맵 정보 추가 */
     const addMaps = async (event) => {
-        const image = `${event.mode}/${(event.map).replace(/ /g, '-')}`;
-
         await Rotation.findOrCreate({
             where: {
                 id: event.id
             },
             defaults: {
                 mode: event.mode,
-                name: event.map,
-                image: image
+                name: event.map
             }
         });
     };
@@ -70,24 +67,23 @@ export default async (members) => {
                                 brawlerID, brawlerPower, trophies, rawType, rawChange) => {
         await Battle.findOrCreate({
             where: {
-                id: `${dateRaw}_${memberID}_${playerTag}_${brawlerID}`,
+                member_id: memberID,
+                player_id: playerTag,
+                brawler_id: brawlerID,
+                match_date: dateKST
             },
             defaults: {
-                member_id: memberID,
-                match_date: dateKST,
-                match_duration: duration,
                 map_id: mapID,
                 match_type: matchType,
                 match_mode: teamsNumber,
+                match_duration: duration,
                 match_rank: matchRank,
                 match_result: matchResult,
                 match_grade: matchGrade,
                 match_change: trophyChange,
-                player_id: playerTag,
                 player_name: playerName,
                 player_team: teamNumber,
                 player_star_player: isStarPlayer,
-                brawler_id: brawlerID,
                 brawler_power: brawlerPower,
                 brawler_trophy: trophies,
                 raw_type: rawType,
@@ -100,7 +96,10 @@ export default async (members) => {
                 match_type: matchType
             }, {
                 where: {
-                    id: `${dateRaw}_${memberID}_${playerTag}_${brawlerID}`,
+                    member_id: memberID,
+                    player_id: playerTag,
+                    brawler_id: brawlerID,
+                    match_date: dateKST,
                 },
             });
         }
@@ -151,16 +150,18 @@ export default async (members) => {
                                 return player.brawler.trophies;
                             }));
                         } else if (matchMode === 0) {
-                            return team.brawlers.trophies;
+                            return Math.max(...team.brawlers.map(brawler => {
+                                return brawler.trophies;
+                            }));
                         } else {
                             return team.brawler.trophies;
                         }
                     }));
                     const matchType = await setType(typeIndex, trophyChange, maxTrophies, currentPlayers, matchMode);
                     const matchGrade = [2, 3, 6].includes(matchType) ? maxTrophies :
-                        [4, 5].includes(matchType) ? Math.floor(maxTrophies / 100) :
-                            maxTrophies >= 1000 ? 4 : maxTrophies >= 750 ? 3 :
-                                maxTrophies >= 500 ? 2 : maxTrophies >= 250 ? 1 : 0;
+                        [5].includes(matchType) ? Math.floor(maxTrophies / 100) :
+                            (maxTrophies >= 1000 ? 4 : maxTrophies >= 750 ? 3 :
+                                maxTrophies >= 500 ? 2 : maxTrophies >= 250 ? 1 : 0);
 
                     for (let teamNumber in teams) {
                         const players = [2, 3].includes(matchMode) ? teams[teamNumber] : teams;

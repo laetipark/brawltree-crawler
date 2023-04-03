@@ -1,10 +1,14 @@
-import express from 'express';
+import express from "express";
 
-import path from 'path';
-import morgan from 'morgan';
-import cors from 'cors';
+import path from "path";
+import morgan from "morgan";
+import cors from "cors";
 
-import blossomRouter from '../routes/index.js';
+import index from "../routes/index.js";
+import member from "../routes/member.js";
+import battle from "../routes/battle.js";
+import brawler from "../routes/brawler.js";
+import season from "../routes/season.js";
 
 export default async (app) => {
     const __dirname = path.dirname(path.resolve());
@@ -25,7 +29,11 @@ export default async (app) => {
 
     // routes
 
-    app.use('/', blossomRouter);
+    app.use('/', index);
+    app.use('/member', member);
+    app.use('/brawler', brawler);
+    app.use('/battle', battle);
+    app.use('/season', season);
     app.use((req, res, next) => {
         res.status(404).send('Not Found');
     });

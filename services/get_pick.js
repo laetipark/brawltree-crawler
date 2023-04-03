@@ -17,7 +17,6 @@ export default async () => {
 
     for (const pick of picks) {
         await Pick.upsert({
-            id: `${pick.map_id}_${pick.brawler_id}_${pick.raw_type}_${pick.match_grade}`,
             map_id: pick.map_id,
             brawler_id: pick.brawler_id,
             match_type: pick.raw_type,

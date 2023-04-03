@@ -22,11 +22,7 @@ export default class Rotation extends Sequelize.Model {
             slot: {
                 type: Sequelize.STRING(2),
                 allowNull: true,
-            },
-            image: {
-                type: Sequelize.STRING(30),
-                allowNull: true,
-            },
+            }
         }, {
             sequelize,
             timestamps: false,
@@ -40,7 +36,7 @@ export default class Rotation extends Sequelize.Model {
     }
 
     static associate(db) {
-        db.Rotation.hasMany(db.BattleLog, {
+        db.Rotation.hasMany(db.Battle, {
             foreignKey: 'map_id', sourceKey: 'id'
         });
     }

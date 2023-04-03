@@ -36,20 +36,28 @@ export default class Member extends Sequelize.Model {
                 allowNull: true,
             },
             league_solo_current: {
-                type: Sequelize.SMALLINT,
+                type: Sequelize.STRING(2),
                 allowNull: true,
             },
             league_solo_highest: {
-                type: Sequelize.SMALLINT,
+                type: Sequelize.STRING(2),
                 allowNull: true,
             },
             league_team_current: {
-                type: Sequelize.SMALLINT,
+                type: Sequelize.STRING(2),
                 allowNull: true,
             },
             league_team_highest: {
-                type: Sequelize.SMALLINT,
+                type: Sequelize.STRING(2),
                 allowNull: true,
+            },
+            club_tag: {
+                type: Sequelize.STRING(12),
+                allowNull: false,
+            },
+            profile_picture: {
+                type: Sequelize.CHAR(8),
+                allowNull: false,
             },
         }, {
             sequelize,
@@ -64,7 +72,19 @@ export default class Member extends Sequelize.Model {
     }
 
     static associate(db) {
-        db.Member.hasMany(db.BattleLog, {
+        db.Member.hasMany(db.Battle, {
+            foreignKey: 'member_id', sourceKey: 'id'
+        });
+
+        db.Member.hasMany(db.Record, {
+            foreignKey: 'member_id', sourceKey: 'id'
+        });
+
+        db.Member.hasMany(db.Friend, {
+            foreignKey: 'member_id', sourceKey: 'id'
+        });
+
+        db.Member.hasMany(db.MemberBrawler, {
             foreignKey: 'member_id', sourceKey: 'id'
         });
     }

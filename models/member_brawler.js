@@ -5,10 +5,12 @@ export default class MemberBrawler extends Sequelize.Model {
         return super.init({
             member_id: {
                 type: Sequelize.STRING(12),
+                primaryKey: true,
                 allowNull: true,
             },
             brawler_id: {
-                type: Sequelize.STRING(8),
+                type: Sequelize.CHAR(8),
+                primaryKey: true,
                 allowNull: true,
             },
             power: {
@@ -43,6 +45,14 @@ export default class MemberBrawler extends Sequelize.Model {
                 type: Sequelize.SMALLINT,
                 allowNull: true,
             },
+            defeat_trophy: {
+                type: Sequelize.SMALLINT,
+                allowNull: true,
+            },
+            defeat_league: {
+                type: Sequelize.SMALLINT,
+                allowNull: true,
+            },
         }, {
             sequelize,
             timestamps: false,
@@ -56,5 +66,12 @@ export default class MemberBrawler extends Sequelize.Model {
     }
 
     static associate(db) {
+        db.MemberBrawler.belongsTo(db.Member, {
+            foreignKey: 'member_id', targetKey: 'id'
+        });
+
+        db.MemberBrawler.belongsTo(db.Brawler, {
+            foreignKey: 'brawler_id', targetKey: 'id'
+        });
     }
 }
