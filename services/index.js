@@ -1,6 +1,6 @@
 import cron from 'node-cron';
 
-import club from './get_club.js';
+import {updateMembers} from './get_club.js';
 import Battle from './get_battle.js';
 import Record from './get_record.js';
 import Friend from './get_friend.js';
@@ -13,7 +13,7 @@ import Season from './get_season.js';
 export default async () => {
 
     await cron.schedule('0-59/4 * * * *', async () => {
-        const members = club.map(row => row.tag);
+        const members = await updateMembers();
 
         await Battle(members).then(() => {
             console.log("🌸 GET END : BATTLE", new Date());

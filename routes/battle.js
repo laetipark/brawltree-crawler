@@ -86,9 +86,16 @@ router.get('/:id', async (req, res) => {
     });
 
     const battles = await Battle.findAll({
+        include: [
+            {
+                model: Rotation,
+                required: true,
+                attributes: []
+            },
+        ],
         attributes:
             ["member_id", [fn('JSON_OBJECT', "id", col('match_date'),
-                "match_duration", col('match_duration'), "map_id", col('map_id'),
+                "match_duration", col('match_duration'), "map_name", col('Rotation.name'),
                 "raw_type", col('raw_type'), "match_type", col('match_type'), "match_mode", col('match_mode'),
                 "match_grade", col('match_grade'), "match_change", col('match_change')), 'info'],
                 [fn('JSON_ARRAYAGG', fn('JSON_OBJECT',
@@ -105,6 +112,7 @@ router.get('/:id', async (req, res) => {
             },
             member_id: `#${req.params.id}`
         },
+        order: [['match_date', 'DESC']],
         raw: true,
         logging: true
     }).then((result) => {

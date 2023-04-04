@@ -1,34 +1,32 @@
 import fetch from 'node-fetch';
 import config from '../config/config.js'
 
+import crewJson from "../public/json/crew.json" assert {type: "json"};
+
 const url = `https://api.brawlstars.com/v1`;
 
-const merge = (...arrays) => {
-    const merged = {};
-
-    arrays.forEach(data => {
-        if (data !== undefined) {
-            data.forEach(o => Object.assign(merged[o.name] ??= {}, o));
+function removeDuplicates(inArray) {
+    const arr = inArray.concat()
+    for (let i = 0; i < arr.length; ++i) {
+        for (let j = i + 1; j < arr.length; ++j) {
+            if (arr[i] === arr[j]) {
+                arr.splice(j, 1);
+            }
         }
-    });
-
-    return Object.values(merged);
+    }
+    return arr;
 }
 
-const club_member = await fetch(`${url}/clubs/%23C2RCY8C2/members`, {
-    method: 'GET',
-    headers: config.headers,
-}).then(res => {
-    return res.json();
-});
+export const updateMembers = async () => {
+    const club = await fetch(`${url}/clubs/%23C2RCY8C2/members`, {
+        method: 'GET',
+        headers: config.headers,
+    }).then(res => {
+        return res.json();
+    });
 
-/*
-const club_member_2nd = await fetch(`${url}/clubs/%232GUG89CYV/members`, {
-    method: 'GET',
-    headers: config.headers,
-}).then(res => {
-    return res.json();
-});
-*/
+    const crew = crewJson.map(crew => crew.tag);
 
-export default merge(club_member.items);
+    const array = removeDuplicates(club.items.map(club => club.tag).concat(crew));
+    return array;
+}
