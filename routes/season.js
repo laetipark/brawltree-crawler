@@ -1,5 +1,5 @@
 import express from "express";
-import sequelize, {col, fn, Op} from "sequelize";
+import {col, fn, Op} from "sequelize";
 
 import Member from "../models/member.js";
 import Record from "../models/record.js";

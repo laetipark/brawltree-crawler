@@ -1,17 +1,25 @@
 import sequelize, {Op} from 'sequelize';
 import fetch from 'node-fetch';
 import Member from '../models/member.js';
-import BattleLog from '../models/battle.js';
+import Battle from '../models/battle.js';
 import MemberBrawler from '../models/member_brawler.js';
 import config from '../config/config.js';
+import Season from "../models/season.js";
 
 const url = `https://api.brawlstars.com/v1`;
 
 export default async (members) => {
     console.log('🌸 GET START : MEMBER');
 
+    const season = await Season.findOne({
+        raw: true,
+        order: [['start_date', 'DESC']],
+    }).then(result => {
+        return result;
+    });
+
     const setLeagueRank = (typeNum, tag, column) => {
-        return BattleLog.findOne({
+        return Battle.findOne({
             attributes: ['brawler_trophy'],
             where: {
                 member_id: tag,
@@ -25,13 +33,16 @@ export default async (members) => {
     }
 
     const setTrophyBegin = (tag, brawlerID, current) => {
-        return BattleLog.findOne({
+        return Battle.findOne({
             attributes: ['brawler_trophy'],
             where: {
                 member_id: tag,
                 player_id: tag,
                 brawler_id: brawlerID,
-                match_type: 0
+                match_type: 0,
+                match_date: {
+                    [Op.between]: [season.start_date, season.end_date]
+                },
             }
         }).then(result => {
             return result != null ? result.brawler_trophy : current;
@@ -39,7 +50,7 @@ export default async (members) => {
     }
 
     const setMatchCount = (tag, brawlerID) => {
-        return BattleLog.findOne({
+        return Battle.findOne({
             attributes: [
                 [
                     sequelize.literal(`(select count(*) from battle where match_type = 0 and member_id='${tag}' and player_id='${tag}' and brawler_id = '${brawlerID}')`), `match_trophy`,

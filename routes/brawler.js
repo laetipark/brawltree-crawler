@@ -83,7 +83,7 @@ router.get('/:id', async (req, res) => {
 
     const brawlerChange = await Battle.findAll({
         attributes: [
-            [fn('distinct', col('brawler_id')),'brawler_id'],
+            [fn("distinct", col('brawler_id')),'brawler_id'],
             [fn('date_format', col('match_date'), '%m-%d'), 'match_date'],
             [literal('sum(`match_change`) over(partition by `brawler_id` order by date(match_date))'), 'match_change']],
         where: {
@@ -93,7 +93,6 @@ router.get('/:id', async (req, res) => {
         },
         raw: true
     }).then((result) => {
-        console.log(result);
         return result;
     });
 

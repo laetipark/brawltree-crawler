@@ -2,9 +2,17 @@ import Battle from '../models/battle.js';
 import Rotation from '../models/rotation.js';
 import Friend from '../models/friend.js';
 import sequelize, {Op} from 'sequelize';
+import Season from "../models/season.js";
 
 export default async (members) => {
     console.log('🌸 GET START : FRIEND');
+
+    const season = await Season.findOne({
+        raw: true,
+        order: [['start_date', 'DESC']],
+    }).then(result => {
+        return result;
+    });
 
     const friends = await Battle.findAll({
         include: [
@@ -23,12 +31,21 @@ export default async (members) => {
             player_id: {
                 [Op.ne]: sequelize.col('Battle.member_id'),
                 [Op.in]: members,
+            },
+            match_date: {
+                [Op.between]: [season.start_date, season.end_date]
+            },
+            match_type: {
+                [Op.in]: [0, 2, 3]
+            },
+            match_mode: {
+                [Op.in]: [2, 3]
             }
         },
         raw: true,
         logging: true
-    }).then((res) => {
-        return res;
+    }).then(result => {
+        return result;
     });
 
     for (const friend of friends) {
@@ -65,11 +82,13 @@ export default async (members) => {
 
     await Friend.destroy({
         where: {
-            member_id: {
-                [Op.notIn]: members,
-            },
-            friend_id: {
-                [Op.notIn]: members,
+            [Op.or]: {
+                member_id: {
+                    [Op.notIn]: members,
+                },
+                friend_id: {
+                    [Op.notIn]: members,
+                }
             }
         }
     });

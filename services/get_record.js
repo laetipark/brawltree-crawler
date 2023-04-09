@@ -2,11 +2,19 @@ import Battle from '../models/battle.js';
 import Rotation from '../models/rotation.js';
 import Record from '../models/record.js';
 import sequelize, {Op} from 'sequelize';
+import Season from "../models/season.js";
 
 export default async (members) => {
     console.log('🌸 GET START : RECORD');
 
-    // TODO : RECORD, FRIEND 클럽 리그 데이터 없으면 지우기
+    const season = await Season.findOne({
+        raw: true,
+        order: [['start_date', 'DESC']],
+    }).then(result => {
+        return result;
+    });
+
+
     const records = await Battle.findAll({
         include: [
             {
@@ -22,10 +30,12 @@ export default async (members) => {
             [sequelize.literal('count(case when match_result = 1 then 0 else null end)'), 'defeat_count']],
         group: ['member_id', 'match_type', 'match_grade', 'Rotation.mode'],
         where: {
-            player_id: [sequelize.col('Battle.member_id')]
+            player_id: [sequelize.col('Battle.member_id')],
+            match_date: {
+                [Op.between]: [season.start_date, season.end_date]
+            },
         },
-        raw: true,
-        logging: true
+        raw: true
     }).then((res) => {
         return res;
     });

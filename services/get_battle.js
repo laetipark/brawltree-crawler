@@ -30,7 +30,6 @@ export default async (members) => {
         });
     };
 
-
     const setType = async (typeIndex, trophyChange, maxTrophies, currentPlayers, matchMode) => {
         if (typeIndex === 3 && [3, 5, 7, 9].includes(trophyChange)) {
             comparePlayers.teams = currentPlayers;
@@ -166,7 +165,7 @@ export default async (members) => {
                     for (let teamNumber in teams) {
                         const players = [2, 3].includes(matchMode) ? teams[teamNumber] : teams;
                         for (const playerNumber in players) {
-                            const matchRank = [1, 2].includes(matchMode) ? playerNumber : -1;
+                            const matchRank = matchMode === 1 ? playerNumber : matchMode === 2 ? teamNumber : -1;
                             const matchResult = players[playerNumber] === member && [0, 3].includes(matchMode) ?
                                 await setResult(teams.length, playerNumber, (resultNameArray.indexOf(item.battle.result) - 1) * -1) :
                                 await setResult(teams.length, playerNumber, resultNameArray.indexOf(item.battle.result) - 1);

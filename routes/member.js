@@ -1,5 +1,5 @@
 import express from "express";
-import {literal, Op} from "sequelize";
+import {col, fn, literal, Op} from "sequelize";
 
 import Member from "../models/member.js";
 import MemberBrawler from "../models/member_brawler.js";
@@ -16,7 +16,7 @@ const router = express.Router();
 
 router.get('/', async (req, res) => {
     const members = await Member.findAll({
-        order: [['trophy_current', 'DESC']],
+        order: [["trophy_current", "DESC"]],
         raw: true
     }).then((result) => {
         return result;
@@ -106,8 +106,9 @@ router.get('/:id', async (req, res) => {
             }
         }
 
-        records.matchChange = result.filter(item => item.match_type === '0').map(item => item.match_change)
-            .reduce((trophy, total) => trophy + total);
+        records.matchChange = result.filter(item => item.match_type === '0').length > 0 ?
+            result.filter(item => item.match_type === '0').map(item => item.match_change)
+                .reduce((trophy, total) => trophy + total) : 0;
 
         records.trophyLeague = result.filter(item => item.match_type === '0');
         records.soloPowerLeague = result.filter(item => item.match_type === '2');
@@ -152,22 +153,48 @@ router.get('/:id', async (req, res) => {
         return result;
     });
 
+    const friendsPoint = await Friend.findOne({
+        attributes: [
+            'member_id',
+            [fn('sum', col('point')), 'total_point']
+        ],
+        where: {
+            member_id: `#${req.params.id}`,
+        },
+        group: ['member_id'],
+        raw: true
+    }).then(result => {
+        return result
+    });
+
+    const friendsGroup = await Friend.findAll({
+        attributes: [
+            'member_id',
+            'friend_id',
+            'friend_name',
+            [fn('sum', col('point')), 'friend_point'],
+            [fn('sum', col('match_count')), 'match_count'],
+            [fn('sum', col('victory_count')), 'victory_count'],
+            [fn('sum', col('defeat_count')), 'defeat_count'],
+        ],
+        where: {
+            member_id: `#${req.params.id}`,
+        },
+        group: ['friend_id', 'friend_name'],
+        order: [['friend_point', 'DESC']],
+        raw: true
+    }).then(result => {
+        return result
+    });
+
     const friends = await Friend.findAll({
         where: {
             member_id: `#${req.params.id}`,
         },
-        order: [['friend_name', 'DESC']],
+        order: [['point', 'DESC']],
         raw: true
-    }).then((result) => {
-        const friends = {}
-        const friendTotalPoint = result.length > 0 ?
-            result.map(item => item.point)
-                .reduce((point, total) => point + total).toFixed(2) : 0;
-
-        friends.friendsList = result;
-        friends.friendTotalPoint = friendTotalPoint;
-
-        return friends;
+    }).then(result => {
+        return result;
     });
 
     const brawlers = await MemberBrawler.findAll({
@@ -194,6 +221,8 @@ router.get('/:id', async (req, res) => {
         season: season,
         dailyCount: dailyCount,
         seasonCount: seasonCount,
+        friendsGroup: friendsGroup,
+        friendsPoint: friendsPoint,
         friends: friends,
         brawlers: brawlers
     });

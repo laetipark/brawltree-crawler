@@ -1,5 +1,5 @@
 import express from 'express';
-import sequelize, {col, fn, literal, Op} from "sequelize";
+import sequelize, {col, fn, Op} from "sequelize";
 
 import Member from "../models/member.js";
 import Battle from "../models/battle.js";
@@ -18,7 +18,6 @@ router.get('/', async (req, res) => {
     const matchType = config.typeList.filter.includes(type) ? config.typeList[`${type}`] : config.typeList.all;
     const matchMode = config.modeList.includes(mode) ? Array(mode) : config.modeList;
 
-    // TODO: Duels 모드 횟수 중복
     const battles = await Battle.findAll({
         include: [
             {
@@ -39,7 +38,7 @@ router.get('/', async (req, res) => {
         ],
         attributes: [
             "member_id",
-            [fn("count", col("member_id")), "match_count"],
+            [fn("count", fn("distinct", col("match_date"))), "match_count"],
             [fn("sum", col('match_change')), "match_change"]
         ],
         group: ["member_id"],
@@ -113,8 +112,7 @@ router.get('/:id', async (req, res) => {
             member_id: `#${req.params.id}`
         },
         order: [['match_date', 'DESC']],
-        raw: true,
-        logging: true
+        raw: true
     }).then((result) => {
         return result;
     });
