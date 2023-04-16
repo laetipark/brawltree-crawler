@@ -168,7 +168,7 @@ export default async (members) => {
                             const matchRank = matchMode === 1 ? playerNumber : matchMode === 2 ? teamNumber : -1;
                             const matchResult = players[playerNumber] === member && [0, 3].includes(matchMode) ?
                                 await setResult(teams.length, playerNumber, (resultNameArray.indexOf(item.battle.result) - 1) * -1) :
-                                await setResult(teams.length, playerNumber, resultNameArray.indexOf(item.battle.result) - 1);
+                                await setResult(teams.length, matchRank, resultNameArray.indexOf(item.battle.result) - 1);
 
                             const isStarPlayer = item.battle.starPlayer !== null ?
                                 item.battle.starPlayer !== undefined ?

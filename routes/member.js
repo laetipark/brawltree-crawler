@@ -82,6 +82,7 @@ router.get('/:id', async (req, res) => {
                 heist: {},
                 hotZone: {},
                 knockout: {},
+                basketBrawl: {},
                 duels: {},
                 soloShowdown: {},
                 duoShowdown: {}

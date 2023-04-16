@@ -117,8 +117,6 @@ export default async (members) => {
                 const brawlerID = brawler.id;
                 const brawlerPower = brawler.power;
                 const trophyBegin = await setTrophyBegin(responseMember.tag, brawlerID, brawler.trophies);
-                const trophyCurrent = brawler.trophies;
-                const trophyHighest = brawler.highestTrophies;
                 const [matchTrophy, matchLeague, victoryTrophy, victoryLeague, defeatTrophy, defeatLeague] =
                     await setMatchCount(responseMember.tag, brawlerID);
 
@@ -127,8 +125,9 @@ export default async (members) => {
                     brawler_id: brawlerID,
                     power: brawlerPower,
                     trophy_begin: trophyBegin,
-                    trophy_current: trophyCurrent,
-                    trophy_highest: trophyHighest,
+                    trophy_current: brawler.trophies,
+                    trophy_highest: brawler.highestTrophies,
+                    trophy_rank: brawler.rank,
                     match_trophy: matchTrophy,
                     match_league: matchLeague,
                     victory_trophy: victoryTrophy,

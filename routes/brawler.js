@@ -75,7 +75,7 @@ router.get('/:id', async (req, res) => {
         where: {
             member_id: `#${req.params.id}`,
         },
-        order: [['trophy_current', 'DESC']],
+        order: [['match_trophy', 'DESC']],
         raw: true
     }).then((result) => {
         return result;

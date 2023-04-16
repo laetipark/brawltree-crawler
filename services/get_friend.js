@@ -40,10 +40,12 @@ export default async (members) => {
             },
             match_mode: {
                 [Op.in]: [2, 3]
+            },
+            match_grade: {
+                [Op.lt]: 7
             }
         },
-        raw: true,
-        logging: true
+        raw: true
     }).then(result => {
         return result;
     });

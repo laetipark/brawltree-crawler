@@ -1,4 +1,4 @@
-import express from 'express';
+import express from "express";
 import sequelize, {col, fn, Op} from "sequelize";
 
 import Member from "../models/member.js";

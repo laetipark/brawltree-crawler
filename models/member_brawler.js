@@ -23,11 +23,15 @@ export default class MemberBrawler extends Sequelize.Model {
             },
             trophy_current: {
                 type: Sequelize.SMALLINT,
-                allowNull: true,
+                allowNull: false,
             },
             trophy_highest: {
                 type: Sequelize.SMALLINT,
-                allowNull: true,
+                allowNull: false,
+            },
+            trophy_rank: {
+                type: Sequelize.STRING(2),
+                allowNull: false,
             },
             match_trophy: {
                 type: Sequelize.SMALLINT,
