@@ -94,7 +94,7 @@ router.get('/:id', async (req, res) => {
         ],
         attributes:
             ["member_id", [fn('JSON_OBJECT', "id", col('match_date'),
-                "match_duration", col('match_duration'), "map_name", col('Rotation.name'),
+                "match_duration", col('match_duration'), "map_name", col('Rotation.name'), "map_mode", col('Rotation.mode'),
                 "raw_type", col('raw_type'), "match_type", col('match_type'), "match_mode", col('match_mode'),
                 "match_grade", col('match_grade'), "match_change", col('match_change')), 'info'],
                 [fn('JSON_ARRAYAGG', fn('JSON_OBJECT',
