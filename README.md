@@ -1,6 +1,6 @@
 # Blossom-Web
 
-<img alt="Blossom Icon" src="http://blossomstats.site/images/blossom_logo/blossom_logo_horizontal.png" width="60%"/>
+<img alt="Blossom Icon" src="http://blossomstats.site/static/media/blossom_stats.9b5c35b2a645070ff265.webp" width="60%"/>
 
 ![Node.js](https://img.shields.io/badge/Node.js-v19.2.0-DDDDDD?style=flat&logo=Node.js&logoColor=FFFFFF&labelColor=339933)
 ![Javascript](https://img.shields.io/badge/Javascript-F7DF1E?style=flat&logo=Javascript&logoColor=000000)
