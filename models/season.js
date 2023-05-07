@@ -3,7 +3,7 @@ import Sequelize from "sequelize";
 export default class Season extends Sequelize.Model {
     static init(sequelize) {
         return super.init({
-            start_date: {
+            begin_date: {
                 type: Sequelize.DATE,
                 allowNull: false,
             },

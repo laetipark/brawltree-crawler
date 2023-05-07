@@ -5,13 +5,15 @@ import Brawler from "./brawler.js";
 import Battle from "./battle.js";
 import Friend from "./friend.js";
 import Record from "./record.js";
-import Rotation from "./rotation.js";
+import Map from "./map.js";
+import MapRotation from "./map_rotation.js";
 import Pick from "./pick.js";
 import Season from "./season.js";
 
-import configFile from "../config/config.js";
+import Config from "../config/config.js";
 
-const config = configFile.development;
+const config =
+    Config.sequelize;
 const db = {}
 
 const sequelize =
@@ -24,7 +26,8 @@ db.Brawler = Brawler;
 db.Battle = Battle;
 db.Friend = Friend;
 db.Record = Record;
-db.Rotation = Rotation;
+db.Map = Map;
+db.MapRotation = MapRotation;
 db.Pick = Pick;
 db.Season = Season;
 
@@ -34,7 +37,8 @@ MemberBrawler.init(sequelize);
 Brawler.init(sequelize);
 Friend.init(sequelize);
 Record.init(sequelize);
-Rotation.init(sequelize);
+Map.init(sequelize);
+MapRotation.init(sequelize);
 Pick.init(sequelize);
 Season.init(sequelize);
 
@@ -44,7 +48,8 @@ MemberBrawler.associate(db);
 Brawler.associate(db);
 Friend.associate(db);
 Record.associate(db);
-Rotation.associate(db);
+Map.associate(db);
+MapRotation.associate(db);
 Pick.associate(db);
 Season.associate(db);
 

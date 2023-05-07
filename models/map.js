@@ -1,6 +1,6 @@
 import Sequelize from "sequelize";
 
-export default class Rotation extends Sequelize.Model {
+export default class Map extends Sequelize.Model {
     static init(sequelize) {
         return super.init({
             mode: {
@@ -10,25 +10,13 @@ export default class Rotation extends Sequelize.Model {
             name: {
                 type: Sequelize.STRING(30),
                 allowNull: false,
-            },
-            start_time: {
-                type: Sequelize.DATE,
-                allowNull: true,
-            },
-            end_time: {
-                type: Sequelize.DATE,
-                allowNull: true,
-            },
-            slot: {
-                type: Sequelize.STRING(2),
-                allowNull: true,
             }
         }, {
             sequelize,
             timestamps: false,
             underscore: false,
-            modelName: 'Rotation',
-            tableName: 'rotation',
+            modelName: 'Map',
+            tableName: 'map',
             paranoid: false,
             charset: 'utf8mb4',
             collate: 'utf8mb4_unicode_ci',
@@ -36,7 +24,11 @@ export default class Rotation extends Sequelize.Model {
     }
 
     static associate(db) {
-        db.Rotation.hasMany(db.Battle, {
+        db.Map.hasMany(db.Battle, {
+            foreignKey: 'map_id', sourceKey: 'id'
+        });
+
+        db.Map.hasMany(db.MapRotation, {
             foreignKey: 'map_id', sourceKey: 'id'
         });
     }

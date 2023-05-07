@@ -9,19 +9,19 @@ export default class Brawler extends Sequelize.Model {
             },
             rarity: {
                 type: Sequelize.STRING(20),
-                allowNull: false,
+                allowNull: true,
             },
             class: {
                 type: Sequelize.STRING(20),
-                allowNull: false,
+                allowNull: true,
             },
             gender: {
                 type: Sequelize.STRING(10),
-                allowNull: false,
+                allowNull: true,
             },
             icon: {
                 type: Sequelize.STRING(40),
-                allowNull: false,
+                allowNull: true,
             },
         }, {
             sequelize,

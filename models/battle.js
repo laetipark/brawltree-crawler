@@ -96,7 +96,7 @@ export default class Battle extends Sequelize.Model {
     }
 
     static associate(db) {
-        db.Battle.belongsTo(db.Rotation, {
+        db.Battle.belongsTo(db.Map, {
             foreignKey: 'map_id', targetKey: 'id'
         });
 
