@@ -1,16 +1,20 @@
-import {col, fn, literal, Op} from "sequelize";
+import config from "../config/config.js";
+
+import sequelize, {col, fn, literal, Op} from "sequelize";
 import Battle from "../models/battle.js";
 import Pick from "../models/pick.js";
 import Record from "../models/record.js";
 import Friend from "../models/friend.js";
 import MapRotation from "../models/map_rotation.js";
 import Season from "../models/season.js";
+import Member from "../models/member.js";
+import Map from "../models/map.js";
 
 export class seasonService {
     static checkSeason = async () => {
         return await Season.findOne({
-            raw: true,
             order: [["begin_date", "DESC"]],
+            raw: true,
         }).then(async result => {
             if (result === null) {
                 await Season.create({
@@ -233,4 +237,95 @@ export class seasonService {
         await Record.destroy();
         await Friend.destroy();
     }
+
+    static selectBattles = async (today, tomorrow, type, mode) => {
+        const matchType = config.typeList.filter.includes(type) ? config.typeList[`${type}`] : config.typeList.all;
+        const matchMode = config.modeList.includes(mode) ? Array(mode) : config.modeList;
+
+        const battles = await Battle.findAll({
+            include: [
+                {
+                    model: Member,
+                    required: true,
+                    attributes: ['name']
+                },
+                {
+                    model: Map,
+                    required: true,
+                    attributes: [],
+                    where: {
+                        mode: {
+                            [Op.in]: matchMode
+                        }
+                    }
+                },
+            ],
+            attributes: [
+                "member_id",
+                [fn("count", fn("distinct", col("match_date"))), "match_count"],
+                [fn("sum", col('match_change')), "match_change"]
+            ],
+            group: ["member_id"],
+            where: {
+                member_id: [sequelize.col('Battle.player_id')],
+                match_date: {
+                    [Op.between]: [today, tomorrow]
+                },
+                match_type: {
+                    [Op.in]: matchType
+                },
+            },
+            order: [['match_count', 'DESC']],
+            raw: true,
+        });
+
+        const season = await this.checkSeason();
+
+        return [battles, season];
+    };
+
+    static selectMemberBattles = async (id, today, tomorrow) => {
+        const member = await Member.findOne({
+            attributes: ['id', 'name', 'trophy_current', 'league_solo_current', 'league_team_current', 'profile_picture'],
+            where: {
+                id: `#${id}`,
+            },
+            raw: true
+        });
+
+        const battles = await Battle.findAll({
+            include: [
+                {
+                    model: Map,
+                    required: true,
+                    attributes: []
+                },
+            ],
+            attributes:
+                ["member_id", [fn('JSON_OBJECT', "id", col('match_date'),
+                    "match_duration", col('match_duration'), "map_name", col('Map.name'), "map_mode", col('Map.mode'),
+                    "raw_type", col('raw_type'), "match_type", col('match_type'), "match_mode", col('match_mode'),
+                    "match_grade", col('match_grade'), "match_change", col('match_change')), 'info'],
+                    [fn('JSON_ARRAYAGG', fn('JSON_OBJECT',
+                        "player_id", col('player_id'), "player_name", col('player_name'),
+                        "player_team", col('player_team'), "brawler_id", col('brawler_id'),
+                        "brawler_power", col("brawler_power"), "brawler_trophy", col('brawler_trophy'),
+                        "match_rank", col('match_rank'), "match_result", col('match_result'), "raw_change", col('raw_change'))), 'players']],
+            group: ['member_id', 'match_date',
+                'match_duration', 'map_id', 'match_type',
+                'match_mode', 'match_grade', 'match_change', 'raw_type'],
+            where: {
+                match_date: {
+                    [Op.between]: [today, tomorrow]
+                },
+                member_id: `#${id}`
+            },
+            order: [['match_date', 'DESC']],
+            raw: true
+        });
+
+        const season = await this.checkSeason();
+
+        return [member, battles, season];
+    };
 }

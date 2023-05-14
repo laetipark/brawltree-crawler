@@ -1,15 +1,14 @@
-import {fn, literal, Op} from "sequelize";
 import fetch from "node-fetch";
 import config from "../config/config.js";
 import crewJSON from "../public/json/crew.json" assert {type: "json"};
 
+import {fn, literal, Op} from "sequelize";
 import Battle from "../models/battle.js";
 import Member from "../models/member.js";
 import MemberBrawler from "../models/member_brawler.js";
 import Record from "../models/record.js";
 import Friend from "../models/friend.js";
 import Season from "../models/season.js";
-import crewJson from "../public/json/crew.json";
 
 export class memberService {
 
@@ -33,7 +32,7 @@ export class memberService {
             return res.json();
         });
 
-        const crew = crewJson.map(crew => crew.tag);
+        const crew = crewJSON.map(crew => crew.tag);
 
         return removeDuplicates(club.items.map(club => club.tag).concat(crew));
     }
@@ -41,7 +40,7 @@ export class memberService {
     static insertMember = async (member) => {
         const season = await Season.findOne({
             raw: true,
-            order: [['start_date', 'DESC']],
+            order: [['begin_date', 'DESC']],
         }).then(result => {
             return result;
         });
@@ -69,7 +68,7 @@ export class memberService {
                     brawler_id: brawlerID,
                     match_type: 0,
                     match_date: {
-                        [Op.between]: [season.start_date, season.end_date]
+                        [Op.between]: [season.begin_date, season.end_date]
                     },
                 }
             }).then(result => {
@@ -137,7 +136,9 @@ export class memberService {
                     setLeagueRank(3, responseMember.tag, 'brawler_trophy')]);
 
             responseMember.name = crewJSON.find(member => member.tag === responseMember.tag) !== undefined ?
-                `${responseMember.name}(${crewJSON.find(member => member.tag === responseMember.tag).name})` : responseMember.name;
+                (crewJSON.find(member => member.tag === responseMember.tag).name !== responseMember.name ?
+                    `${crewJSON.find(member => member.tag === responseMember.tag).name}(${responseMember.name})`
+                    : responseMember.name) : responseMember.name;
 
             await Member.upsert({
                 id: responseMember.tag,

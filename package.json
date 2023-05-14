@@ -30,7 +30,7 @@
     "node-fetch": "^3.3.0",
     "nunjucks": "^3.2.3",
     "process": "^0.11.10",
-    "sequelize": "^6.28.0",
+    "sequelize": "6.28.1",
     "sequelize-cli": "^6.5.2"
   },
   "devDependencies": {

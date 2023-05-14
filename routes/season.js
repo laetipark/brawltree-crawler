@@ -45,10 +45,8 @@ router.get('/', async (req, res) => {
         })
 
     const season = await Season.findOne({
-        order: [['start_date', 'DESC']],
+        order: [['begin_date', 'DESC']],
         raw: true,
-    }).then((result) => {
-        return result;
     });
 
     res.send({

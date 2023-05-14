@@ -8,17 +8,17 @@ export default class MapRotation extends Sequelize.Model {
                 primaryKey: true,
                 allowNull: true,
             },
-            map_id: {
-                type: Sequelize.STRING(8),
-                primaryKey: true,
-                allowNull: true,
-            },
             begin_time: {
                 type: Sequelize.DATE,
+                primaryKey: true,
                 allowNull: true,
             },
             end_time: {
                 type: Sequelize.DATE,
+                allowNull: true,
+            },
+            map_id: {
+                type: Sequelize.STRING(8),
                 allowNull: true,
             }
         }, {

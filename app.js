@@ -4,7 +4,7 @@ import config from './config/config.js'
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
 
-import getAPI from './services/index.js'
+import getAPI from './scheduler/index.js'
 
 const main = async () => {
     const app = express();

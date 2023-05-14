@@ -1,10 +1,10 @@
 import fetch from "node-fetch";
 import config from "../config/config.js";
+import mapJSON from "../public/json/map.json" assert {type: "json"};
 import modeJSON from "../public/json/mode.json" assert {type: "json"};
 
 import Battle from "../models/battle.js";
 import Map from "../models/map.js";
-import rotationJSON from "../public/json/map.json";
 
 const typeNameArray = ['ranked', 'friendly', 'soloRanked', 'teamRanked', 'challenge', 'championshipChallenge'];
 const resultNameArray = ['victory', 'draw', 'defeat'];
@@ -28,7 +28,7 @@ export class battleService {
 
     /** 전투 맵 데이터베이스에 업데이트 및 추가 */
     static updateMaps = async () => {
-        for (const item of rotationJSON.rotation) {
+        for (const item of mapJSON.rotation) {
             const mapID = item.id;
             const mapMode = item.mode;
             const mapName = item.name;
@@ -50,31 +50,31 @@ export class battleService {
             teams: ""
         };
 
-        /**
-         * @param typeIndex
-         * @param trophyChange
-         * @param maxTrophies
-         * @param currentPlayers
-         * @param matchMode
+        /** 클럽 리그와 일반 게임 & 파워 리그 구분
+         * @param typeNumber 타입 번호
+         * @param trophyChange 트로피 변화량
+         * @param maxTrophies 매치 내 최고 트로피
+         * @param currentPlayers 전투 플레이어
+         * @param matchMode 전투 인원
          */
-        const setType = async (typeIndex, trophyChange, maxTrophies, currentPlayers, matchMode) => {
-            if (typeIndex === 3 && [3, 5, 7, 9].includes(trophyChange)) {
+        const setType = async (typeNumber, trophyChange, maxTrophies, currentPlayers, matchMode) => {
+            if (typeNumber === 3 && [3, 5, 7, 9].includes(trophyChange)) {
                 comparePlayers.teams = currentPlayers;
                 return 6;
-            } else if (typeIndex === 0 && [1, 2, 3, 4].includes(trophyChange) && maxTrophies < 20 && matchMode === 3) {
+            } else if (typeNumber === 0 && [1, 2, 3, 4].includes(trophyChange) && maxTrophies < 20 && matchMode === 3) {
                 return 6;
-            } else if (typeIndex === 3 && comparePlayers.teams === currentPlayers && maxTrophies < 20) {
+            } else if (typeNumber === 3 && comparePlayers.teams === currentPlayers && maxTrophies < 20) {
                 return 6;
             } else {
                 comparePlayers.teams = "";
-                return typeIndex;
+                return typeNumber;
             }
         };
 
-        /**
-         * @param teams
-         * @param rank
-         * @param result
+        /** 전투 결과 수치형으로 변환
+         * @param teams 전투 팀
+         * @param rank 쇼다운 순위
+         * @param result 3vs3 모드 결과
          */
         const setResult = (teams, rank, result) => {
             if (teams > 2) {

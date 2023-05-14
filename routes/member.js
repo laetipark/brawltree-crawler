@@ -8,7 +8,7 @@ import Brawler from "../models/brawler.js";
 import Record from "../models/record.js";
 import Friend from "../models/friend.js";
 import Season from "../models/season.js";
-import Rotation from "../models/rotation.js";
+import Map from "../models/map.js";
 
 import config from "../config/config.js";
 
@@ -18,8 +18,6 @@ router.get('/', async (req, res) => {
     const members = await Member.findAll({
         order: [["trophy_current", "DESC"]],
         raw: true
-    }).then((result) => {
-        return result;
     });
 
     res.send(members);
@@ -34,20 +32,18 @@ router.get('/:id', async (req, res) => {
             id: `#${req.params.id}`
         },
         raw: true
-    }).then((result) => {
-        return result;
     });
 
     const battles = await Battle.findAll({
         include: [
             {
-                model: Rotation,
+                model: Map,
                 required: true,
                 attributes: []
             },
         ],
         attributes: ['match_date', 'brawler_id', 'match_type',
-            'match_rank', 'match_result', 'Rotation.mode'],
+            'match_rank', 'match_result', 'Map.mode'],
         where: {
             member_id: `#${req.params.id}`,
             player_id: `#${req.params.id}`,
@@ -118,16 +114,14 @@ router.get('/:id', async (req, res) => {
     });
 
     const season = await Season.findOne({
-        order: [['start_date', 'DESC']],
+        order: [['begin_date', 'DESC']],
         raw: true,
-    }).then((result) => {
-        return result;
     });
 
     const dailyCount = await Battle.findOne({
-        attributes: [[literal('count(case when match_result = -1 then 1 end)'), 'victory_count'],
-            [literal('count(case when match_result = 0 then 1 end)'), 'draw_count'],
-            [literal('count(case when match_result = 1 then 1 end)'), 'defeat_count']],
+        attributes: [[fn("COUNT", literal('CASE WHEN match_result = -1 THEN 1 END')), 'victory_count'],
+            [fn("COUNT", literal('CASE WHEN match_result = 0 THEN 1 END')), 'draw_count'],
+            [fn("COUNT", literal('CASE WHEN match_result = 1 THEN 1 END')), 'defeat_count']],
         where: {
             member_id: `#${req.params.id}`,
             player_id: `#${req.params.id}`,
@@ -137,35 +131,29 @@ router.get('/:id', async (req, res) => {
         },
         order: [['match_date', 'DESC']],
         raw: true
-    }).then((result) => {
-        return result;
     });
 
     const seasonCount = await Record.findOne({
         attributes: [
-            [literal('sum(match_count)'), 'match_count'],
-            [literal('sum(victory_count)'), 'victory_count'],
-            [literal('sum(defeat_count)'), 'defeat_count']],
+            [fn("SUM", col("match_count")), 'match_count'],
+            [fn("SUM", col("victory_count")), 'victory_count'],
+            [fn("SUM", col("defeat_count")), 'defeat_count']],
         where: {
             member_id: `#${req.params.id}`
         },
         raw: true
-    }).then((result) => {
-        return result;
     });
 
     const friendsPoint = await Friend.findOne({
         attributes: [
             'member_id',
-            [fn('sum', col('point')), 'total_point']
+            [fn('SUM', col('point')), 'total_point']
         ],
         where: {
             member_id: `#${req.params.id}`,
         },
         group: ['member_id'],
         raw: true
-    }).then(result => {
-        return result
     });
 
     const friendsGroup = await Friend.findAll({
@@ -173,10 +161,10 @@ router.get('/:id', async (req, res) => {
             'member_id',
             'friend_id',
             'friend_name',
-            [fn('sum', col('point')), 'friend_point'],
-            [fn('sum', col('match_count')), 'match_count'],
-            [fn('sum', col('victory_count')), 'victory_count'],
-            [fn('sum', col('defeat_count')), 'defeat_count'],
+            [fn('SUM', col('point')), 'friend_point'],
+            [fn('SUM', col('match_count')), 'match_count'],
+            [fn('SUM', col('victory_count')), 'victory_count'],
+            [fn('SUM', col('defeat_count')), 'defeat_count'],
         ],
         where: {
             member_id: `#${req.params.id}`,
@@ -184,8 +172,6 @@ router.get('/:id', async (req, res) => {
         group: ['friend_id', 'friend_name'],
         order: [['friend_point', 'DESC']],
         raw: true
-    }).then(result => {
-        return result
     });
 
     const friends = await Friend.findAll({
@@ -194,8 +180,6 @@ router.get('/:id', async (req, res) => {
         },
         order: [['point', 'DESC']],
         raw: true
-    }).then(result => {
-        return result;
     });
 
     const brawlers = await MemberBrawler.findAll({
@@ -211,8 +195,6 @@ router.get('/:id', async (req, res) => {
         },
         order: [['trophy_current', 'DESC']],
         raw: true
-    }).then((result) => {
-        return result;
     });
 
     res.send({

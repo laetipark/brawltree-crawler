@@ -1,7 +1,7 @@
-import express from 'express';
+import express from "express";
 import {col, fn, literal} from "sequelize";
 
-import Member from '../models/member.js';
+import Member from "../models/member.js";
 import MemberBrawler from "../models/member_brawler.js";
 import Battle from "../models/battle.js";
 import Brawler from "../models/brawler.js";
@@ -60,8 +60,6 @@ router.get('/:id', async (req, res) => {
             id: `#${req.params.id}`,
         },
         raw: true
-    }).then((result) => {
-        return result;
     });
 
     const brawlers = await MemberBrawler.findAll({
@@ -77,23 +75,19 @@ router.get('/:id', async (req, res) => {
         },
         order: [['match_trophy', 'DESC']],
         raw: true
-    }).then((result) => {
-        return result;
     });
 
     const brawlerChange = await Battle.findAll({
         attributes: [
-            [fn("distinct", col('brawler_id')),'brawler_id'],
-            [fn('date_format', col('match_date'), '%m-%d'), 'match_date'],
-            [literal('sum(`match_change`) over(partition by `brawler_id` order by date(match_date))'), 'match_change']],
+            [fn("DISTINCT", col('brawler_id')),'brawler_id'],
+            [fn('DATE_FORMAT', col('match_date'), '%m-%d'), 'match_date'],
+            [literal('SUM(`match_change`) OVER(PARTITION BY `brawler_id` ORDER BY DATE(match_date))'), 'match_change']],
         where: {
             member_id: `#${req.params.id}`,
             player_id: `#${req.params.id}`,
             match_type: '0',
         },
         raw: true
-    }).then((result) => {
-        return result;
     });
 
     res.send({

@@ -8,19 +8,19 @@ export default class Member extends Sequelize.Model {
                 allowNull: false,
             },
             trophy_current: {
-                type: Sequelize.SMALLINT.UNSIGNED,
+                type: Sequelize.INTEGER.UNSIGNED,
                 allowNull: false,
             },
             trophy_highest: {
-                type: Sequelize.SMALLINT.UNSIGNED,
+                type: Sequelize.INTEGER.UNSIGNED,
                 allowNull: false,
             },
             victory_triple: {
-                type: Sequelize.SMALLINT.UNSIGNED,
+                type: Sequelize.INTEGER.UNSIGNED,
                 allowNull: true,
             },
             victory_duo: {
-                type: Sequelize.SMALLINT.UNSIGNED,
+                type: Sequelize.INTEGER.UNSIGNED,
                 allowNull: true,
             },
             rank_25: {
