@@ -3,6 +3,11 @@ import Sequelize from "sequelize";
 export default class Record extends Sequelize.Model {
     static init(sequelize) {
         return super.init({
+            season_id: {
+                type: Sequelize.STRING(2),
+                primaryKey: true,
+                allowNull: false,
+            },
             member_id: {
                 type: Sequelize.STRING(12),
                 primaryKey: true,

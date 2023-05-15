@@ -8,15 +8,18 @@ export default async () => {
         const members = await memberService.updateMembers();
 
         for (const member of members) {
-            await battleService.insertBattles(member);
-            await memberService.insertMember(member);
+            try {
+                await battleService.insertBattles(member);
+                await memberService.insertMember(member);
+            } catch (error) {
+                console.log(`error 발생 : ${member}`);
+                console.log(error);
+            }
         }
-        await seasonService.insertRecords(members);
-        await seasonService.insertFriends(members);
     });
 
     await cron.schedule('0-59/30 * * * *', async () => {
-        await seasonService.insertPicks();
+        await seasonService.insertSeason();
         await battleService.updateMaps();
         await rotationService.insertRotation();
         await rotationService.deleteRotation();

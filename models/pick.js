@@ -3,6 +3,11 @@ import Sequelize from "sequelize";
 export default class Pick extends Sequelize.Model {
     static init(sequelize) {
         return super.init({
+            season_id: {
+                type: Sequelize.STRING(2),
+                primaryKey: true,
+                allowNull: false,
+            },
             map_id: {
                 type: Sequelize.STRING(8),
                 primaryKey: true,

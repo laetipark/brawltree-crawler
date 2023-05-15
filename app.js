@@ -1,10 +1,10 @@
-import loaders from './loaders/index.js';
-import express from 'express';
-import config from './config/config.js'
-import cookieParser from 'cookie-parser';
-import session from 'express-session';
+import express from "express";
+import loaders from "./loaders/index.js";
+import config from "./config/config.js";
+import cookieParser from "cookie-parser";
+import session from "express-session";
 
-import getAPI from './scheduler/index.js'
+import scheduler from "./scheduler/index.js";
 
 const main = async () => {
     const app = express();
@@ -29,5 +29,5 @@ const main = async () => {
 
 main().then(() => {
     console.log('🌸 HELLO BLOSSOM 🌸');
-    getAPI();
+    scheduler();
 });

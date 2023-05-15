@@ -11,6 +11,7 @@ import Pick from "./pick.js";
 import Season from "./season.js";
 
 import Config from "../config/config.js";
+import SeasonSummary from "./season_summary.js";
 
 const config =
     Config.sequelize;
@@ -30,6 +31,7 @@ db.Map = Map;
 db.MapRotation = MapRotation;
 db.Pick = Pick;
 db.Season = Season;
+db.SeasonSummary = SeasonSummary;
 
 Battle.init(sequelize);
 Member.init(sequelize);
@@ -41,6 +43,7 @@ Map.init(sequelize);
 MapRotation.init(sequelize);
 Pick.init(sequelize);
 Season.init(sequelize);
+SeasonSummary.init(sequelize);
 
 Battle.associate(db);
 Member.associate(db);
@@ -52,5 +55,6 @@ Map.associate(db);
 MapRotation.associate(db);
 Pick.associate(db);
 Season.associate(db);
+SeasonSummary.associate(db);
 
 export {db, sequelize}

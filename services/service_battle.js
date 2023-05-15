@@ -5,6 +5,9 @@ import modeJSON from "../public/json/mode.json" assert {type: "json"};
 
 import Battle from "../models/battle.js";
 import Map from "../models/map.js";
+import Member from "../models/member.js";
+import {col, fn, Op} from "sequelize";
+import Season from "../models/season.js";
 
 const typeNameArray = ['ranked', 'friendly', 'soloRanked', 'teamRanked', 'challenge', 'championshipChallenge'];
 const resultNameArray = ['victory', 'draw', 'defeat'];
@@ -50,13 +53,7 @@ export class battleService {
             teams: ""
         };
 
-        /** 클럽 리그와 일반 게임 & 파워 리그 구분
-         * @param typeNumber 타입 번호
-         * @param trophyChange 트로피 변화량
-         * @param maxTrophies 매치 내 최고 트로피
-         * @param currentPlayers 전투 플레이어
-         * @param matchMode 전투 인원
-         */
+        // 게임 타입을 클럽 리그와 일반 게임 & 파워 리그 구분
         const setType = async (typeNumber, trophyChange, maxTrophies, currentPlayers, matchMode) => {
             if (typeNumber === 3 && [3, 5, 7, 9].includes(trophyChange)) {
                 comparePlayers.teams = currentPlayers;
@@ -71,11 +68,7 @@ export class battleService {
             }
         };
 
-        /** 전투 결과 수치형으로 변환
-         * @param teams 전투 팀
-         * @param rank 쇼다운 순위
-         * @param result 3vs3 모드 결과
-         */
+        // 전투 결과 수치형으로 변환
         const setResult = (teams, rank, result) => {
             if (teams > 2) {
                 const rankDivide = rank / (2 / (10 / teams));
@@ -228,4 +221,110 @@ export class battleService {
             }
         }
     }
+
+    /** 하루 멤버들의 전투 정보 요약 불러오기
+     * @param beginDate 하루 시작
+     * @param endDate 하루 끝
+     * @param type 게임 타입
+     * @param mode 게임 모드
+     */
+    static selectBattlesSummary = async (beginDate, endDate, type, mode) => {
+        const matchType = config.typeList.filter.includes(type) ? config.typeList[`${type}`] : config.typeList.all;
+        const matchMode = config.modeList.includes(mode) ? Array(mode) : config.modeList;
+
+        const battles = await Battle.findAll({
+            include: [
+                {
+                    model: Member,
+                    required: true,
+                    attributes: ['name']
+                },
+                {
+                    model: Map,
+                    required: true,
+                    attributes: [],
+                    where: {
+                        mode: {
+                            [Op.in]: matchMode
+                        }
+                    }
+                },
+            ],
+            attributes: [
+                "member_id",
+                [fn("COUNT", fn("DISTINCT", col("match_date"))), "match_count"],
+                [fn("SUM", col('match_change')), "match_change"]
+            ],
+            group: ["member_id"],
+            where: {
+                member_id: [col('Battle.player_id')],
+                match_date: {
+                    [Op.between]: [beginDate, endDate]
+                },
+                match_type: {
+                    [Op.in]: matchType
+                },
+            },
+            order: [['match_count', 'DESC']],
+            raw: true,
+        });
+
+        const season = await Season.findOne({
+            order: [['begin_date', 'DESC']],
+        });
+
+        return [battles, season];
+    };
+
+    /** 하루 멤버의 세부 전투 정보 불러오기
+     * @param id 멤버 ID
+     * @param beginDate 하루 시작
+     * @param endDate 하루 끝
+     */
+    static selectBattlesDetail = async (id, beginDate, endDate) => {
+        const member = await Member.findOne({
+            attributes: ['id', 'name', 'trophy_current', 'league_solo_current', 'league_team_current', 'profile_picture'],
+            where: {
+                id: `#${id}`,
+            },
+            raw: true
+        });
+
+        const battles = await Battle.findAll({
+            include: [
+                {
+                    model: Map,
+                    required: true,
+                    attributes: []
+                },
+            ],
+            attributes:
+                ["member_id", [fn('JSON_OBJECT', "id", col('match_date'),
+                    "match_duration", col('match_duration'), "map_name", col('Map.name'), "map_mode", col('Map.mode'),
+                    "raw_type", col('raw_type'), "match_type", col('match_type'), "match_mode", col('match_mode'),
+                    "match_grade", col('match_grade'), "match_change", col('match_change')), 'info'],
+                    [fn('JSON_ARRAYAGG', fn('JSON_OBJECT',
+                        "player_id", col('player_id'), "player_name", col('player_name'),
+                        "player_team", col('player_team'), "brawler_id", col('brawler_id'),
+                        "brawler_power", col("brawler_power"), "brawler_trophy", col('brawler_trophy'),
+                        "match_rank", col('match_rank'), "match_result", col('match_result'), "raw_change", col('raw_change'))), 'players']],
+            group: ['member_id', 'match_date',
+                'match_duration', 'map_id', 'match_type',
+                'match_mode', 'match_grade', 'match_change', 'raw_type'],
+            where: {
+                match_date: {
+                    [Op.between]: [beginDate, endDate]
+                },
+                member_id: `#${id}`
+            },
+            order: [['match_date', 'DESC']],
+            raw: true
+        });
+
+        const season = await Season.findOne({
+            order: [['begin_date', 'DESC']],
+        });
+
+        return [member, battles, season];
+    };
 }

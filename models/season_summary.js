@@ -1,6 +1,6 @@
 import Sequelize from "sequelize";
 
-export default class Friend extends Sequelize.Model {
+export default class SeasonSummary extends Sequelize.Model {
     static init(sequelize) {
         return super.init({
             season_id: {
@@ -13,27 +13,15 @@ export default class Friend extends Sequelize.Model {
                 primaryKey: true,
                 allowNull: false,
             },
-            friend_id: {
-                type: Sequelize.STRING(12),
-                primaryKey: true,
+            match_type: {
+                type: Sequelize.CHAR(1),
                 allowNull: false,
             },
             map_mode: {
-                type: Sequelize.STRING(20),
-                primaryKey: true,
+                type: Sequelize.CHAR(12),
                 allowNull: false,
             },
-            match_type: {
-                type: Sequelize.STRING(1),
-                primaryKey: true,
-                allowNull: false,
-            },
-            match_grade: {
-                type: Sequelize.STRING(2),
-                primaryKey: true,
-                allowNull: false,
-            },
-            friend_name: {
+            member_name: {
                 type: Sequelize.STRING(30),
                 allowNull: false,
             },
@@ -41,13 +29,9 @@ export default class Friend extends Sequelize.Model {
                 type: Sequelize.SMALLINT,
                 allowNull: true,
             },
-            victory_count: {
+            match_change: {
                 type: Sequelize.SMALLINT,
-                allowNull: true,
-            },
-            defeat_count: {
-                type: Sequelize.SMALLINT,
-                allowNull: true,
+                allowNull: false,
             },
             point: {
                 type: Sequelize.FLOAT,
@@ -57,8 +41,8 @@ export default class Friend extends Sequelize.Model {
             sequelize,
             timestamps: false,
             underscore: false,
-            modelName: 'Friend',
-            tableName: 'friend',
+            modelName: 'SeasonSummary',
+            tableName: 'season_summary',
             paranoid: false,
             charset: 'utf8mb4',
             collate: 'utf8mb4_unicode_ci',
@@ -66,8 +50,5 @@ export default class Friend extends Sequelize.Model {
     }
 
     static associate(db) {
-        db.Friend.belongsTo(db.Member, {
-            foreignKey: 'member_id', targetKey: 'id'
-        });
     }
 }

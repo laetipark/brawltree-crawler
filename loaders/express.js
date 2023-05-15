@@ -9,6 +9,7 @@ import member from "../routes/member.js";
 import battle from "../routes/battle.js";
 import brawler from "../routes/brawler.js";
 import season from "../routes/season.js";
+import config from "../config/config.js";
 
 export default async (app) => {
     const __dirname = path.dirname(path.resolve());
@@ -18,8 +19,14 @@ export default async (app) => {
         origin: "*",                // 출처 허용 옵션
         credentials: true,          // 응답 헤더에 Access-Control-Allow-Credentials 추가
         optionsSuccessStatus: 200,  // 응답 상태 200으로 설정
-    }));
-    app.use(morgan('dev'));
+    }))
+
+    if (config.project === "pro") {
+        app.use(morgan('combined'));
+    } else {
+        app.use(morgan('dev'));
+    }
+
     app.use('/', express.static(path.join(__dirname, '/blossom-web-frontend/build')));
     app.use(express.json({limit: '50mb'}));
     app.use(express.urlencoded({

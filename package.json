@@ -1,6 +1,6 @@
 {
   "name": "blossom-web-backend",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Blossom Stats, Brawl Stars",
   "main": "app.js",
   "type": "module",

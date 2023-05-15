@@ -76,8 +76,7 @@ export class rotationService {
                         [Op.notIn]: [4, 6]
                     }
                 }]
-            },
-            logging: true
+            }
         });
     }
 }
