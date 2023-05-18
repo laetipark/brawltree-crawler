@@ -6,7 +6,8 @@ const router = express.Router();
 router.get('/', async (req, res) => {
     const {brawler} = req.query;
 
-    const [brawlers, memberBrawlers, pick] =
+    const brawlers = await brawlerService.selectBrawlers();
+    const [memberBrawlers, pick] =
         await brawlerService.selectBrawlerSummary(brawler);
 
     res.send({

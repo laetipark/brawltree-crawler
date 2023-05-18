@@ -265,7 +265,9 @@ export class battleService {
                     [Op.in]: matchType
                 },
             },
-            order: [['match_count', 'DESC']],
+            order: [
+                ['match_count', 'DESC']
+            ],
             raw: true,
         });
 
@@ -286,8 +288,7 @@ export class battleService {
             attributes: ['id', 'name', 'trophy_current', 'league_solo_current', 'league_team_current', 'profile_picture'],
             where: {
                 id: `#${id}`,
-            },
-            raw: true
+            }
         });
 
         const battles = await Battle.findAll({

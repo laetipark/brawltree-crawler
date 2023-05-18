@@ -75,8 +75,44 @@ export class rotationService {
                     slot_id: {
                         [Op.notIn]: [4, 6]
                     }
+                }, {
+                    end_time: {
+                        [Op.lt]: fn("DATE_FORMAT",  fn("NOW"), "%Y-%m-%d")
+                    },
+                    slot_id: {
+                        [Op.between]: [20, 26]
+                    }
                 }]
             }
         });
     }
+
+    static selectRotation = async () => {
+
+        const groupBy = (data, key) =>
+            data.reduce(function (carry, el) {
+                const group = el[key];
+
+                if (carry[group] === undefined) {
+                    carry[group] = [];
+                }
+
+                carry[group].push(el);
+                return carry;
+            }, {})
+
+        const rotation = await MapRotation.findAll({
+            include: [{
+                model: Map,
+                required: true,
+                attributes: ["mode", "name"]
+            }],
+            order: [["begin_time", "DESC"]],
+            raw: true
+        }).then(result => {
+            return groupBy(result, "slot_id");
+        });
+
+        return [rotation];
+    };
 }

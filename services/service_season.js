@@ -1,5 +1,6 @@
 import config from "../config/config.js";
 
+import {col, fn, Op} from "sequelize";
 import Season from "../models/season.js";
 import SeasonSummary from "../models/season_summary.js";
 
@@ -64,6 +65,7 @@ export class seasonService {
     }
 
     static selectSeasonSummary = async (type, mode) => {
+
         const matchType = config.typeList.filter.includes(type) ? config.typeList[`${type}`] : config.typeList.all;
         const matchMode = config.modeList.includes(mode) ? Array(mode) : config.modeList;
 
@@ -72,12 +74,22 @@ export class seasonService {
         });
 
         const members = await SeasonSummary.findAll({
+            attributes: ["member_id", "member_name",
+                [fn("SUM", col("match_count")), "match_count"],
+                [fn("SUM", col("match_change")), "match_change"],
+                [fn("SUM", col("point")), "point"]],
             where: {
                 season_id: season.id,
-                match_type: matchType,
-                map_mode: matchMode
-            }
-        });
+                match_type: {
+                    [Op.in]: matchType
+                },
+                map_mode: {
+                    [Op.in]: matchMode
+                }
+            },
+            group: ["member_id"],
+            raw: true
+        })
 
         return [season, members];
     };

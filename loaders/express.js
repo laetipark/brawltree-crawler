@@ -6,8 +6,9 @@ import cors from "cors";
 
 import index from "../routes/index.js";
 import member from "../routes/member.js";
-import battle from "../routes/battle.js";
 import brawler from "../routes/brawler.js";
+import battle from "../routes/battle.js";
+import rotation from "../routes/rotation.js";
 import season from "../routes/season.js";
 import config from "../config/config.js";
 
@@ -39,6 +40,7 @@ export default async (app) => {
     app.use('/', index);
     app.use('/member', member);
     app.use('/brawler', brawler);
+    app.use('/rotation', rotation);
     app.use('/battle', battle);
     app.use('/season', season);
     app.use((req, res, next) => {

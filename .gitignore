@@ -252,8 +252,4 @@ dist
 # End of https://www.toptal.com/developers/gitignore/api/intellij,node
 /.idea/
 /config/
-/web_kill.sh
-/web_start.sh
-/back_start.sh
-/back_kill.sh
 /public/json/

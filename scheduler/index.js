@@ -18,7 +18,7 @@ export default async () => {
         }
     });
 
-    await cron.schedule('0-59/30 * * * *', async () => {
+    await cron.schedule('5 0-5 * * * *', async () => {
         await seasonService.insertSeason();
         await battleService.updateMaps();
         await rotationService.insertRotation();

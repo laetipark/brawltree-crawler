@@ -22,14 +22,15 @@ export class brawlerService {
         }
     };
 
+    static selectBrawlers = async () => {
+        return await Brawler.findAll();
+    }
+
     static selectBrawlerSummary = async brawler => {
         const season = await Season.findAll({
             order: [['begin_date', 'DESC']],
             limit: 2
         });
-
-        const brawlers =
-            await Brawler.findAll();
 
         const memberBrawlers =
             await MemberBrawler.findAll({
@@ -40,7 +41,7 @@ export class brawlerService {
                         attributes: []
                     },
                 ],
-                attributes: ['member_id', 'brawler_id', 'trophy_current', 'trophy_highest', 'Member.name'],
+                attributes: ['Member.name', 'member_id', 'brawler_id', 'trophy_current', 'trophy_highest'],
                 where: {
                     brawler_id: brawler
                 },
@@ -57,7 +58,7 @@ export class brawlerService {
                 }
             });
 
-        return [brawlers, memberBrawlers, pick];
+        return [memberBrawlers, pick];
     };
 
     static selectBrawlersDetail = async (id) => {
