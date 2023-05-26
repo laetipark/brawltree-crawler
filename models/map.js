@@ -10,6 +10,10 @@ export default class Map extends Sequelize.Model {
             name: {
                 type: Sequelize.STRING(30),
                 allowNull: false,
+            },
+            is_rotation: {
+                type: Sequelize.BOOLEAN,
+                allowNull: true,
             }
         }, {
             sequelize,

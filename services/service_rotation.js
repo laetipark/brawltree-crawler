@@ -1,5 +1,6 @@
 import fetch from 'node-fetch';
 import config from '../config/config.js';
+import mapJSON from "../public/json/map.json" assert {type: "json"};
 import rotationJSON from "../public/json/map.json" assert {type: "json"};
 
 import {fn, literal, Op} from "sequelize";
@@ -16,6 +17,49 @@ const convertDateFormat = (date) => {
 };
 
 export class rotationService {
+
+    /** 전투 맵 데이터베이스에 업데이트 및 추가 */
+    static updateMaps = async () => {
+        for (const item of mapJSON.rotation) {
+            const mapID = item.id;
+            const mapMode = item.mode;
+            const mapName = item.name;
+
+            await Map.upsert({
+                id: mapID,
+                mode: mapMode,
+                name: mapName
+            });
+        }
+    }
+
+    static updateIsRotation = async () => {
+        const rotationMaps = await MapRotation.findAll({
+            attributes: ["map_id"],
+        }).then(result => {
+            return result.map(map => map.map_id);
+        });
+
+        await Map.update({
+            is_rotation: true
+        }, {
+            where: {
+                id: {
+                    [Op.in]: rotationMaps
+                }
+            }
+        });
+
+        await Map.update({
+            is_rotation: false
+        }, {
+            where: {
+                id: {
+                    [Op.notIn]: rotationMaps
+                }
+            }
+        });
+    }
 
     static insertRotation = async () => {
         const responseEvent = await fetch(`${config.url}/events/rotation`, {
@@ -36,6 +80,7 @@ export class rotationService {
 
             const beginTime = new Date(convertDateFormat(item.startTime));
             const endTime = new Date(convertDateFormat(item.endTime));
+            const modifiers = item.event.modifiers?.at(0);
 
             const slotID = item.slotId;
 
@@ -51,9 +96,10 @@ export class rotationService {
 
             await MapRotation.upsert({
                 slot_id: slotID,
-                map_id: mapID,
                 begin_time: beginTime,
                 end_time: endTime,
+                map_id: mapID,
+                modifiers: modifiers
             });
         }
     }
@@ -63,21 +109,26 @@ export class rotationService {
             where: {
                 [Op.or]: [{
                     begin_time: {
-                        [Op.lt]: fn("DATE_FORMAT", fn("DATE_SUB", fn("NOW"), literal("INTERVAL 15 DAY")), "%Y-%m-%d")
+                        [Op.lt]: fn("DATE_FORMAT", fn("DATE_SUB", fn("NOW"), literal("INTERVAL 360 HOUR")), "%Y-%m-%d")
                     },
                     slot_id: {
                         [Op.or]: [4, 6]
                     }
                 }, {
                     begin_time: {
-                        [Op.lt]: fn("DATE_FORMAT", fn("DATE_SUB", fn("NOW"), literal("INTERVAL 7 DAY")), "%Y-%m-%d")
+                        [Op.lt]: fn("DATE_FORMAT", fn("DATE_SUB", fn("NOW"), literal("INTERVAL 168 HOUR")), "%Y-%m-%d")
                     },
                     slot_id: {
                         [Op.notIn]: [4, 6]
                     }
+                },{
+                    begin_time: {
+                        [Op.lt]: fn("DATE_FORMAT", fn("DATE_SUB", fn("NOW"), literal("INTERVAL 144 HOUR")), "%Y-%m-%d")
+                    },
+                    slot_id: 8
                 }, {
                     end_time: {
-                        [Op.lt]: fn("DATE_FORMAT",  fn("NOW"), "%Y-%m-%d")
+                        [Op.lt]: fn("DATE_FORMAT", fn("NOW"), "%Y-%m-%d")
                     },
                     slot_id: {
                         [Op.between]: [20, 26]

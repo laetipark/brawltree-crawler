@@ -1,6 +1,5 @@
 import fetch from "node-fetch";
 import config from "../config/config.js";
-import mapJSON from "../public/json/map.json" assert {type: "json"};
 import modeJSON from "../public/json/mode.json" assert {type: "json"};
 
 import Battle from "../models/battle.js";
@@ -28,21 +27,6 @@ export class battleService {
             }
         });
     };
-
-    /** 전투 맵 데이터베이스에 업데이트 및 추가 */
-    static updateMaps = async () => {
-        for (const item of mapJSON.rotation) {
-            const mapID = item.id;
-            const mapMode = item.mode;
-            const mapName = item.name;
-
-            await Map.upsert({
-                id: mapID,
-                mode: mapMode,
-                name: mapName
-            });
-        }
-    }
 
     /** 최신 25개 전투 정보 확인 및 데이터베이스에 추가
      * @param member 멤버 태그

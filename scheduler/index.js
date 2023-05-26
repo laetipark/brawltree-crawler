@@ -3,7 +3,6 @@ import cron from 'node-cron';
 import {battleService, brawlerService, memberService, seasonService, rotationService} from '../services/index.js';
 
 export default async () => {
-
     await cron.schedule('0-59/4 * * * *', async () => {
         const members = await memberService.updateMembers();
 
@@ -18,11 +17,15 @@ export default async () => {
         }
     });
 
-    await cron.schedule('5 0-5 * * * *', async () => {
-        await seasonService.insertSeason();
-        await battleService.updateMaps();
+    await cron.schedule('5 0-59/5 * * * *', async () => {
         await rotationService.insertRotation();
         await rotationService.deleteRotation();
+    });
+
+    await cron.schedule('0-50/20 * * * *', async () => {
         await brawlerService.insertBrawler();
+        await rotationService.updateMaps();
+        await rotationService.updateIsRotation();
+        await seasonService.insertSeason();
     });
 }

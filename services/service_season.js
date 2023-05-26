@@ -1,6 +1,7 @@
 import config from "../config/config.js";
 
 import {col, fn, Op} from "sequelize";
+import Map from "../models/map.js";
 import Season from "../models/season.js";
 import SeasonSummary from "../models/season_summary.js";
 
@@ -57,6 +58,14 @@ export class seasonService {
                 begin_date: newDate.beginDate,
                 end_date: newDate.endDate,
             });
+
+            await Map.update({
+                is_rotation: false
+            }, {
+                where: {
+                    is_rotation: true
+                }
+            })
 
             if (Date.now() > newDate.endDate) {
                 await this.insertSeason();
