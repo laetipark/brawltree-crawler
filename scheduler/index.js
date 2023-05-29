@@ -3,6 +3,11 @@ import cron from 'node-cron';
 import {battleService, brawlerService, memberService, seasonService, rotationService} from '../services/index.js';
 
 export default async () => {
+
+    await cron.schedule('0 17 * * 1', async () => {
+        await battleService.backupBattles();
+    });
+
     await cron.schedule('0-59/4 * * * *', async () => {
         const members = await memberService.updateMembers();
 

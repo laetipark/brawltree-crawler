@@ -14,7 +14,6 @@ import config from "../config/config.js";
 
 export default async (app) => {
     const __dirname = path.dirname(path.resolve());
-    console.log(__dirname);
 
     app.use(cors({
         origin: "*",                // 출처 허용 옵션

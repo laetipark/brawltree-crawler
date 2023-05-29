@@ -1,3 +1,4 @@
+import fs from "fs";
 import fetch from "node-fetch";
 import config from "../config/config.js";
 import modeJSON from "../public/json/mode.json" assert {type: "json"};
@@ -312,4 +313,31 @@ export class battleService {
 
         return [member, battles, season];
     };
+
+    static backupBattles = async () => {
+        const season = await Season.findAll({
+            limit: 3,
+            order: [['begin_date', 'DESC']],
+        }).then(result => {
+            return result[2].end_date;
+        });
+
+        await Battle.findAll({
+            where: {
+                match_date: {
+                    [Op.lt]: season
+                }
+            },
+            raw: true
+        }).then(async (result) => {
+            fs.writeFileSync(`./backup/battle-${Date.now()}.json`, JSON.stringify(result));
+            await Battle.destroy({
+                where: {
+                    match_date: {
+                        [Op.lt]: season
+                    }
+                }
+            });
+        });
+    }
 }

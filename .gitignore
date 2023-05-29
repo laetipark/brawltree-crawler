@@ -253,3 +253,4 @@ dist
 /.idea/
 /config/
 /public/json/
+/backup/
