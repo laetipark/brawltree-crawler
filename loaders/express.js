@@ -11,8 +11,11 @@ import battle from "../routes/battle.js";
 import rotation from "../routes/rotation.js";
 import season from "../routes/season.js";
 import config from "../config/config.js";
+import cookieParser from "cookie-parser";
+import session from "express-session";
 
-export default async (app) => {
+export default async () => {
+    const app = express();
     const __dirname = path.dirname(path.resolve());
 
     app.use(cors({
@@ -35,21 +38,34 @@ export default async (app) => {
     }));
 
     // routes
-
     app.use('/', index);
     app.use('/member', member);
     app.use('/brawler', brawler);
     app.use('/rotation', rotation);
     app.use('/battle', battle);
     app.use('/season', season);
-    app.use((req, res, next) => {
+    app.use((req, res) => {
         res.status(404).send('Not Found');
     });
 
-    app.use((err, req, res, next) => {
+    app.use((err, req, res) => {
         console.error(err);
         res.status(500).send(err.message);
     });
 
+    app.use(cookieParser(process.env.COOKIE_SECRET));
+    app.use(session({
+        resave: false,
+        saveUninitialized: false,
+        secret: process.env.COOKIE_SECRET,
+        cookie: {
+            httpOnly: true,
+            secure: false,
+        },
+        name: 'session-cookie',
+    }));
 
+    app.listen(config.port, () => {
+        console.log('🌸 PORT NUM', config.port, '🌸');
+    });
 }

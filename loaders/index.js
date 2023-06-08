@@ -1,7 +1,7 @@
 import expressLoader from "./express.js";
 import sequelizeLoader from "./sequelize.js";
 
-export default async (expressApp) => {
-    await expressLoader(expressApp);
+export default async () => {
+    await expressLoader();
     await sequelizeLoader;
 }
