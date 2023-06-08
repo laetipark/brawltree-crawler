@@ -16,6 +16,7 @@ export class memberService {
 
     /** 멤버 정보 최신화 */
     static updateMembers = async () => {
+
         function removeDuplicates(array) {
             const arr = array.concat()
             for (let i = 0; i < arr.length; ++i) {

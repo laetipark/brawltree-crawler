@@ -38,14 +38,14 @@ export class brawlerService {
                     {
                         model: Member,
                         required: true,
-                        attributes: []
+                        attributes: ["name"]
                     },
                 ],
-                attributes: ['Member.name', 'member_id', 'brawler_id', 'trophy_current', 'trophy_highest'],
+                attributes: ["Member.name", "member_id", "brawler_id", "trophy_current", "trophy_highest"],
                 where: {
                     brawler_id: brawler
                 },
-                order: [['trophy_current', 'DESC']],
+                order: [["brawler_id", "ASC"], ["trophy_current", "DESC"]],
                 raw: true
             });
 

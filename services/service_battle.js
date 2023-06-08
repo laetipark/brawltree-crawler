@@ -340,4 +340,21 @@ export class battleService {
             });
         });
     }
+
+    static updatePlayerName = async member => {
+        const memberName = await Member.findOne({
+            attributes: ["name"],
+            where: {
+                id: member
+            }
+        });
+
+        await Battle.update({
+            player_name: memberName.name
+        }, {
+            where: {
+                player_id: member,
+            },
+        });
+    };
 }
