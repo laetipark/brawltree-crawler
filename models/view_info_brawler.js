@@ -1,25 +1,30 @@
 import Sequelize from "sequelize";
 
-export default class Brawler extends Sequelize.Model {
+export default class InfoBrawler extends Sequelize.Model {
     static init(sequelize) {
         return super.init({
-            name: {
+            BRAWLER_ID: {
+                type: Sequelize.CHAR(8),
+                primaryKey: true,
+                allowNull: false,
+            },
+            BRAWLER_NM: {
                 type: Sequelize.STRING(20),
                 allowNull: false,
             },
-            rarity: {
+            BRAWLER_RRT: {
                 type: Sequelize.STRING(20),
                 allowNull: true,
             },
-            class: {
+            BRAWLER_CL: {
                 type: Sequelize.STRING(20),
                 allowNull: true,
             },
-            gender: {
+            BRAWLER_GNDR: {
                 type: Sequelize.STRING(10),
                 allowNull: true,
             },
-            icon: {
+            BRAWLER_ICN: {
                 type: Sequelize.STRING(40),
                 allowNull: true,
             },
@@ -27,8 +32,8 @@ export default class Brawler extends Sequelize.Model {
             sequelize,
             timestamps: false,
             underscore: false,
-            modelName: 'Brawler',
-            tableName: 'brawler',
+            modelName: 'InfoBrawler',
+            tableName: 'V_INFO_BRAWLER',
             paranoid: false,
             charset: 'utf8mb4',
             collate: 'utf8mb4_unicode_ci',
@@ -36,8 +41,8 @@ export default class Brawler extends Sequelize.Model {
     }
 
     static associate(db) {
-        db.Brawler.hasMany(db.MemberBrawler, {
-            foreignKey: 'brawler_id', sourceKey: 'id'
+        db.InfoBrawler.hasMany(db.MemberBrawler, {
+            foreignKey: 'BRAWLER_ID', sourceKey: 'BRAWLER_ID'
         });
     }
 }

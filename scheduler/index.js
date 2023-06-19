@@ -1,6 +1,6 @@
 import cron from 'node-cron';
 
-import {battleService, brawlerService, memberService, seasonService, rotationService} from '../services/index.js';
+import {battleService, brawlerService, memberService, rotationService} from '../services/index.js';
 
 export default async () => {
 
@@ -23,22 +23,12 @@ export default async () => {
             try {
                 await battleService.insertBattles(member);
                 await memberService.insertMember(member);
+                await memberService.updateFriends(members, member);
+                await memberService.updateRecords(member);
             } catch (error) {
                 console.log(`error 발생 : ${member}`);
                 console.log(error);
             }
         }
-    });
-
-    await cron.schedule('5 0-59/5 * * * *', async () => {
-        await rotationService.insertRotation();
-        await rotationService.deleteRotation();
-    });
-
-    await cron.schedule('0-50/20 * * * *', async () => {
-        await brawlerService.insertBrawler();
-        await rotationService.updateMaps();
-        await rotationService.updateIsRotation();
-        await seasonService.insertSeason();
     });
 }

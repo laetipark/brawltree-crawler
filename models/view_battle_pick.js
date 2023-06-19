@@ -1,54 +1,51 @@
 import Sequelize from "sequelize";
 
-export default class SeasonSummary extends Sequelize.Model {
+export default class BattlePick extends Sequelize.Model {
     static init(sequelize) {
         return super.init({
-            season_id: {
-                type: Sequelize.STRING(2),
+            MAP_ID: {
+                type: Sequelize.CHAR(8),
                 primaryKey: true,
                 allowNull: false,
             },
-            member_id: {
+            BRAWLER_ID: {
+                type: Sequelize.CHAR(8),
+                primaryKey: true,
+                allowNull: false,
+            },
+            MATCH_TYP: {
+                type: Sequelize.TINYINT,
+                allowNull: false,
+            },
+            MATCH_GRD: {
+                type: Sequelize.TINYINT,
+                allowNull: false,
+            },
+            MAP_MD: {
                 type: Sequelize.STRING(12),
-                primaryKey: true,
                 allowNull: false,
             },
-            match_type: {
-                type: Sequelize.CHAR(1),
-                allowNull: false,
-            },
-            map_mode: {
-                type: Sequelize.CHAR(12),
-                allowNull: false,
-            },
-            member_name: {
-                type: Sequelize.STRING(30),
-                allowNull: false,
-            },
-            match_count: {
-                type: Sequelize.SMALLINT,
+            MATCH_CNT: {
+                type: Sequelize.INTEGER,
                 allowNull: true,
             },
-            match_change: {
-                type: Sequelize.SMALLINT,
+            MATCH_CNT_VIC: {
+                type: Sequelize.INTEGER,
                 allowNull: false,
             },
-            point: {
-                type: Sequelize.FLOAT,
+            MATCH_CNT_DEF: {
+                type: Sequelize.INTEGER,
                 allowNull: true,
             },
         }, {
             sequelize,
             timestamps: false,
             underscore: false,
-            modelName: 'SeasonSummary',
-            tableName: 'season_summary',
+            modelName: 'BattlePick',
+            tableName: 'V_BATTLE_PICK',
             paranoid: false,
             charset: 'utf8mb4',
             collate: 'utf8mb4_unicode_ci',
         });
-    }
-
-    static associate(db) {
     }
 }

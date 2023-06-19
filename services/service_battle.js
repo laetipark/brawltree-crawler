@@ -1,33 +1,17 @@
 import fs from "fs";
 import fetch from "node-fetch";
 import config from "../config/config.js";
-import modeJSON from "../public/json/mode.json" assert {type: "json"};
 
-import Battle from "../models/battle.js";
-import Map from "../models/map.js";
-import Member from "../models/member.js";
 import {col, fn, Op} from "sequelize";
-import Season from "../models/season.js";
+import Battle from "../models/table_battle.js";
+import Member from "../models/table_member.js";
+import InfoMap from "../models/view_info_map.js";
+import InfoSeason from "../models/view_info_season.js";
 
-const typeNameArray = ['ranked', 'friendly', 'soloRanked', 'teamRanked', 'challenge', 'championshipChallenge'];
-const resultNameArray = ['victory', 'draw', 'defeat'];
+const typeNameArray = ["ranked", "friendly", "soloRanked", "teamRanked", "challenge", "championshipChallenge"];
+const resultNameArray = ["victory", "draw", "defeat"];
 
 export class battleService {
-
-    /** 신규 전투 맵 데이터베이스에 추가
-     * @param event 이벤트 정보
-     */
-    static insertMaps = async (event) => {
-        await Map.findOrCreate({
-            where: {
-                id: event.id
-            },
-            defaults: {
-                mode: event.mode,
-                name: event.map
-            }
-        });
-    };
 
     /** 최신 25개 전투 정보 확인 및 데이터베이스에 추가
      * @param member 멤버 태그
@@ -69,15 +53,15 @@ export class battleService {
             }
         };
 
-        const responseBattleLog = await fetch(`${config.url}/players/${member.replace('#', '%23')}/battlelog`, {
-            method: 'GET',
+        const responseBattleLog = await fetch(`${config.url}/players/${member.replace("#", "%23")}/battlelog`, {
+            method: "GET",
             headers: config.headers,
         })
             .then(res => res.json())
             .catch(err => console.error(err));
 
         for (const item of responseBattleLog.items) {
-            if (item.event.id !== 0 && item.battle.type !== undefined && item.battle.type !== 'friendly') {
+            if (item.event.id !== 0 && item.battle.type !== undefined && item.battle.type !== "friendly") {
                 const dateRaw = item.battleTime;
                 const matchDate = new Date(
                     Date.UTC(parseInt(dateRaw.substring(0, 4)),
@@ -88,26 +72,25 @@ export class battleService {
                         parseInt(dateRaw.substring(13, 15))));
                 const duration = item.battle.duration != null ? item.battle.duration : 0;
 
-                await this.insertMaps(item.event);
                 const mapID = item.event.id;
 
                 const teams = item.battle.teams !== undefined ?
                     item.battle.teams :
                     item.battle.players;
-                const matchMode = modeJSON.tripleModes.includes(item.event.mode) ? 3 :
-                    modeJSON.duoModes.includes(item.event.mode) ? 2 :
-                        modeJSON.soloModes.survive.includes(item.event.mode) ? 1 : 0;
-                const trophyChange = item.battle.trophyChange !== undefined ? item.battle.trophyChange : 0;
+                const mapModeNumber = config.modeClass.tripleModes.includes(item.event.mode) ? 3 :
+                    config.modeClass.duoModes.includes(item.event.mode) ? 2 :
+                        config.modeClass.soloModes.survive.includes(item.event.mode) ? 1 : 0;
+                const matchChange = item.battle.trophyChange !== undefined ? item.battle.trophyChange : 0;
 
                 const currentPlayers = JSON.stringify(teams);
                 const typeIndex = typeNameArray.indexOf(item.battle.type);
 
                 const maxTrophies = Math.max(...teams.map(team => {
-                    if ([3, 2].includes(matchMode)) {
+                    if ([3, 2].includes(mapModeNumber)) {
                         return Math.max(...team.map(player => {
                             return player.brawler.trophies;
                         }));
-                    } else if (matchMode === 0) {
+                    } else if (mapModeNumber === 0) {
                         return Math.max(...team.brawlers.map(brawler => {
                             return brawler.trophies;
                         }));
@@ -115,17 +98,17 @@ export class battleService {
                         return team.brawler.trophies;
                     }
                 }));
-                const matchType = await setType(typeIndex, trophyChange, maxTrophies, currentPlayers, matchMode);
+                const matchType = await setType(typeIndex, matchChange, maxTrophies, currentPlayers, mapModeNumber);
                 const matchGrade = [2, 3, 6].includes(matchType) ? maxTrophies :
                     [5].includes(matchType) ? Math.floor(maxTrophies / 100) :
                         (maxTrophies >= 1000 ? 4 : maxTrophies >= 750 ? 3 :
                             maxTrophies >= 500 ? 2 : maxTrophies >= 250 ? 1 : 0);
 
                 for (let teamNumber in teams) {
-                    const players = [2, 3].includes(matchMode) ? teams[teamNumber] : teams;
+                    const players = [2, 3].includes(mapModeNumber) ? teams[teamNumber] : teams;
                     for (const playerNumber in players) {
-                        const matchRank = matchMode === 1 ? playerNumber : matchMode === 2 ? teamNumber : -1;
-                        const matchResult = players[playerNumber] === member && [0, 3].includes(matchMode) ?
+                        const matchRank = mapModeNumber === 1 ? playerNumber : mapModeNumber === 2 ? teamNumber : -1;
+                        const matchResult = players[playerNumber] === member && [0, 3].includes(mapModeNumber) ?
                             await setResult(teams.length, playerNumber, (resultNameArray.indexOf(item.battle.result) - 1) * -1) :
                             await setResult(teams.length, matchRank, resultNameArray.indexOf(item.battle.result) - 1);
 
@@ -133,70 +116,70 @@ export class battleService {
                             item.battle.starPlayer !== undefined ?
                                 players[playerNumber].tag === item.battle.starPlayer.tag : 0 : 0;
 
-                        if (matchMode === 0) {
+                        if (mapModeNumber === 0) {
                             for (const brawler of players[playerNumber]?.brawlers) {
                                 await Battle.findOrCreate({
                                     where: {
-                                        member_id: member,
-                                        player_id: players[playerNumber].tag,
-                                        brawler_id: brawler.id,
-                                        match_date: matchDate
+                                        MEMBER_ID: member,
+                                        PLAYER_ID: players[playerNumber].tag,
+                                        BRAWLER_ID: brawler.id,
+                                        MATCH_DT: matchDate
                                     },
                                     defaults: {
-                                        map_id: mapID,
-                                        match_type: matchType,
-                                        match_mode: matchMode,
-                                        match_duration: duration,
-                                        match_rank: matchRank,
-                                        match_result: matchResult,
-                                        match_grade: matchGrade,
-                                        match_change: trophyChange,
-                                        player_name: players[playerNumber].name,
-                                        player_team: teamNumber,
-                                        player_star_player: isStarPlayer,
-                                        brawler_power: brawler.power,
-                                        brawler_trophy: brawler.trophies,
-                                        raw_type: typeIndex,
-                                        raw_change: brawler.trophyChange
+                                        MAP_ID: mapID,
+                                        MAP_MD_CD: mapModeNumber,
+                                        MATCH_TYP: matchType,
+                                        MATCH_GRD: matchGrade,
+                                        MATCH_DUR: duration,
+                                        MATCH_RNK: matchRank,
+                                        MATCH_RES: matchResult,
+                                        MATCH_CHG: matchChange,
+                                        PLAYER_NM: players[playerNumber].name,
+                                        PLAYER_TM_NO: teamNumber,
+                                        PLAYER_SP_BOOL: isStarPlayer,
+                                        BRAWLER_PWR: brawler.power,
+                                        BRAWLER_TRP: brawler.trophies,
+                                        RAW_TYP: typeIndex,
+                                        RAW_CHG: brawler.trophyChange
                                     }
                                 });
                             }
                         } else {
                             await Battle.findOrCreate({
                                 where: {
-                                    member_id: member,
-                                    player_id: players[playerNumber].tag,
-                                    brawler_id: players[playerNumber].brawler.id,
-                                    match_date: matchDate
+                                    MEMBER_ID: member,
+                                    PLAYER_ID: players[playerNumber].tag,
+                                    BRAWLER_ID: players[playerNumber].brawler.id,
+                                    MATCH_DT: matchDate
                                 },
                                 defaults: {
-                                    map_id: mapID,
-                                    match_type: matchType,
-                                    match_mode: matchMode,
-                                    match_duration: duration,
-                                    match_rank: matchRank,
-                                    match_result: matchResult,
-                                    match_grade: matchGrade,
-                                    match_change: trophyChange,
-                                    player_name: players[playerNumber].name,
-                                    player_team: teamNumber,
-                                    player_star_player: isStarPlayer,
-                                    brawler_power: players[playerNumber].brawler.power,
-                                    brawler_trophy: players[playerNumber].brawler.trophies,
-                                    raw_type: typeIndex,
-                                    raw_change: 0
+                                    MAP_ID: mapID,
+                                    MAP_MD_CD: mapModeNumber,
+                                    MATCH_TYP: matchType,
+                                    MATCH_GRD: matchGrade,
+                                    MATCH_DUR: duration,
+                                    MATCH_RNK: matchRank,
+                                    MATCH_RES: matchResult,
+                                    MATCH_CHG: matchChange,
+                                    PLAYER_NM: players[playerNumber].name,
+                                    PLAYER_TM_NO: [1, 2].includes(mapModeNumber) ? matchRank : teamNumber,
+                                    PLAYER_SP_BOOL: isStarPlayer,
+                                    BRAWLER_PWR: players[playerNumber].brawler.power,
+                                    BRAWLER_TRP: players[playerNumber].brawler.trophies,
+                                    RAW_TYP: typeIndex,
+                                    RAW_CHG: 0
                                 }
                             });
 
                             if (matchType === 6) {
                                 await Battle.update({
-                                    match_type: matchType
+                                    MATCH_TYP: matchType
                                 }, {
                                     where: {
-                                        member_id: member,
-                                        player_id: players[playerNumber].tag,
-                                        brawler_id: players[playerNumber].brawler.id,
-                                        match_date: matchDate,
+                                        MEMBER_ID: member,
+                                        PLAYER_ID: players[playerNumber].tag,
+                                        BRAWLER_ID: players[playerNumber].brawler.id,
+                                        MATCH_DT: matchDate,
                                     },
                                 });
                             }
@@ -205,7 +188,56 @@ export class battleService {
                 }
             }
         }
-    }
+    };
+
+    /** 이전 시즌 전투 기록 백업 */
+    static backupBattles = async () => {
+        const season = await InfoSeason.findAll({
+            limit: 3,
+            order: [["SEASON_BGN_DT", "DESC"]],
+        }).then(result => {
+            return result[2].end_date;
+        });
+
+        await Battle.findAll({
+            where: {
+                MATCH_DT: {
+                    [Op.lt]: season
+                }
+            },
+            raw: true
+        }).then(async (result) => {
+            fs.writeFileSync(`./backup/battle-${Date.now()}.json`, JSON.stringify(result));
+            await Battle.destroy({
+                where: {
+                    MATCH_DT: {
+                        [Op.lt]: season
+                    }
+                }
+            });
+        });
+    };
+
+    /** 전투 기록의 멤버 이름 통일
+     * @param member 멤버 ID
+     */
+    static updatePlayerName = async member => {
+
+        const memberName = await Member.findOne({
+            attributes: ["MEMBER_NM"],
+            where: {
+                MEMBER_ID: member
+            }
+        });
+
+        await Battle.update({
+            PLAYER_NM: memberName.MEMBER_NM
+        }, {
+            where: {
+                PLAYER_ID: member,
+            },
+        });
+    };
 
     /** 하루 멤버들의 전투 정보 요약 불러오기
      * @param beginDate 하루 시작
@@ -222,42 +254,43 @@ export class battleService {
                 {
                     model: Member,
                     required: true,
-                    attributes: ['name']
+                    attributes: []
                 },
                 {
-                    model: Map,
+                    model: InfoMap,
                     required: true,
                     attributes: [],
                     where: {
-                        mode: {
+                        MAP_MD: {
                             [Op.in]: matchMode
                         }
                     }
                 },
             ],
             attributes: [
-                "member_id",
-                [fn("COUNT", fn("DISTINCT", col("match_date"))), "match_count"],
-                [fn("SUM", col('match_change')), "match_change"]
+                "MEMBER_ID",
+                [fn("COUNT", fn("DISTINCT", col("MATCH_DT"))), "MATCH_CNT"],
+                [fn("SUM", col("MATCH_CHG")), "MATCH_CHG"],
+                [col("Member.MEMBER_NM"), "MEMBER_NM"]
             ],
-            group: ["member_id"],
+            group: ["MEMBER_ID"],
             where: {
-                member_id: [col('Battle.player_id')],
-                match_date: {
+                MEMBER_ID: [col("PLAYER_ID")],
+                MATCH_DT: {
                     [Op.between]: [beginDate, endDate]
                 },
-                match_type: {
+                MATCH_TYP: {
                     [Op.in]: matchType
                 },
             },
             order: [
-                ['match_count', 'DESC']
+                ["MATCH_CNT", "DESC"]
             ],
             raw: true,
         });
 
-        const season = await Season.findOne({
-            order: [['begin_date', 'DESC']],
+        const season = await InfoSeason.findOne({
+            order: [["SEASON_BGN_DT", "DESC"]],
         });
 
         return [battles, season];
@@ -270,91 +303,46 @@ export class battleService {
      */
     static selectBattlesDetail = async (id, beginDate, endDate) => {
         const member = await Member.findOne({
-            attributes: ['id', 'name', 'trophy_current', 'league_solo_current', 'league_team_current', 'profile_picture'],
+            attributes: ["MEMBER_ID", "MEMBER_NM", "MEMBER_PROFILE",
+                "TROPHY_CUR", "PL_SL_CUR", "PL_TM_CUR"],
             where: {
-                id: `#${id}`,
+                MEMBER_ID: `#${id}`,
             }
         });
 
         const battles = await Battle.findAll({
             include: [
                 {
-                    model: Map,
+                    model: InfoMap,
                     required: true,
                     attributes: []
                 },
             ],
             attributes:
-                ["member_id", [fn('JSON_OBJECT', "id", col('match_date'),
-                    "match_duration", col('match_duration'), "map_name", col('Map.name'), "map_mode", col('Map.mode'),
-                    "raw_type", col('raw_type'), "match_type", col('match_type'), "match_mode", col('match_mode'),
-                    "match_grade", col('match_grade'), "match_change", col('match_change')), 'info'],
-                    [fn('JSON_ARRAYAGG', fn('JSON_OBJECT',
-                        "player_id", col('player_id'), "player_name", col('player_name'),
-                        "player_team", col('player_team'), "brawler_id", col('brawler_id'),
-                        "brawler_power", col("brawler_power"), "brawler_trophy", col('brawler_trophy'),
-                        "match_rank", col('match_rank'), "match_result", col('match_result'), "raw_change", col('raw_change'))), 'players']],
-            group: ['member_id', 'match_date',
-                'match_duration', 'map_id', 'match_type',
-                'match_mode', 'match_grade', 'match_change', 'raw_type'],
+                ["MEMBER_ID", [fn("JSON_OBJECT", "MATCH_DT", col("MATCH_DT"), "MATCH_DUR", col("MATCH_DUR"),
+                    "MAP_ID", col("Battle.MAP_ID"), "MAP_MD", col("InfoMap.MAP_MD"), "MAP_NM", col("InfoMap.MAP_NM"),
+                    "RAW_TYP", col("RAW_TYP"), "MATCH_TYP", col("MATCH_TYP"), "MAP_MD_CD", col("MAP_MD_CD"),
+                    "MATCH_GRD", col("MATCH_GRD"), "MATCH_CHG", col("MATCH_CHG")), "BATTLE_INFO"],
+                    [fn("JSON_ARRAYAGG", fn("JSON_OBJECT",
+                        "PLAYER_ID", col("PLAYER_ID"), "PLAYER_NM", col("PLAYER_NM"), "PLAYER_TM_NO", col("PLAYER_TM_NO"),
+                        "BRAWLER_ID", col("BRAWLER_ID"), "BRAWLER_PWR", col("BRAWLER_PWR"), "BRAWLER_TRP", col("BRAWLER_TRP"),
+                        "MATCH_RNK", col("MATCH_RNK"), "MATCH_RES", col("MATCH_RES"), "MATCH_CHG", col("MATCH_CHG"))), "BATTLE_PLAYERS"]],
+            group: ["MEMBER_ID", "MATCH_DT",
+                "MATCH_DUR", "Battle.MAP_ID", "MATCH_TYP",
+                "MAP_MD_CD", "MATCH_GRD", "MATCH_CHG", "RAW_TYP"],
             where: {
-                match_date: {
+                MATCH_DT: {
                     [Op.between]: [beginDate, endDate]
                 },
-                member_id: `#${id}`
+                MEMBER_ID: `#${id}`
             },
-            order: [['match_date', 'DESC']],
-            raw: true
+            order: [["MATCH_DT", "DESC"]]
         });
 
-        const season = await Season.findOne({
-            order: [['begin_date', 'DESC']],
+        const season = await InfoSeason.findOne({
+            order: [["SEASON_BGN_DT", "DESC"]],
         });
 
         return [member, battles, season];
-    };
-
-    static backupBattles = async () => {
-        const season = await Season.findAll({
-            limit: 3,
-            order: [['begin_date', 'DESC']],
-        }).then(result => {
-            return result[2].end_date;
-        });
-
-        await Battle.findAll({
-            where: {
-                match_date: {
-                    [Op.lt]: season
-                }
-            },
-            raw: true
-        }).then(async (result) => {
-            fs.writeFileSync(`./backup/battle-${Date.now()}.json`, JSON.stringify(result));
-            await Battle.destroy({
-                where: {
-                    match_date: {
-                        [Op.lt]: season
-                    }
-                }
-            });
-        });
-    }
-
-    static updatePlayerName = async member => {
-        const memberName = await Member.findOne({
-            attributes: ["name"],
-            where: {
-                id: member
-            }
-        });
-
-        await Battle.update({
-            player_name: memberName.name
-        }, {
-            where: {
-                player_id: member,
-            },
-        });
     };
 }

@@ -3,57 +3,57 @@ import Sequelize from "sequelize";
 export default class MemberBrawler extends Sequelize.Model {
     static init(sequelize) {
         return super.init({
-            member_id: {
+            MEMBER_ID: {
                 type: Sequelize.STRING(12),
                 primaryKey: true,
-                allowNull: true,
+                allowNull: false,
             },
-            brawler_id: {
+            BRAWLER_ID: {
                 type: Sequelize.CHAR(8),
                 primaryKey: true,
+                allowNull: false,
+            },
+            BRAWLER_PWR: {
+                type: Sequelize.TINYINT,
+                allowNull: false,
+            },
+            TROPHY_BGN: {
+                type: Sequelize.SMALLINT,
                 allowNull: true,
             },
-            power: {
+            TROPHY_CUR: {
+                type: Sequelize.SMALLINT,
+                allowNull: false,
+            },
+            TROPHY_HGH: {
+                type: Sequelize.SMALLINT,
+                allowNull: false,
+            },
+            TROPHY_RNK: {
                 type: Sequelize.STRING(2),
-                allowNull: true,
-            },
-            trophy_begin: {
-                type: Sequelize.SMALLINT,
-                allowNull: true,
-            },
-            trophy_current: {
-                type: Sequelize.SMALLINT,
                 allowNull: false,
             },
-            trophy_highest: {
-                type: Sequelize.SMALLINT,
-                allowNull: false,
-            },
-            trophy_rank: {
-                type: Sequelize.STRING(2),
-                allowNull: false,
-            },
-            match_trophy: {
+            MATCH_CNT_TL: {
                 type: Sequelize.SMALLINT,
                 allowNull: true,
             },
-            match_league: {
+            MATCH_CNT_PL: {
                 type: Sequelize.SMALLINT,
                 allowNull: true,
             },
-            victory_trophy: {
+            MATCH_CNT_VIC_TL: {
                 type: Sequelize.SMALLINT,
                 allowNull: true,
             },
-            victory_league: {
+            MATCH_CNT_VIC_PL: {
                 type: Sequelize.SMALLINT,
                 allowNull: true,
             },
-            defeat_trophy: {
+            MATCH_CNT_DEF_TL: {
                 type: Sequelize.SMALLINT,
                 allowNull: true,
             },
-            defeat_league: {
+            MATCH_CNT_DEF_PL: {
                 type: Sequelize.SMALLINT,
                 allowNull: true,
             },
@@ -62,7 +62,7 @@ export default class MemberBrawler extends Sequelize.Model {
             timestamps: false,
             underscore: false,
             modelName: 'MemberBrawler',
-            tableName: 'member_brawler',
+            tableName: 'TB_MEMBER_BRAWLER',
             paranoid: false,
             charset: 'utf8mb4',
             collate: 'utf8mb4_unicode_ci',
@@ -71,11 +71,11 @@ export default class MemberBrawler extends Sequelize.Model {
 
     static associate(db) {
         db.MemberBrawler.belongsTo(db.Member, {
-            foreignKey: 'member_id', targetKey: 'id'
+            foreignKey: 'MEMBER_ID', targetKey: 'MEMBER_ID'
         });
 
-        db.MemberBrawler.belongsTo(db.Brawler, {
-            foreignKey: 'brawler_id', targetKey: 'id'
+        db.MemberBrawler.belongsTo(db.InfoBrawler, {
+            foreignKey: 'BRAWLER_ID', targetKey: 'BRAWLER_ID'
         });
     }
 }

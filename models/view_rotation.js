@@ -1,27 +1,27 @@
 import Sequelize from "sequelize";
 
-export default class MapRotation extends Sequelize.Model {
+export default class Rotation extends Sequelize.Model {
     static init(sequelize) {
         return super.init({
-            slot_id: {
-                type: Sequelize.STRING(2),
+            ROTATION_SLT_NO: {
+                type: Sequelize.TINYINT,
                 primaryKey: true,
                 allowNull: false,
             },
-            begin_time: {
+            ROTATION_BGN_DT: {
                 type: Sequelize.DATE,
                 primaryKey: true,
                 allowNull: false,
             },
-            end_time: {
+            ROTATION_END_DT: {
                 type: Sequelize.DATE,
                 allowNull: false,
             },
-            map_id: {
-                type: Sequelize.STRING(8),
+            MAP_ID: {
+                type: Sequelize.CHAR(8),
                 allowNull: false,
             },
-            modifiers: {
+            MAP_MDFS: {
                 type: Sequelize.STRING(50),
                 allowNull: true,
             }
@@ -29,8 +29,8 @@ export default class MapRotation extends Sequelize.Model {
             sequelize,
             timestamps: false,
             underscore: false,
-            modelName: 'MapRotation',
-            tableName: 'map_rotation',
+            modelName: 'Rotation',
+            tableName: 'V_ROTATION',
             paranoid: false,
             charset: 'utf8mb4',
             collate: 'utf8mb4_unicode_ci',
@@ -38,8 +38,8 @@ export default class MapRotation extends Sequelize.Model {
     }
 
     static associate(db) {
-        db.MapRotation.belongsTo(db.Map, {
-            foreignKey: 'map_id', sourceKey: 'id'
+        db.Rotation.belongsTo(db.InfoMap, {
+            foreignKey: 'MAP_ID', sourceKey: 'MAP_ID'
         });
     }
 }

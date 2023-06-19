@@ -1,17 +1,17 @@
 import Sequelize from "sequelize";
-import Member from "./member.js";
-import MemberBrawler from "./member_brawler.js";
-import Brawler from "./brawler.js";
-import Battle from "./battle.js";
-import Friend from "./friend.js";
-import Record from "./record.js";
-import Map from "./map.js";
-import MapRotation from "./map_rotation.js";
-import Pick from "./pick.js";
-import Season from "./season.js";
+import Battle from "./table_battle.js";
+import Member from "./table_member.js";
+import MemberBrawler from "./table_member_brawler.js";
+import MemberFriend from "./table_member_friend.js";
+import MemberRecord from "./table_member_record.js";
+
+import Rotation from "./view_rotation.js";
+import InfoBrawler from "./view_info_brawler.js";
+import InfoMap from "./view_info_map.js";
+import InfoSeason from "./view_info_season.js";
 
 import Config from "../config/config.js";
-import SeasonSummary from "./season_summary.js";
+import BattlePick from "./view_battle_pick.js";
 
 const config =
     Config.sequelize;
@@ -21,40 +21,44 @@ const sequelize =
     new Sequelize(config.database, config.username, config.password, config);
 db.sequelize = sequelize;
 
+
 db.Member = Member;
 db.MemberBrawler = MemberBrawler;
-db.Brawler = Brawler;
 db.Battle = Battle;
-db.Friend = Friend;
-db.Record = Record;
-db.Map = Map;
-db.MapRotation = MapRotation;
-db.Pick = Pick;
-db.Season = Season;
-db.SeasonSummary = SeasonSummary;
+
+db.MemberFriend = MemberFriend;
+db.MemberRecord = MemberRecord;
+
+db.BattlePick = BattlePick;
+db.Rotation = Rotation;
+db.InfoBrawler = InfoBrawler;
+db.InfoMap = InfoMap;
+db.InfoSeason = InfoSeason;
+
 
 Battle.init(sequelize);
 Member.init(sequelize);
 MemberBrawler.init(sequelize);
-Brawler.init(sequelize);
-Friend.init(sequelize);
-Record.init(sequelize);
-Map.init(sequelize);
-MapRotation.init(sequelize);
-Pick.init(sequelize);
-Season.init(sequelize);
-SeasonSummary.init(sequelize);
+
+MemberFriend.init(sequelize);
+MemberRecord.init(sequelize);
+
+BattlePick.init(sequelize);
+Rotation.init(sequelize);
+InfoBrawler.init(sequelize);
+InfoMap.init(sequelize);
+InfoSeason.init(sequelize);
+
 
 Battle.associate(db);
 Member.associate(db);
 MemberBrawler.associate(db);
-Brawler.associate(db);
-Friend.associate(db);
-Record.associate(db);
-Map.associate(db);
-MapRotation.associate(db);
-Pick.associate(db);
-Season.associate(db);
-SeasonSummary.associate(db);
+
+MemberFriend.associate(db);
+MemberRecord.associate(db);
+
+Rotation.associate(db);
+InfoBrawler.associate(db);
+InfoMap.associate(db);
 
 export {db, sequelize}

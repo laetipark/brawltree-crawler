@@ -3,83 +3,83 @@ import Sequelize from "sequelize";
 export default class Battle extends Sequelize.Model {
     static init(sequelize) {
         return super.init({
-            member_id: {
+            MEMBER_ID: {
                 type: Sequelize.STRING(12),
                 primaryKey: true,
                 allowNull: false,
             },
-            player_name: {
-                type: Sequelize.STRING(30),
+            PLAYER_ID: {
+                type: Sequelize.STRING(12),
                 primaryKey: true,
                 allowNull: false,
             },
-            brawler_id: {
-                type: Sequelize.STRING(8),
+            BRAWLER_ID: {
+                type: Sequelize.CHAR(8),
                 primaryKey: true,
                 allowNull: false,
             },
-            match_date: {
+            MATCH_DT: {
                 type: Sequelize.DATE,
                 primaryKey: true,
                 allowNull: false,
             },
-            map_id: {
-                type: Sequelize.STRING(8),
+            MAP_ID: {
+                type: Sequelize.CHAR(8),
                 allowNull: false,
             },
-            match_type: {
-                type: Sequelize.STRING(2),
-                allowNull: false,
-            },
-            match_mode: {
-                type: Sequelize.STRING(1),
-                allowNull: false,
-            },
-            match_duration: {
-                type: Sequelize.SMALLINT,
-                allowNull: true,
-            },
-            match_rank: {
-                type: Sequelize.STRING(2),
-                allowNull: true,
-            },
-            match_result: {
-                type: Sequelize.STRING(1),
-                allowNull: false,
-            },
-            match_grade: {
-                type: Sequelize.STRING(2),
-                allowNull: false,
-            },
-            match_change: {
+            MAP_MD_CD: {
                 type: Sequelize.TINYINT,
                 allowNull: false,
             },
-            player_id: {
-                type: Sequelize.STRING(12),
+            MATCH_TYP: {
+                type: Sequelize.TINYINT,
                 allowNull: false,
             },
-            player_team: {
-                type: Sequelize.STRING(1),
+            MATCH_GRD: {
+                type: Sequelize.TINYINT,
                 allowNull: false,
             },
-            player_star_player: {
-                type: Sequelize.STRING(1),
+            MATCH_DUR: {
+                type: Sequelize.TINYINT.UNSIGNED,
+                allowNull: true,
+            },
+            MATCH_RNK: {
+                type: Sequelize.TINYINT,
+                allowNull: true,
+            },
+            MATCH_RES: {
+                type: Sequelize.TINYINT,
                 allowNull: false,
             },
-            brawler_power: {
-                type: Sequelize.STRING(2),
+            MATCH_CHG: {
+                type: Sequelize.TINYINT,
                 allowNull: false,
             },
-            brawler_trophy: {
+            PLAYER_NM: {
+                type: Sequelize.STRING(30),
+                allowNull: false,
+            },
+            PLAYER_TM_NO: {
+                type: Sequelize.TINYINT,
+                allowNull: false,
+            },
+            PLAYER_SP_BOOL: {
+                type: Sequelize.BOOLEAN,
+                allowNull: true,
+            },
+            BRAWLER_PWR: {
+                type: Sequelize.TINYINT,
+                allowNull: false,
+            },
+            BRAWLER_TRP: {
                 type: Sequelize.SMALLINT,
                 allowNull: false,
             },
-            raw_type: {
-                type: Sequelize.STRING(2),
+            RAW_TYP: {
+                type: Sequelize.TINYINT,
                 allowNull: false,
             },
-            raw_change: {
+            RAW_CHG: {
                 type: Sequelize.TINYINT,
                 allowNull: true,
             },
@@ -88,7 +88,7 @@ export default class Battle extends Sequelize.Model {
             timestamps: false,
             underscore: false,
             modelName: 'Battle',
-            tableName: 'battle',
+            tableName: 'TB_BATTLE',
             paranoid: false,
             charset: 'utf8mb4',
             collate: 'utf8mb4_unicode_ci',
@@ -96,12 +96,12 @@ export default class Battle extends Sequelize.Model {
     }
 
     static associate(db) {
-        db.Battle.belongsTo(db.Map, {
-            foreignKey: 'map_id', targetKey: 'id'
+        db.Battle.belongsTo(db.InfoMap, {
+            foreignKey: 'MAP_ID', targetKey: 'MAP_ID'
         });
 
         db.Battle.belongsTo(db.Member, {
-            foreignKey: 'member_id', targetKey: 'id'
+            foreignKey: 'MEMBER_ID', targetKey: 'MEMBER_ID'
         });
     }
 }

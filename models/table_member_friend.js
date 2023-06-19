@@ -1,64 +1,59 @@
 import Sequelize from "sequelize";
 
-export default class Friend extends Sequelize.Model {
+export default class MemberFriend extends Sequelize.Model {
     static init(sequelize) {
         return super.init({
-            season_id: {
-                type: Sequelize.STRING(2),
-                primaryKey: true,
-                allowNull: false,
-            },
-            member_id: {
+            MEMBER_ID: {
                 type: Sequelize.STRING(12),
                 primaryKey: true,
                 allowNull: false,
             },
-            friend_id: {
+            FRIEND_ID: {
                 type: Sequelize.STRING(12),
                 primaryKey: true,
                 allowNull: false,
             },
-            map_mode: {
+            MAP_MD: {
                 type: Sequelize.STRING(20),
                 primaryKey: true,
                 allowNull: false,
             },
-            match_type: {
-                type: Sequelize.STRING(1),
+            MATCH_TYP: {
+                type: Sequelize.TINYINT,
                 primaryKey: true,
-                allowNull: false,
+                allowNull: true,
             },
-            match_grade: {
-                type: Sequelize.STRING(2),
+            MATCH_GRD: {
+                type: Sequelize.TINYINT,
                 primaryKey: true,
-                allowNull: false,
+                allowNull: true,
             },
-            friend_name: {
+            FRIEND_NM: {
                 type: Sequelize.STRING(30),
                 allowNull: false,
             },
-            match_count: {
-                type: Sequelize.SMALLINT,
-                allowNull: true,
-            },
-            victory_count: {
-                type: Sequelize.SMALLINT,
-                allowNull: true,
-            },
-            defeat_count: {
-                type: Sequelize.SMALLINT,
-                allowNull: true,
-            },
-            point: {
+            FRIEND_PT: {
                 type: Sequelize.FLOAT,
+                allowNull: true,
+            },
+            MATCH_CNT: {
+                type: Sequelize.SMALLINT,
+                allowNull: true,
+            },
+            MATCH_CNT_VIC: {
+                type: Sequelize.SMALLINT,
+                allowNull: true,
+            },
+            MATCH_CNT_DEF: {
+                type: Sequelize.SMALLINT,
                 allowNull: true,
             },
         }, {
             sequelize,
             timestamps: false,
             underscore: false,
-            modelName: 'Friend',
-            tableName: 'friend',
+            modelName: 'MemberFriend',
+            tableName: 'TB_MEMBER_FRIEND',
             paranoid: false,
             charset: 'utf8mb4',
             collate: 'utf8mb4_unicode_ci',
@@ -66,8 +61,8 @@ export default class Friend extends Sequelize.Model {
     }
 
     static associate(db) {
-        db.Friend.belongsTo(db.Member, {
-            foreignKey: 'member_id', targetKey: 'id'
+        db.MemberFriend.belongsTo(db.Member, {
+            foreignKey: 'MEMBER_ID', targetKey: 'MEMBER_ID'
         });
     }
 }

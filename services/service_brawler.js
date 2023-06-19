@@ -1,35 +1,22 @@
-import brawlerJSON from "../public/json/brawler.json" assert {type: "json"};
-
-import Battle from "../models/battle.js";
-import Member from "../models/member.js";
-import MemberBrawler from "../models/member_brawler.js";
-import Brawler from "../models/brawler.js";
-import Pick from "../models/pick.js";
-import Season from "../models/season.js";
 import {col, fn, literal, Op} from "sequelize";
+import Battle from "../models/table_battle.js";
+import Member from "../models/table_member.js";
+import MemberBrawler from "../models/table_member_brawler.js";
+import BattlePick from "../models/view_battle_pick.js";
+import InfoBrawler from "../models/view_info_brawler.js";
+import InfoSeason from "../models/view_info_season.js";
 
 export class brawlerService {
-    static insertBrawler = async () => {
-        for (const item of brawlerJSON.items) {
-            await Brawler.upsert({
-                id: item.id,
-                name: item.name,
-                rarity: item.rarity,
-                class: item.class,
-                gender: item.gender,
-                icon: item.icon
-            });
-        }
-    };
-
     static selectBrawlers = async () => {
-        return await Brawler.findAll();
+        return await InfoBrawler.findAll();
     }
 
     static selectBrawlerSummary = async brawler => {
-        const season = await Season.findAll({
-            order: [['begin_date', 'DESC']],
+        const season = await InfoSeason.findAll({
+            order: [["SEASON_BGN_DT", "DESC"]],
             limit: 2
+        }).then(result => {
+            return result[1];
         });
 
         const memberBrawlers =
@@ -38,61 +25,71 @@ export class brawlerService {
                     {
                         model: Member,
                         required: true,
-                        attributes: ["name"]
+                        attributes: []
                     },
                 ],
-                attributes: ["Member.name", "member_id", "brawler_id", "trophy_current", "trophy_highest"],
+                attributes: [[col("Member.MEMBER_NM"), "MEMBER_NM"],
+                    "MEMBER_ID", "BRAWLER_ID", "TROPHY_CUR", "TROPHY_HGH"],
                 where: {
-                    brawler_id: brawler
+                    BRAWLER_ID: brawler
                 },
-                order: [["brawler_id", "ASC"], ["trophy_current", "DESC"]],
-                raw: true
+                order: [["BRAWLER_ID", "ASC"], ["TROPHY_CUR", "DESC"]],
+                raw: true,
+                logging: true
             });
 
-        const pick =
-            await Pick.findAll({
-                where: {
-                    season_id: {
-                        [Op.between]: [season[1].id, season[0].id]
-                    }
-                }
+        const battlePicks =
+            await BattlePick.findAll({
+                attributes: ["BRAWLER_ID", "MATCH_TYP",
+                    [literal("SUM(`MATCH_CNT`) * 100 / SUM(SUM(`MATCH_CNT`)) OVER(PARTITION BY MATCH_TYP)"), "MATCH_CNT_RATE"],
+                    [literal("SUM(`MATCH_CNT_VIC`) * 100 / (SUM(`MATCH_CNT_VIC`) + SUM(`MATCH_CNT_DEF`))"), "MATCH_CNT_VIC_RATE"]],
+                group: ["BRAWLER_ID", "MATCH_TYP"]
             });
 
-        return [memberBrawlers, pick];
+        return [memberBrawlers, battlePicks];
     };
 
     static selectBrawlersDetail = async (id) => {
         const member = await Member.findOne({
-            attributes: ['id', 'name', 'trophy_current', 'league_solo_current', 'league_team_current', 'profile_picture'],
+            attributes: ["MEMBER_ID", "MEMBER_NM", "MEMBER_PROFILE", "TROPHY_CUR", "PL_SL_CUR", "PL_TM_CUR"],
             where: {
-                id: `#${id}`,
+                MEMBER_ID: `#${id}`,
             }
         });
 
         const brawlers = await MemberBrawler.findAll({
             include: [
                 {
-                    model: Brawler,
+                    model: InfoBrawler,
                     required: true,
-                    attributes: ['name', 'rarity']
+                    attributes: []
                 }
             ],
+            attributes: [
+                "MEMBER_ID", "BRAWLER_ID", "BRAWLER_PWR",
+                "TROPHY_BGN", "TROPHY_CUR", "TROPHY_HGH", "TROPHY_RNK",
+                "MATCH_CNT_TL", "MATCH_CNT_PL",
+                "MATCH_CNT_VIC_TL", "MATCH_CNT_VIC_PL",
+                "MATCH_CNT_DEF_TL", "MATCH_CNT_DEF_PL",
+                [col("InfoBrawler.BRAWLER_NM"), "BRAWLER_NM"],
+                [col("InfoBrawler.BRAWLER_RRT"), "BRAWLER_RRT"]
+            ],
             where: {
-                member_id: `#${id}`,
+                MEMBER_ID: `#${id}`,
             },
-            order: [['match_trophy', 'DESC']],
+            order: [["MATCH_CNT_TL", "DESC"]],
             raw: true
         });
 
         const brawlerChange = await Battle.findAll({
             attributes: [
-                [fn("DISTINCT", col('brawler_id')), 'brawler_id'],
-                [fn('DATE_FORMAT', col('match_date'), '%m-%d'), 'match_date'],
-                [literal('SUM(`match_change`) OVER(PARTITION BY `brawler_id` ORDER BY DATE(match_date))'), 'match_change']],
+                [fn("DISTINCT", col("BRAWLER_ID")), "BRAWLER_ID"],
+                [fn("DATE_FORMAT", col("MATCH_DT"), "%m-%d"), "MATCH_DT"],
+                [literal("SUM(`MATCH_CHG`) OVER(PARTITION BY `BRAWLER_ID` ORDER BY DATE(MATCH_DT))"), "MATCH_CHG"]],
             where: {
-                member_id: `#${id}`,
-                player_id: `#${id}`,
-                match_type: '0',
+                MEMBER_ID: `#${id}`,
+                PLAYER_ID: `#${id}`,
+                MATCH_TYP: 0,
             }
         });
 

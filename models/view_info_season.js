@@ -1,13 +1,18 @@
 import Sequelize from "sequelize";
 
-export default class Season extends Sequelize.Model {
+export default class InfoSeason extends Sequelize.Model {
     static init(sequelize) {
         return super.init({
-            begin_date: {
+            SEASON_NO: {
+                type: Sequelize.TINYINT.UNSIGNED,
+                primaryKey: true,
+                allowNull: false,
+            },
+            SEASON_BGN_DT: {
                 type: Sequelize.DATE,
                 allowNull: false,
             },
-            end_date: {
+            SEASON_END_DT: {
                 type: Sequelize.DATE,
                 allowNull: false,
             },
@@ -15,14 +20,11 @@ export default class Season extends Sequelize.Model {
             sequelize,
             timestamps: false,
             underscore: false,
-            modelName: 'Season',
-            tableName: 'season',
+            modelName: 'InfoSeason',
+            tableName: 'V_INFO_SEASON',
             paranoid: false,
             charset: 'utf8mb4',
             collate: 'utf8mb4_unicode_ci',
         });
-    }
-
-    static associate(db) {
     }
 }
