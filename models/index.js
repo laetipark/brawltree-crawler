@@ -57,6 +57,8 @@ MemberBrawler.associate(db);
 MemberFriend.associate(db);
 MemberRecord.associate(db);
 
+BattlePick.associate(db);
+
 Rotation.associate(db);
 InfoBrawler.associate(db);
 InfoMap.associate(db);

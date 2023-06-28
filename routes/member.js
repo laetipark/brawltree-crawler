@@ -1,5 +1,6 @@
 import express from "express";
 import {memberService} from "../services/index.js";
+import {seasonService} from "../services/service_season.js";
 
 const router = express.Router();
 
@@ -11,13 +12,14 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
     const id = req.params.id;
-    const {today} = req.query;
-    const {tomorrow} = req.query;
+    const {date} = req.query;
+    const nextDate = new Date(new Date(date).getTime() + 1000 * 60 * 60 * 24);
 
+    const season = await seasonService.selectRecentSeason();
     const [member, battles,
-        records, season, dailyCount, seasonCount,
+        records, dailyCount, seasonCount,
         friendsGroup, friendsPoint, friends, brawlers] =
-        await memberService.selectMemberDetail(id, today, tomorrow);
+        await memberService.selectMemberDetail(id, date, nextDate);
 
     res.send({
         member: member,

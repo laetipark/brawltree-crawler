@@ -6,7 +6,7 @@ import {col, fn, Op} from "sequelize";
 import Battle from "../models/table_battle.js";
 import Member from "../models/table_member.js";
 import InfoMap from "../models/view_info_map.js";
-import InfoSeason from "../models/view_info_season.js";
+import Rotation from "../models/view_rotation.js";
 
 const typeNameArray = ["ranked", "friendly", "soloRanked", "teamRanked", "challenge", "championshipChallenge"];
 const resultNameArray = ["victory", "draw", "defeat"];
@@ -60,7 +60,7 @@ export class battleService {
             .then(res => res.json())
             .catch(err => console.error(err));
 
-        for (const item of responseBattleLog.items) {
+        for (const item of responseBattleLog?.items) {
             if (item.event.id !== 0 && item.battle.type !== undefined && item.battle.type !== "friendly") {
                 const dateRaw = item.battleTime;
                 const matchDate = new Date(
@@ -191,18 +191,11 @@ export class battleService {
     };
 
     /** 이전 시즌 전투 기록 백업 */
-    static backupBattles = async () => {
-        const season = await InfoSeason.findAll({
-            limit: 3,
-            order: [["SEASON_BGN_DT", "DESC"]],
-        }).then(result => {
-            return result[2].end_date;
-        });
-
+    static backupBattles = async (season) => {
         await Battle.findAll({
             where: {
                 MATCH_DT: {
-                    [Op.lt]: season
+                    [Op.lt]: season.SEASON_END_DT
                 }
             },
             raw: true
@@ -211,18 +204,17 @@ export class battleService {
             await Battle.destroy({
                 where: {
                     MATCH_DT: {
-                        [Op.lt]: season
+                        [Op.lt]: season.SEASON_END_DT
                     }
                 }
             });
         });
     };
 
-    /** 전투 기록의 멤버 이름 통일
+    /** 전투 기록의 멤버 이름 통일시켜 변경
      * @param member 멤버 ID
      */
     static updatePlayerName = async member => {
-
         const memberName = await Member.findOne({
             attributes: ["MEMBER_NM"],
             where: {
@@ -239,17 +231,14 @@ export class battleService {
         });
     };
 
-    /** 하루 멤버들의 전투 정보 요약 불러오기
+    /** 하루 멤버들의 전투 정보 요약 반환
      * @param beginDate 하루 시작
      * @param endDate 하루 끝
      * @param type 게임 타입
      * @param mode 게임 모드
      */
     static selectBattlesSummary = async (beginDate, endDate, type, mode) => {
-        const matchType = config.typeList.filter.includes(type) ? config.typeList[`${type}`] : config.typeList.all;
-        const matchMode = config.modeList.includes(mode) ? Array(mode) : config.modeList;
-
-        const battles = await Battle.findAll({
+        return await Battle.findAll({
             include: [
                 {
                     model: Member,
@@ -262,8 +251,8 @@ export class battleService {
                     attributes: [],
                     where: {
                         MAP_MD: {
-                            [Op.in]: matchMode
-                        }
+                            [Op.in]: mode !== "all" ? [mode] : config.modeList
+                        },
                     }
                 },
             ],
@@ -280,21 +269,55 @@ export class battleService {
                     [Op.between]: [beginDate, endDate]
                 },
                 MATCH_TYP: {
-                    [Op.in]: matchType
+                    [Op.in]: type !== "7" ? [type] : config.typeList
                 },
             },
             order: [
                 ["MATCH_CNT", "DESC"]
             ],
-            raw: true,
+            raw: true
         });
-
-        const season = await InfoSeason.findOne({
-            order: [["SEASON_BGN_DT", "DESC"]],
-        });
-
-        return [battles, season];
     };
+
+    /** 진행 중인 트로피 리그 게임 모드 반환 */
+    static selectMapModeTL = async () =>
+        await Rotation.findAll({
+            include: [
+                {
+                    model: InfoMap,
+                    required: true,
+                    attributes: []
+                }
+            ],
+            attributes: [
+                [col("InfoMap.MAP_MD"), "MAP_MD"]],
+            where: {
+                ROTATION_SLT_NO: {
+                    [Op.in]: [1, 2, 3, 4, 5, 6, 33]
+                }
+            },
+            group: ["MAP_MD"],
+            raw: true,
+        }).then(result => {
+            const filterMode = result.map(mode => mode.MAP_MD);
+            const filterModeList = config.modeList.filter(mode => filterMode.includes(mode));
+            filterModeList.unshift("all");
+            return filterModeList;
+        });
+
+    /** 진행 중인 파워 리그 게임 모드 반환 */
+    static selectMapModePL = async () => await InfoMap.findAll({
+        attributes: ["MAP_MD"],
+        where: {
+            ROTATION_PL_BOOL: true
+        },
+        group: ["MAP_MD"]
+    }).then(result => {
+        const filterMode = result.map(mode => mode.MAP_MD);
+        const filterModeList = config.modeList.filter(mode => filterMode.includes(mode));
+        filterModeList.unshift("all");
+        return filterModeList;
+    });
 
     /** 하루 멤버의 세부 전투 정보 불러오기
      * @param id 멤버 ID
@@ -339,10 +362,6 @@ export class battleService {
             order: [["MATCH_DT", "DESC"]]
         });
 
-        const season = await InfoSeason.findOne({
-            order: [["SEASON_BGN_DT", "DESC"]],
-        });
-
-        return [member, battles, season];
+        return [member, battles];
     };
 }

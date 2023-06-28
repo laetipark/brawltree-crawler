@@ -1,54 +1,48 @@
-import {col, fn, literal, Op} from "sequelize";
+import {col, fn, literal} from "sequelize";
 import Battle from "../models/table_battle.js";
 import Member from "../models/table_member.js";
 import MemberBrawler from "../models/table_member_brawler.js";
 import BattlePick from "../models/view_battle_pick.js";
 import InfoBrawler from "../models/view_info_brawler.js";
-import InfoSeason from "../models/view_info_season.js";
 
 export class brawlerService {
+
+    /** 브롤러 목록 가져오기 */
     static selectBrawlers = async () => {
         return await InfoBrawler.findAll();
-    }
-
-    static selectBrawlerSummary = async brawler => {
-        const season = await InfoSeason.findAll({
-            order: [["SEASON_BGN_DT", "DESC"]],
-            limit: 2
-        }).then(result => {
-            return result[1];
-        });
-
-        const memberBrawlers =
-            await MemberBrawler.findAll({
-                include: [
-                    {
-                        model: Member,
-                        required: true,
-                        attributes: []
-                    },
-                ],
-                attributes: [[col("Member.MEMBER_NM"), "MEMBER_NM"],
-                    "MEMBER_ID", "BRAWLER_ID", "TROPHY_CUR", "TROPHY_HGH"],
-                where: {
-                    BRAWLER_ID: brawler
-                },
-                order: [["BRAWLER_ID", "ASC"], ["TROPHY_CUR", "DESC"]],
-                raw: true,
-                logging: true
-            });
-
-        const battlePicks =
-            await BattlePick.findAll({
-                attributes: ["BRAWLER_ID", "MATCH_TYP",
-                    [literal("SUM(`MATCH_CNT`) * 100 / SUM(SUM(`MATCH_CNT`)) OVER(PARTITION BY MATCH_TYP)"), "MATCH_CNT_RATE"],
-                    [literal("SUM(`MATCH_CNT_VIC`) * 100 / (SUM(`MATCH_CNT_VIC`) + SUM(`MATCH_CNT_DEF`))"), "MATCH_CNT_VIC_RATE"]],
-                group: ["BRAWLER_ID", "MATCH_TYP"]
-            });
-
-        return [memberBrawlers, battlePicks];
     };
 
+    /** 브롤러에 대한 승률 정보 반환 */
+    static selectBrawlerBattlePick = async () => {
+        return await BattlePick.findAll({
+            attributes: ["BRAWLER_ID", "MATCH_TYP",
+                [literal("SUM(`MATCH_CNT`) * 100 / SUM(SUM(`MATCH_CNT`)) OVER(PARTITION BY MATCH_TYP)"), "MATCH_CNT_RATE"],
+                [literal("SUM(`MATCH_CNT_VIC`) * 100 / (SUM(`MATCH_CNT_VIC`) + SUM(`MATCH_CNT_DEF`))"), "MATCH_CNT_VIC_RATE"]],
+            group: ["BRAWLER_ID", "MATCH_TYP"]
+        });
+    };
+
+    /** 브롤러에 대한 멤버들 요약 정보 반환 */
+    static selectBrawlerSummary = async brawler => {
+        return await MemberBrawler.findAll({
+            include: [
+                {
+                    model: Member,
+                    required: true,
+                    attributes: []
+                },
+            ],
+            attributes: [[col("Member.MEMBER_NM"), "MEMBER_NM"],
+                "MEMBER_ID", "BRAWLER_ID", "TROPHY_CUR", "TROPHY_HGH"],
+            where: {
+                BRAWLER_ID: brawler
+            },
+            order: [["BRAWLER_ID", "ASC"], ["TROPHY_CUR", "DESC"]],
+            raw: true
+        });
+    };
+
+    /** 멤버 소유 브롤러들 정보 반환 */
     static selectBrawlersDetail = async (id) => {
         const member = await Member.findOne({
             attributes: ["MEMBER_ID", "MEMBER_NM", "MEMBER_PROFILE", "TROPHY_CUR", "PL_SL_CUR", "PL_TM_CUR"],

@@ -48,4 +48,10 @@ export default class BattlePick extends Sequelize.Model {
             collate: 'utf8mb4_unicode_ci',
         });
     }
+
+    static associate(db) {
+        db.BattlePick.belongsTo(db.InfoBrawler, {
+            foreignKey: 'BRAWLER_ID', sourceKey: 'BRAWLER_ID'
+        });
+    }
 }

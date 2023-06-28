@@ -8,6 +8,7 @@ import index from "../routes/index.js";
 import member from "../routes/member.js";
 import brawler from "../routes/brawler.js";
 import battle from "../routes/battle.js";
+import map from "../routes/map.js";
 import rotation from "../routes/rotation.js";
 import season from "../routes/season.js";
 import config from "../config/config.js";
@@ -16,7 +17,7 @@ import session from "express-session";
 
 export default async () => {
     const app = express();
-    const __dirname = path.dirname(path.resolve());
+    path.dirname(path.resolve());
 
     app.use(cors({
         origin: "*",                // 출처 허용 옵션
@@ -30,7 +31,6 @@ export default async () => {
         app.use(morgan('dev'));
     }
 
-    app.use('/', express.static(path.join(__dirname, '/blossom-web-frontend/build')));
     app.use(express.json({limit: '50mb'}));
     app.use(express.urlencoded({
         limit: '50mb',
@@ -39,10 +39,11 @@ export default async () => {
 
     // routes
     app.use('/', index);
-    app.use('/member', member);
-    app.use('/brawler', brawler);
-    app.use('/rotation', rotation);
     app.use('/battle', battle);
+    app.use('/brawler', brawler);
+    app.use('/map', map);
+    app.use('/member', member);
+    app.use('/rotation', rotation);
     app.use('/season', season);
     app.use((req, res) => {
         res.status(404).send('Not Found');

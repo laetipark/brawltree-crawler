@@ -10,7 +10,6 @@ import MemberFriend from "../models/table_member_friend.js";
 import MemberRecord from "../models/table_member_record.js";
 import InfoBrawler from "../models/view_info_brawler.js";
 import InfoMap from "../models/view_info_map.js";
-import InfoSeason from "../models/view_info_season.js";
 
 export class memberService {
 
@@ -39,16 +38,13 @@ export class memberService {
         const crew = crewJSON.map(crew => crew.tag);
 
         return removeDuplicates(club.items.map(club => club.tag).concat(crew));
-    }
+    };
 
     /** 멤버 기록과 소유 브롤러 정보 데이터베이스에 추가
      * @param member 멤버 태그
+     * @param season 최신 시즌
      */
-    static insertMember = async (member) => {
-        const season = await InfoSeason.findOne({
-            order: [["SEASON_BGN_DT", "DESC"]],
-        });
-
+    static insertMember = async (member, season) => {
         const setLeagueRank = (typeNum, tag, column) => {
             return Battle.findOne({
                 attributes: ["BRAWLER_TRP"],
@@ -141,7 +137,7 @@ export class memberService {
 
             responseMember.name = crewJSON.find(member => member.tag === responseMember.tag) !== undefined ?
                 (crewJSON.find(member => member.tag === responseMember.tag).name !== responseMember.name ?
-                    `${crewJSON.find(member => member.tag === responseMember.tag).name}(${responseMember.name})`
+                    `${crewJSON.find(member => member.tag === responseMember.tag).name}<(${responseMember.name})>`
                     : responseMember.name) : responseMember.name;
 
             await Member.upsert({
@@ -150,11 +146,11 @@ export class memberService {
                 MEMBER_PROFILE: responseMember.icon.id,
                 TROPHY_CUR: responseMember.trophies,
                 TROPHY_HGH: responseMember.highestTrophies,
-                VICTORY_TL: responseMember["3vs3Victories"],
+                VICTORY_TRP: responseMember["3vs3Victories"],
                 VICTORY_DUO: responseMember.duoVictories,
-                BRAWLER_RNK_25: responseMember.brawlers.filter((trophy) => trophy.highestTrophies >= 750).length,
-                BRAWLER_RNK_30: responseMember.brawlers.filter((trophy) => trophy.highestTrophies >= 1000).length,
-                BRAWLER_RNK_35: responseMember.brawlers.filter((trophy) => trophy.highestTrophies >= 1250).length,
+                BRAWLER_RNK_25: responseMember.brawlers.filter((brawler) => brawler.rank >= 25).length,
+                BRAWLER_RNK_30: responseMember.brawlers.filter((brawler) => brawler.rank >= 30).length,
+                BRAWLER_RNK_35: responseMember.brawlers.filter((brawler) => brawler.rank >= 35).length,
                 PL_SL_CUR: soloRankCurrent,
                 PL_SL_HGH: soloRankHighest,
                 PL_TM_CUR: teamRankCurrent,
@@ -187,20 +183,20 @@ export class memberService {
                 });
             }
         }
-    }
+    };
 
-    static updateFriends = async (members, member) => {
-
-        const season = await InfoSeason.findOne({
-            order: [["SEASON_BGN_DT", "DESC"]],
-        });
-
+    /** 멤버에 대한 친구 정보 추가
+     * @param members 멤버 목록
+     * @param member 멤버 태그
+     * @param season 최신 시즌
+     */
+    static updateFriends = async (members, member, season) => {
         const memberPLTeam = await Member.findOne({
             attributes: ["PL_TM_CUR"],
             where: {
                 MEMBER_ID: member
             }
-        })
+        });
 
         const friends = await Battle.findAll({
             include: [
@@ -259,11 +255,11 @@ export class memberService {
         }
     };
 
-    static updateRecords = async (member) => {
-        const season = await InfoSeason.findOne({
-            order: [["SEASON_BGN_DT", "DESC"]],
-        });
-
+    /** 멤버에 대한 기록 정보 추가
+     * @param member 멤버 태그
+     * @param season 최신 시즌
+     */
+    static updateRecords = async (member, season) => {
         const memberPLTeam = await Member.findOne({
             attributes: ["PL_SL_CUR", "PL_TM_CUR"],
             where: {
@@ -347,6 +343,7 @@ export class memberService {
         });
     };
 
+    /** 멤버들 요약 정보 반환 */
     static selectMembersSummary = async () => {
         return await Member.findAll({
             attributes: ["MEMBER_ID", "MEMBER_NM", "TROPHY_CUR", "PL_SL_CUR", "PL_TM_CUR"],
@@ -354,11 +351,12 @@ export class memberService {
         });
     };
 
-    static async selectMemberDetail(id, beginDate, endDate) {
-        const season = await InfoSeason.findOne({
-            order: [["SEASON_BGN_DT", "DESC"]]
-        });
-
+    /** 멤버 요약 정보 반환
+     * @param id 멤버 태그
+     * @param beginDate 시작일
+     * @param endDate 종료일
+     */
+    static selectMemberDetail = async (id, beginDate, endDate) => {
         const member = await Member.findOne({
             where: {
                 MEMBER_ID: `#${id}`
@@ -521,20 +519,14 @@ export class memberService {
             raw: true
         });
 
-        return [member, battles, records, season, dailyCount, seasonCount, friendsGroup, friendsPoint, friends, brawlers];
+        return [member, battles, records, dailyCount, seasonCount, friendsGroup, friendsPoint, friends, brawlers];
     };
 
-
+    /** 타입/모드에 대한 시즌 기록 반환
+     * @param type 멤버 태그
+     * @param mode 시작일
+     */
     static selectSeasonSummary = async (type, mode) => {
-
-        const matchType = config.typeList.filter.includes(type) ? config.typeList[`${type}`] : config.typeList.all;
-        const matchMode = config.modeList.includes(mode) ? Array(mode) : config.modeList;
-
-        const season = await InfoSeason.findOne({
-            order: [['SEASON_BGN_DT', 'DESC']]
-        });
-
-
         const record = await MemberRecord.findAll({
             include: [
                 {
@@ -548,8 +540,12 @@ export class memberService {
                 [fn("SUM", col("MATCH_CNT")), "MATCH_CNT"],
                 [col("Member.MEMBER_NM"), "MEMBER_NM"]],
             where: {
-                MAP_MD: matchMode,
-                MATCH_TYP: matchType
+                MATCH_TYP: {
+                    [Op.in]: type !== "7" ? [type] : config.typeList
+                },
+                MAP_MD: {
+                    [Op.in]: mode !== "all" ? [mode] : config.modeList
+                },
             },
             group: ["MEMBER_ID"],
             order: [["MATCH_CNT", "DESC"]],
@@ -567,14 +563,18 @@ export class memberService {
             attributes: ["MEMBER_ID",
                 [fn("ROUND", fn("SUM", col("FRIEND_PT")), 2), "FRIEND_PT"]],
             where: {
-                MAP_MD: matchMode,
-                MATCH_TYP: matchType
+                MATCH_TYP: {
+                    [Op.in]: type !== "7" ? [type] : config.typeList
+                },
+                MAP_MD: {
+                    [Op.in]: mode !== "all" ? [mode] : config.modeList
+                },
             },
             group: ["MEMBER_ID"],
             raw: true
         });
 
-        const members = record.map(memberRecord => {
+        return record.map(memberRecord => {
             const matched = friend.find(memberFriend =>
                 memberRecord.MEMBER_ID === memberFriend.MEMBER_ID);
             if (matched) {
@@ -589,7 +589,5 @@ export class memberService {
                 }
             }
         });
-
-        return [season, members];
     };
 }

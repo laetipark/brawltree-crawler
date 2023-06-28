@@ -3,9 +3,7 @@ import InfoMap from '../models/view_info_map.js';
 import Rotation from '../models/view_rotation.js';
 
 export class rotationService {
-
     static selectRotation = async () => {
-
         const groupBy = (data, key) =>
             data.reduce(function (carry, el) {
                 const group = el[key];
@@ -18,7 +16,7 @@ export class rotationService {
                 return carry;
             }, {});
 
-        const rotation = await Rotation.findAll({
+        return await Rotation.findAll({
             include: [
                 {
                     model: InfoMap,
@@ -39,7 +37,5 @@ export class rotationService {
         }).then(result => {
             return groupBy(result, "ROTATION_SLT_NO");
         });
-
-        return [rotation];
     };
 }

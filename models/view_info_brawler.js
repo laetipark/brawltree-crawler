@@ -44,5 +44,9 @@ export default class InfoBrawler extends Sequelize.Model {
         db.InfoBrawler.hasMany(db.MemberBrawler, {
             foreignKey: 'BRAWLER_ID', sourceKey: 'BRAWLER_ID'
         });
+
+        db.InfoBrawler.hasMany(db.BattlePick, {
+            foreignKey: 'BRAWLER_ID', sourceKey: 'BRAWLER_ID'
+        });
     }
 }
