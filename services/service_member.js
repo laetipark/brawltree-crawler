@@ -15,7 +15,6 @@ export class memberService {
 
     /** 멤버 정보 최신화 */
     static updateMembers = async () => {
-
         function removeDuplicates(array) {
             const arr = array.concat()
             for (let i = 0; i < arr.length; ++i) {
@@ -590,4 +589,61 @@ export class memberService {
             }
         });
     };
+
+    static selectIndexSummary = async () => {
+        const memberSummary = await Member.findOne({
+            attributes: [
+                [fn("COUNT", col("MEMBER_ID")), "MEMBER_CNT"],
+                [fn("SUM", col("TROPHY_CUR")), "TROPHY_CUR_TOT"]
+            ],
+        });
+
+        const memberBrawlerSummaryTL = await MemberBrawler.findAll({
+            attributes: [
+                "BRAWLER_ID",
+                [literal("SUM(`MATCH_CNT_TL`) * 100 / SUM(SUM(`MATCH_CNT_TL`)) OVER()"), "MATCH_CNT_TL_RATE"],
+                [literal("SUM(`MATCH_CNT_VIC_TL`) * 100 / (SUM(`MATCH_CNT_VIC_TL`) + SUM(`MATCH_CNT_DEF_TL`))"), "MATCH_CNT_VIC_TL_RATE"]
+            ],
+            group: ["BRAWLER_ID"],
+            order: [["MATCH_CNT_VIC_TL_RATE", "DESC"]],
+            limit: 6
+        });
+        const memberBrawlerSummaryPL = await MemberBrawler.findAll({
+            attributes: [
+                "BRAWLER_ID",
+                [literal("SUM(`MATCH_CNT_PL`) * 100 / SUM(SUM(`MATCH_CNT_PL`)) OVER()"), "MATCH_CNT_PL_RATE"],
+                [literal("SUM(`MATCH_CNT_VIC_PL`) * 100 / (SUM(`MATCH_CNT_VIC_PL`) + SUM(`MATCH_CNT_DEF_PL`))"), "MATCH_CNT_VIC_PL_RATE"]
+            ],
+            group: ["BRAWLER_ID"],
+            order: [["MATCH_CNT_VIC_PL_RATE", "DESC"]],
+            limit: 6
+        });
+
+        const beginDate = new Date(new Date(
+            new Date().getFullYear(),
+            new Date().getMonth(),
+            new Date().getDate()
+        ).getTime());
+        const endDate = new Date(new Date(beginDate).getTime() + 1000 * 60 * 60 * 24);
+        const battleSummary = await Battle.findOne({
+            attributes: [
+                [fn("COUNT", "DISTINCT MATCH_DT"), "MATCH_CNT_TOT"],
+            ],
+            where: {
+                MATCH_DT: {
+                    [Op.between]: [beginDate, endDate]
+                },
+                MEMBER_ID: [col("PLAYER_ID")]
+            },
+        });
+
+        const seasonSummary = await MemberRecord.findOne({
+            attributes: [
+                [fn("SUM", col("MATCH_CNT")), "MATCH_CNT"]
+            ],
+            order: [["MATCH_CNT", "DESC"]],
+        });
+
+        return [memberSummary, memberBrawlerSummaryTL, memberBrawlerSummaryPL, battleSummary, seasonSummary];
+    }
 }
