@@ -1,5 +1,5 @@
 import express from "express";
-import {memberService, rotationService} from "../services/index.js";
+import {brawlerService, memberService, rotationService} from "../services/index.js";
 
 const router = express.Router();
 
@@ -7,13 +7,16 @@ router.get('/', async (req, res) => {
 
     const [
         memberSummary,
-        memberBrawlerSummaryTL,
-        memberBrawlerSummaryPL,
         battleSummary,
         seasonSummary
     ] = await memberService.selectIndexSummary();
 
-    const rotationSummary = await rotationService.selectRotation();
+    const [
+        memberBrawlerSummaryTL,
+        memberBrawlerSummaryPL
+    ] = await brawlerService.selectBrawlerBattlePickSummary();
+
+    const rotationSummary = await rotationService.selectRotationTL();
 
     res.send({
         member: memberSummary,

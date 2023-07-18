@@ -598,27 +598,6 @@ export class memberService {
             ],
         });
 
-        const memberBrawlerSummaryTL = await MemberBrawler.findAll({
-            attributes: [
-                "BRAWLER_ID",
-                [literal("SUM(`MATCH_CNT_TL`) * 100 / SUM(SUM(`MATCH_CNT_TL`)) OVER()"), "MATCH_CNT_TL_RATE"],
-                [literal("SUM(`MATCH_CNT_VIC_TL`) * 100 / (SUM(`MATCH_CNT_VIC_TL`) + SUM(`MATCH_CNT_DEF_TL`))"), "MATCH_CNT_VIC_TL_RATE"]
-            ],
-            group: ["BRAWLER_ID"],
-            order: [["MATCH_CNT_VIC_TL_RATE", "DESC"]],
-            limit: 6
-        });
-        const memberBrawlerSummaryPL = await MemberBrawler.findAll({
-            attributes: [
-                "BRAWLER_ID",
-                [literal("SUM(`MATCH_CNT_PL`) * 100 / SUM(SUM(`MATCH_CNT_PL`)) OVER()"), "MATCH_CNT_PL_RATE"],
-                [literal("SUM(`MATCH_CNT_VIC_PL`) * 100 / (SUM(`MATCH_CNT_VIC_PL`) + SUM(`MATCH_CNT_DEF_PL`))"), "MATCH_CNT_VIC_PL_RATE"]
-            ],
-            group: ["BRAWLER_ID"],
-            order: [["MATCH_CNT_VIC_PL_RATE", "DESC"]],
-            limit: 6
-        });
-
         const beginDate = new Date(new Date(
             new Date().getFullYear(),
             new Date().getMonth(),
@@ -644,6 +623,6 @@ export class memberService {
             order: [["MATCH_CNT", "DESC"]],
         });
 
-        return [memberSummary, memberBrawlerSummaryTL, memberBrawlerSummaryPL, battleSummary, seasonSummary];
+        return [memberSummary, battleSummary, seasonSummary];
     }
 }

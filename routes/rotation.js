@@ -4,10 +4,12 @@ import {rotationService} from "../services/index.js";
 const router = express.Router();
 
 router.get('/', async (req, res) => {
-    const rotation = await rotationService.selectRotation();
+    const rotationTL = await rotationService.selectRotationTL();
+    const rotationPL = await rotationService.selectRotationPL();
 
     res.send({
-        rotation: rotation
+        rotationTL: rotationTL,
+        rotationPL: rotationPL
     });
 });
 

@@ -1,4 +1,4 @@
-import {col, fn, literal} from "sequelize";
+import {col, fn, literal, Op} from "sequelize";
 import Battle from "../models/table_battle.js";
 import Member from "../models/table_member.js";
 import MemberBrawler from "../models/table_member_brawler.js";
@@ -21,6 +21,37 @@ export class brawlerService {
             group: ["BRAWLER_ID", "MATCH_TYP"]
         });
     };
+
+    /** 브롤러에 대한 승률 정보 반환 */
+    static selectBrawlerBattlePickSummary = async () => {
+        return [
+            await BattlePick.findAll({
+                attributes: ["BRAWLER_ID",
+                    [literal("SUM(`MATCH_CNT`) * 100 / SUM(SUM(`MATCH_CNT`)) OVER()"), "MATCH_CNT_TL_RATE"],
+                    [literal("SUM(`MATCH_CNT_VIC`) * 100 / (SUM(`MATCH_CNT_VIC`) + SUM(`MATCH_CNT_DEF`))"), "MATCH_CNT_VIC_TL_RATE"]],
+                where: {
+                    MATCH_TYP: 0
+                },
+                group: ["BRAWLER_ID"],
+                order: [["MATCH_CNT_TL_RATE", "DESC"], ["MATCH_CNT_VIC_TL_RATE", "DESC"]],
+                limit: 10
+            }),
+            await BattlePick.findAll({
+                attributes: ["BRAWLER_ID",
+                    [literal("SUM(`MATCH_CNT`) * 100 / SUM(SUM(`MATCH_CNT`)) OVER()"), "MATCH_CNT_PL_RATE"],
+                    [literal("SUM(`MATCH_CNT_VIC`) * 100 / (SUM(`MATCH_CNT_VIC`) + SUM(`MATCH_CNT_DEF`))"), "MATCH_CNT_VIC_PL_RATE"]],
+                where: {
+                    MATCH_TYP: {
+                        [Op.in]: [2, 3]
+                    }
+                },
+                group: ["BRAWLER_ID"],
+                order: [["MATCH_CNT_PL_RATE", "DESC"], ["MATCH_CNT_VIC_PL_RATE", "DESC"]],
+                limit: 10
+            })
+        ];
+    };
+
 
     /** 브롤러에 대한 멤버들 요약 정보 반환 */
     static selectBrawlerSummary = async brawler => {
