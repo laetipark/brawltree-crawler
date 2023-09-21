@@ -1,12 +1,16 @@
-import loaders from "./loaders/index.js";
+import cron from "node-cron";
 
-import scheduler from "./scheduler/index.js";
+import {memberService} from "./services/member_service.js";
 
-const main = async () => {
-    await loaders();
-}
+let members = [];
+members = await memberService.updateMembers();
 
-main().then(() => {
-    console.log('🌸 HELLO BLOSSOM 🌸');
-    scheduler();
+await cron.schedule('0 0 * * *', async () => {
+    members = await memberService.updateMembers();
+});
+
+await cron.schedule('0-59/10 * * * *', async () => {
+    await memberService.updateMemberProfiles(members);
+    await memberService.updateMemberFriends(members);
+    await memberService.updateMemberRecords(members);
 });
