@@ -1,7 +1,8 @@
 {
-  "name": "blossom-stats-backend-backend",
-  "version": "1.2.0",
-  "description": "Blossom Stats, Brawl Stars",
+  "name": "brawltree-scheduler",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Plant Brawl Tree",
   "main": "app.js",
   "type": "module",
   "scripts": {
@@ -11,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/laeti-park/blossom-stats-backend.git"
+    "url": "git+https://github.com/laetipark/brawltree-scheduler.git"
   },
   "author": "laeti-park",
   "license": "ISC",
@@ -23,7 +24,6 @@
     "axios": "^1.5.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "eslint": "^8.42.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
     "morgan": "^1.10.0",
@@ -36,6 +36,7 @@
     "sequelize-cli": "^6.6.1"
   },
   "devDependencies": {
+    "eslint": "^8.50.0",
     "nodemon": "^3.0.1"
   },
   "nodemonConfig": {

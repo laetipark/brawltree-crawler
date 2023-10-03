@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Op } from 'sequelize';
+import { fn, literal, Op } from 'sequelize';
 import {
   sequelize,
   Users,
@@ -7,6 +7,7 @@ import {
   UserBattles,
   UserBrawlers,
   UserBrawlerItems,
+  UserBrawlerBattles,
 } from '../models/index.js';
 
 import { dateService } from './date_service.js';
@@ -257,6 +258,8 @@ export class authService {
           },
         );
 
+        await this.updateUserBrawlerBattles(userID);
+
         if (cycle) {
           setTimeout(() => {
             this.manageUsers(userID, cycle);
@@ -384,7 +387,7 @@ export class authService {
       const battles = [];
 
       if (lastBattleDate !== lastBattleDateResponse) {
-        for (const item of battleLogs?.items) {
+        for (const item of battleLogs?.items || []) {
           if (item.event.id !== 0 && item.battle.type !== undefined) {
             const matchDate = dateService.getDate(item.battleTime);
             const duration =
@@ -472,7 +475,8 @@ export class authService {
                   );
 
                   if (mapModeNumber === 0) {
-                    for (const brawler of players[playerNumber]?.brawlers) {
+                    for (const brawler of players[playerNumber]?.brawlers ||
+                      []) {
                       battles.push({
                         USER_ID: userTag,
                         PLAYER_ID: players[playerNumber].tag,
@@ -490,7 +494,7 @@ export class authService {
                         MATCH_CHG_RAW: brawler.trophyChange,
                         PLAYER_NM: players[playerNumber].name,
                         PLAYER_TM_NO: teamNumber,
-                        PLAYER_SP_BOOL: isStarPlayer,
+                        PLAYER_SP_BOOL: false,
                         BRAWLER_PWR: brawler.power,
                         BRAWLER_TRP: brawler.trophies,
                       });
@@ -559,5 +563,52 @@ export class authService {
         transaction: t,
       });
     }); // transaction 종료
+  };
+
+  static updateUserBrawlerBattles = async (userID) => {
+    const battles = await UserBattles.findAll({
+      attributes: [
+        'BRAWLER_ID',
+        'MAP_ID',
+        'MATCH_TYP',
+        'MATCH_GRD',
+        [fn('COUNT', literal('*')), 'MATCH_CNT'],
+        [
+          fn('COUNT', literal('CASE WHEN MATCH_RES = -1 THEN 1 ELSE NULL END')),
+          'MATCH_CNT_VIC',
+        ],
+        [
+          fn('COUNT', literal('CASE WHEN MATCH_RES = 1 THEN 1 ELSE NULL END')),
+          'MATCH_CNT_DEF',
+        ],
+      ],
+      where: {
+        USER_ID: `#${userID}`,
+        PLAYER_ID: `#${userID}`,
+        MATCH_TYP: {
+          [Op.in]: [0, 2, 3],
+        },
+      },
+      group: ['BRAWLER_ID', 'MAP_ID', 'MATCH_TYP', 'MATCH_GRD'],
+      raw: true,
+    }).then((result) => {
+      return result.map((battle) => {
+        return {
+          USER_ID: `#${userID}`,
+          BRAWLER_ID: battle.BRAWLER_ID,
+          MAP_ID: battle.MAP_ID,
+          MATCH_TYP: battle.MATCH_TYP,
+          MATCH_GRD: battle.MATCH_GRD,
+          MATCH_CNT: battle.MATCH_CNT,
+          MATCH_CNT_VIC: battle.MATCH_CNT_VIC,
+          MATCH_CNT_DEF: battle.MATCH_CNT_DEF,
+        };
+      });
+    });
+
+    await UserBrawlerBattles.bulkCreate(battles, {
+      ignoreDuplicates: true,
+      updateOnDuplicate: ['MATCH_CNT', 'MATCH_CNT_VIC', 'MATCH_CNT_DEF'],
+    });
   };
 }

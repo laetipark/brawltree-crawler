@@ -4,9 +4,8 @@ import {
   BattleTrio,
   Maps,
   UserBattles,
-  UserBrawlerBattles,
-} from "../models/index.js";
-import { col, fn, literal, Op } from "sequelize";
+} from '../models/index.js';
+import { col, fn, literal, Op } from 'sequelize';
 
 export class battleService {
   static updateBattleTrio = async () => {
@@ -53,9 +52,9 @@ export class battleService {
 
     const battleTrios = await sequelize
       .query(query)
-      .then(([result, metadata]) => {
+      .then(([result]) => {
         return result.map((item) => {
-          const trio = [...new Set(item.TRIO.split(","))];
+          const trio = [...new Set(item.TRIO.split(','))];
           item.BRAWLER_1_ID = trio[0];
           item.BRAWLER_2_ID = trio[1];
           item.BRAWLER_3_ID = trio[2];
@@ -77,7 +76,7 @@ export class battleService {
 
     await BattleTrio.bulkCreate(battleTrios, {
       ignoreDuplicates: true,
-      updateOnDuplicate: ["MATCH_CNT", "MATCH_CNT_VIC", "MATCH_CNT_DEF"],
+      updateOnDuplicate: ['MATCH_CNT', 'MATCH_CNT_VIC', 'MATCH_CNT_DEF'],
     });
   };
 
@@ -91,80 +90,33 @@ export class battleService {
         },
       ],
       attributes: [
-        "BRAWLER_ID",
-        "MAP_ID",
-        "MATCH_TYP",
-        "MATCH_GRD",
-        [fn("COUNT", col("MATCH_RES")), "MATCH_CNT"],
+        'BRAWLER_ID',
+        'MAP_ID',
+        'MATCH_TYP',
+        'MATCH_GRD',
+        [fn('COUNT', col('MATCH_RES')), 'MATCH_CNT'],
         [
-          fn("COUNT", literal("CASE WHEN MATCH_RES = -1 THEN 1 ELSE NULL END")),
-          "MATCH_CNT_VIC",
+          fn('COUNT', literal('CASE WHEN MATCH_RES = -1 THEN 1 ELSE NULL END')),
+          'MATCH_CNT_VIC',
         ],
         [
-          fn("COUNT", literal("CASE WHEN MATCH_RES = 1 THEN 1 ELSE NULL END")),
-          "MATCH_CNT_DEF",
+          fn('COUNT', literal('CASE WHEN MATCH_RES = 1 THEN 1 ELSE NULL END')),
+          'MATCH_CNT_DEF',
         ],
-        [col("Map.MAP_MD"), "MAP_MD"],
+        [col('Map.MAP_MD'), 'MAP_MD'],
       ],
       where: {
         MATCH_TYP: {
           [Op.in]: [0, 2, 3],
         },
       },
-      group: ["BRAWLER_ID", "MAP_ID", "MATCH_TYP", "MATCH_GRD", "MAP_MD"],
+      group: ['BRAWLER_ID', 'MAP_ID', 'MATCH_TYP', 'MATCH_GRD', 'MAP_MD'],
       raw: true,
     });
 
     await BrawlerStats.bulkCreate(brawlerStats, {
       ignoreDuplicates: true,
-      updateOnDuplicate: ["MATCH_CNT", "MATCH_CNT_VIC", "MATCH_CNT_DEF"],
-    });
-  };
-
-  static updateUserBattles = async (userID) => {
-    const battles = await UserBattles.findAll({
-      attributes: [
-        "BRAWLER_ID",
-        "MAP_ID",
-        "MATCH_TYP",
-        "MATCH_GRD",
-        [fn("COUNT", literal("*")), "MATCH_CNT"],
-        [
-          fn("COUNT", literal("CASE WHEN MATCH_RES = -1 THEN 1 ELSE NULL END")),
-          "MATCH_CNT_VIC",
-        ],
-        [
-          fn("COUNT", literal("CASE WHEN MATCH_RES = 1 THEN 1 ELSE NULL END")),
-          "MATCH_CNT_DEF",
-        ],
-      ],
-      where: {
-        USER_ID: `#${userID}`,
-        PLAYER_ID: `#${userID}`,
-        MATCH_TYP: {
-          [Op.in]: [0, 2, 3],
-        },
-      },
-      group: ["BRAWLER_ID", "MAP_ID", "MATCH_TYP", "MATCH_GRD"],
-      raw: true,
-    }).then((result) => {
-      return result.map((battle) => {
-        return {
-          USER_ID: `#${userID}`,
-          BRAWLER_ID: battle.BRAWLER_ID,
-          MAP_ID: battle.MAP_ID,
-          MATCH_TYP: battle.MATCH_TYP,
-          MATCH_GRD: battle.MATCH_GRD,
-          MATCH_CNT: battle.MATCH_CNT,
-          MATCH_CNT_VIC: battle.MATCH_CNT_VIC,
-          MATCH_CNT_DEF: battle.MATCH_CNT_DEF,
-        };
-      });
-    });
-
-    await UserBrawlerBattles.bulkCreate(battles, {
-      ignoreDuplicates: true,
-      updateOnDuplicate: ["MATCH_CNT", "MATCH_CNT_VIC", "MATCH_CNT_DEF"],
+      updateOnDuplicate: ['MATCH_CNT', 'MATCH_CNT_VIC', 'MATCH_CNT_DEF'],
     });
   };
 
