@@ -17,27 +17,28 @@
   "author": "laeti-park",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/laetipark/blossom-stats-backend/issues"
+    "url": "https://github.com/laetipark/brawltree-scheduler/issues"
   },
-  "homepage": "https://github.com/laetipark/blossom-stats-backend#readme",
+  "homepage": "https://github.com/laetipark/brawltree-scheduler#readme",
   "dependencies": {
-    "axios": "^1.5.0",
+    "axios": "^1.5.1",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
-    "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-prettier": "^4.2.1",
     "morgan": "^1.10.0",
-    "mysql2": "^3.5.2",
+    "mysql2": "^3.6.1",
     "node-cron": "^3.0.2",
     "node-fetch": "^3.3.2",
-    "pm2": "^5.3.0",
-    "prettier": "^2.8.8",
-    "sequelize": "6.32.1",
+    "sequelize": "6.33.0",
     "sequelize-cli": "^6.6.1"
   },
   "devDependencies": {
-    "eslint": "^8.50.0",
-    "nodemon": "^3.0.1"
+    "@babel/eslint-parser": "^7.22.15",
+    "@babel/plugin-syntax-import-assertions": "^7.22.5",
+    "eslint": "^8.51.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "pm2": "^5.3.0",
+    "prettier": "^3.0.3"
   },
   "nodemonConfig": {
     "ignore": [

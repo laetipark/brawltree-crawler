@@ -1,6 +1,6 @@
 export default (sequelize, DataTypes) => {
   const UserBrawlers = sequelize.define(
-    "UserBrawlers",
+    'UserBrawlers',
     {
       USER_ID: {
         type: DataTypes.STRING(12),
@@ -34,29 +34,30 @@ export default (sequelize, DataTypes) => {
       },
     },
     {
-      charset: "utf8mb4",
-      collate: "utf8mb4_unicode_ci",
-      tableName: "USER_BRAWLERS",
-      timestamps: false,
-      underscore: false,
+      charset: 'utf8mb4',
+      collate: 'utf8mb4_unicode_ci',
+      tableName: 'USER_BRAWLERS',
+      timestamps: true,
       paranoid: false,
-    }
+      createdAt: 'CREATED_AT',
+      updatedAt: 'UPDATED_AT',
+    },
   );
 
   UserBrawlers.associate = (models) => {
     UserBrawlers.belongsTo(models.Users, {
-      foreignKey: "USER_ID",
-      sourceKey: "USER_ID",
+      foreignKey: 'USER_ID',
+      sourceKey: 'USER_ID',
     });
 
     UserBrawlers.belongsTo(models.UserProfile, {
-      foreignKey: "USER_ID",
-      sourceKey: "USER_ID",
+      foreignKey: 'USER_ID',
+      sourceKey: 'USER_ID',
     });
 
     UserBrawlers.belongsTo(models.Brawlers, {
-      foreignKey: "BRAWLER_ID",
-      sourceKey: "BRAWLER_ID",
+      foreignKey: 'BRAWLER_ID',
+      sourceKey: 'BRAWLER_ID',
     });
   };
 

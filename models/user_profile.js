@@ -1,6 +1,6 @@
 export default (sequelize, DataTypes) => {
   const UserProfile = sequelize.define(
-    "UserProfile",
+    'UserProfile',
     {
       USER_ID: {
         type: DataTypes.STRING(12),
@@ -40,73 +40,75 @@ export default (sequelize, DataTypes) => {
         allowNull: false,
       },
       BRAWLER_RNK_25: {
-        type: DataTypes.TINYINT.UNSIGNED,
-        allowNull: true,
+        type: DataTypes.SMALLINT.UNSIGNED,
+        allowNull: false,
       },
       BRAWLER_RNK_30: {
-        type: DataTypes.TINYINT.UNSIGNED,
-        allowNull: true,
+        type: DataTypes.SMALLINT.UNSIGNED,
+        allowNull: false,
       },
       BRAWLER_RNK_35: {
-        type: DataTypes.TINYINT.UNSIGNED,
-        allowNull: true,
+        type: DataTypes.SMALLINT.UNSIGNED,
+        allowNull: false,
       },
       PL_SL_CUR: {
         type: DataTypes.TINYINT,
-        allowNull: true,
+        allowNull: false,
       },
       PL_SL_HGH: {
         type: DataTypes.TINYINT,
-        allowNull: true,
+        allowNull: false,
       },
       PL_TM_CUR: {
         type: DataTypes.TINYINT,
-        allowNull: true,
+        allowNull: false,
       },
       PL_TM_HGH: {
         type: DataTypes.TINYINT,
-        allowNull: true,
+        allowNull: false,
       },
     },
     {
-      charset: "utf8mb4",
-      collate: "utf8mb4_unicode_ci",
-      tableName: "USER_PROFILE",
-      timestamps: false,
-      underscore: false,
-      paranoid: false,
-    }
+      charset: 'utf8mb4',
+      collate: 'utf8mb4_unicode_ci',
+      tableName: 'USER_PROFILE',
+      timestamps: true,
+      paranoid: true,
+      createdAt: 'CREATED_AT',
+      updatedAt: 'UPDATED_AT',
+      deletedAt: 'DELETED_AT',
+    },
   );
 
   UserProfile.associate = (models) => {
     UserProfile.belongsTo(models.Users, {
-      foreignKey: "USER_ID",
-      sourceKey: "USER_ID",
+      foreignKey: 'USER_ID',
+      sourceKey: 'USER_ID',
     });
 
     UserProfile.hasMany(models.UserBattles, {
-      foreignKey: "USER_ID",
-      sourceKey: "USER_ID",
+      foreignKey: 'USER_ID',
+      sourceKey: 'USER_ID',
     });
 
     UserProfile.hasMany(models.UserBrawlers, {
-      foreignKey: "USER_ID",
-      sourceKey: "USER_ID",
+      foreignKey: 'USER_ID',
+      sourceKey: 'USER_ID',
     });
 
     UserProfile.hasMany(models.UserFriends, {
-      foreignKey: "USER_ID",
-      sourceKey: "USER_ID",
+      foreignKey: 'USER_ID',
+      sourceKey: 'USER_ID',
     });
 
     UserProfile.hasMany(models.UserFriends, {
-      foreignKey: "FRIEND_ID",
-      sourceKey: "USER_ID",
+      foreignKey: 'FRIEND_ID',
+      sourceKey: 'USER_ID',
     });
 
     UserProfile.hasMany(models.UserRecords, {
-      foreignKey: "USER_ID",
-      sourceKey: "USER_ID",
+      foreignKey: 'USER_ID',
+      sourceKey: 'USER_ID',
     });
   };
 

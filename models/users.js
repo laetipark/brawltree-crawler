@@ -1,14 +1,10 @@
 export default (sequelize, DataTypes) => {
   const Users = sequelize.define(
-    "Users",
+    'Users',
     {
       USER_ID: {
         type: DataTypes.STRING(12),
         primaryKey: true,
-        allowNull: false,
-      },
-      USER_LST_CK: {
-        type: DataTypes.DATE,
         allowNull: false,
       },
       USER_LST_BT: {
@@ -29,39 +25,41 @@ export default (sequelize, DataTypes) => {
       },
     },
     {
-      charset: "utf8mb4",
-      collate: "utf8mb4_unicode_ci",
-      tableName: "USERS",
-      timestamps: false,
-      underscore: false,
-      paranoid: false,
-    }
+      charset: 'utf8mb4',
+      collate: 'utf8mb4_unicode_ci',
+      tableName: 'USERS',
+      timestamps: true,
+      paranoid: true,
+      createdAt: 'CREATED_AT',
+      updatedAt: 'UPDATED_AT',
+      deletedAt: 'DELETED_AT',
+    },
   );
 
   Users.associate = (models) => {
     Users.hasOne(models.UserProfile, {
-      foreignKey: "USER_ID",
-      sourceKey: "USER_ID",
+      foreignKey: 'USER_ID',
+      sourceKey: 'USER_ID',
     });
 
     Users.hasMany(models.UserBattles, {
-      foreignKey: "USER_ID",
-      sourceKey: "USER_ID",
+      foreignKey: 'USER_ID',
+      sourceKey: 'USER_ID',
     });
 
     Users.hasMany(models.UserBrawlers, {
-      foreignKey: "USER_ID",
-      sourceKey: "USER_ID",
+      foreignKey: 'USER_ID',
+      sourceKey: 'USER_ID',
     });
 
     Users.hasMany(models.UserRecords, {
-      foreignKey: "USER_ID",
-      sourceKey: "USER_ID",
+      foreignKey: 'USER_ID',
+      sourceKey: 'USER_ID',
     });
 
     Users.hasMany(models.UserFriends, {
-      foreignKey: "USER_ID",
-      sourceKey: "USER_ID",
+      foreignKey: 'USER_ID',
+      sourceKey: 'USER_ID',
     });
   };
 

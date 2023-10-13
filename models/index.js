@@ -1,28 +1,28 @@
-import Sequelize from "sequelize";
+import Sequelize from 'sequelize';
 
-import users from "./users.js";
-import userProfile from "./user_profile.js";
-import userBattles from "./user_battles.js";
-import userBrawlers from "./user_brawlers.js";
-import userBrawlerItems from "./user_brawler_items.js";
-import userBrawlerBattles from "./user_brawler_battles.js";
-import userFriends from "./user_friends.js";
-import userRecords from "./user_records.js";
-import events from "./events.js";
-import maps from "./maps.js";
-import mapRotation from "./map_rotation.js";
-import brawlers from "./brawlers.js";
-import brawlerStats from "./brawler_stats.js";
-import battleTrio from "./battle_trio.js";
-import seasons from "./seasons.js";
+import users from './users.js';
+import userProfile from './user_profile.js';
+import userBattles from './user_battles.js';
+import userBrawlers from './user_brawlers.js';
+import userBrawlerItems from './user_brawler_items.js';
+import userBrawlerBattles from './user_brawler_battles.js';
+import userFriends from './user_friends.js';
+import userRecords from './user_records.js';
+import events from './events.js';
+import maps from './maps.js';
+import mapRotation from './map_rotation.js';
+import brawlers from './brawlers.js';
+import brawlerStats from './brawler_stats.js';
+import battleTrio from './battle_trio.js';
+import seasons from './seasons.js';
 
-import config from "../config/config.js";
+import config from '../config/config.js';
 
 export const sequelize = new Sequelize(
   config.sequelize.database,
   config.sequelize.username,
   config.sequelize.password,
-  config.sequelize
+  config.sequelize,
 );
 const db = {};
 db.sequelize = sequelize;

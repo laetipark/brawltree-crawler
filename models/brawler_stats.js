@@ -1,6 +1,6 @@
 export default (sequelize, DataTypes) => {
   const BrawlerStats = sequelize.define(
-    "BrawlerStats",
+    'BrawlerStats',
     {
       MAP_ID: {
         type: DataTypes.CHAR(8),
@@ -27,37 +27,38 @@ export default (sequelize, DataTypes) => {
         allowNull: false,
       },
       MATCH_CNT: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.INTEGER.UNSIGNED,
         allowNull: true,
       },
       MATCH_CNT_VIC: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.INTEGER.UNSIGNED,
         allowNull: true,
       },
       MATCH_CNT_DEF: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.INTEGER.UNSIGNED,
         allowNull: true,
       },
     },
     {
-      charset: "utf8mb4",
-      collate: "utf8mb4_unicode_ci",
-      tableName: "BRAWLER_STATS",
-      timestamps: false,
-      underscore: false,
+      charset: 'utf8mb4',
+      collate: 'utf8mb4_unicode_ci',
+      tableName: 'BRAWLER_STATS',
+      timestamps: true,
       paranoid: false,
-    }
+      createdAt: 'CREATED_AT',
+      updatedAt: 'UPDATED_AT',
+    },
   );
 
   BrawlerStats.associate = (models) => {
     BrawlerStats.belongsTo(models.Maps, {
-      foreignKey: "MAP_ID",
-      sourceKey: "MAP_ID",
+      foreignKey: 'MAP_ID',
+      sourceKey: 'MAP_ID',
     });
 
     BrawlerStats.belongsTo(models.Brawlers, {
-      foreignKey: "BRAWLER_ID",
-      sourceKey: "BRAWLER_ID",
+      foreignKey: 'BRAWLER_ID',
+      sourceKey: 'BRAWLER_ID',
     });
   };
 

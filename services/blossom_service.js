@@ -1,7 +1,7 @@
-import axios from "axios";
-import crewJSON from "../public/json/crew.json" assert { type: "json" };
+import axios from 'axios';
+import crewJSON from '../public/json/crew.json' assert { type: 'json' };
 
-import { col, fn, literal, Op } from "sequelize";
+import { col, fn, literal, Op } from 'sequelize';
 import {
   sequelize,
   Maps,
@@ -9,17 +9,17 @@ import {
   UserFriends,
   UserRecords,
   Users,
-} from "../models/index.js";
-import { authService } from "./auth_service.js";
+} from '../models/index.js';
+import { authService } from './auth_service.js';
 
-import config from "../config/config.js";
+import config from '../config/config.js';
 
 export class blossomService {
   /** 멤버 정보 최신화 */
   static updateMembers = async () => {
     const clubMembers = await axios({
       url: `${config.url}/clubs/%23C2RCY8C2/members`,
-      method: "GET",
+      method: 'GET',
       headers: config.headers,
     })
       .then((res) => {
@@ -27,9 +27,8 @@ export class blossomService {
         return members.items.map((member) => {
           return {
             USER_ID: member.tag,
-            USER_LST_CK: new Date(0),
             USER_LST_BT: new Date(0),
-            USER_CR: "Blossom",
+            USER_CR: 'Blossom',
             USER_CR_NM: member.name,
           };
         });
@@ -39,9 +38,8 @@ export class blossomService {
     const crewMembers = crewJSON.map((member) => {
       return {
         USER_ID: member.tag,
-        USER_LST_CK: new Date(0),
         USER_LST_BT: new Date(0),
-        USER_CR: "Team",
+        USER_CR: 'Team',
         USER_CR_NM: member.name,
       };
     });
@@ -59,7 +57,7 @@ export class blossomService {
     await sequelize.transaction(async (t) => {
       await Users.bulkCreate(members, {
         ignoreDuplicates: true,
-        updateOnDuplicate: ["USER_CR", "USER_CR_NM"],
+        updateOnDuplicate: ['USER_CR', 'USER_CR_NM'],
         transaction: t,
       });
 
@@ -75,7 +73,7 @@ export class blossomService {
             },
           },
           transaction: t,
-        }
+        },
       );
     }); // transaction 종료
     return memberIDs;
@@ -85,13 +83,13 @@ export class blossomService {
     await Promise.all(
       members.map(async (member) => {
         const user = await authService.fetchUserRequest(
-          member.replace("#", "")
+          member.replace('#', ''),
         );
 
         if (user !== undefined) {
           await authService.updateUserProfile(user);
         }
-      })
+      }),
     );
   };
 
@@ -110,34 +108,34 @@ export class blossomService {
               },
             ],
             attributes: [
-              "USER_ID",
-              [col("PLAYER_ID"), "FRIEND_ID"],
-              "MATCH_TYP",
-              "MATCH_GRD",
-              [col("PLAYER_NM"), "FRIEND_NM"],
-              [fn("COUNT", literal("*")), "MATCH_CNT"],
+              'USER_ID',
+              [col('PLAYER_ID'), 'FRIEND_ID'],
+              'MATCH_TYP',
+              'MATCH_GRD',
+              [col('PLAYER_NM'), 'FRIEND_NM'],
+              [fn('COUNT', literal('*')), 'MATCH_CNT'],
               [
-                fn("COUNT", literal("CASE WHEN MATCH_RES = -1 THEN 1 END")),
-                "MATCH_CNT_VIC",
+                fn('COUNT', literal('CASE WHEN MATCH_RES = -1 THEN 1 END')),
+                'MATCH_CNT_VIC',
               ],
               [
-                fn("COUNT", literal("CASE WHEN MATCH_RES = 1 THEN 1 END")),
-                "MATCH_CNT_DEF",
+                fn('COUNT', literal('CASE WHEN MATCH_RES = 1 THEN 1 END')),
+                'MATCH_CNT_DEF',
               ],
               [
                 fn(
-                  "ROUND",
+                  'ROUND',
                   fn(
-                    "SUM",
+                    'SUM',
                     literal(
-                      "CASE WHEN MATCH_RES = -1 THEN 0.005 * CAST(MATCH_GRD AS UNSIGNED) WHEN MATCH_RES = 0 THEN 0.0025 * CAST(MATCH_GRD AS UNSIGNED)  ELSE 0.001 * CAST(MATCH_GRD AS UNSIGNED) END"
-                    )
+                      'CASE WHEN MATCH_RES = -1 THEN 0.005 * CAST(MATCH_GRD AS UNSIGNED) WHEN MATCH_RES = 0 THEN 0.0025 * CAST(MATCH_GRD AS UNSIGNED)  ELSE 0.001 * CAST(MATCH_GRD AS UNSIGNED) END',
+                    ),
                   ),
-                  2
+                  2,
                 ),
-                "FRIEND_PT",
+                'FRIEND_PT',
               ],
-              [col("Map.MAP_MD"), "MAP_MD"],
+              [col('Map.MAP_MD'), 'MAP_MD'],
             ],
             where: {
               USER_ID: member,
@@ -159,28 +157,28 @@ export class blossomService {
               },
             },
             group: [
-              "USER_ID",
-              "FRIEND_ID",
-              "MATCH_TYP",
-              "MATCH_GRD",
-              "PLAYER_NM",
-              "MAP_MD",
+              'USER_ID',
+              'FRIEND_ID',
+              'MATCH_TYP',
+              'MATCH_GRD',
+              'PLAYER_NM',
+              'MAP_MD',
             ],
             raw: true,
             transaction: t,
           }).then((result) => {
             result.length > 0 && friends.push(...result);
           });
-        })
+        }),
       );
 
       await UserFriends.bulkCreate(friends, {
         ignoreDuplicates: true,
         updateOnDuplicate: [
-          "MATCH_CNT",
-          "MATCH_CNT_VIC",
-          "MATCH_CNT_DEF",
-          "FRIEND_PT",
+          'MATCH_CNT',
+          'MATCH_CNT_VIC',
+          'MATCH_CNT_DEF',
+          'FRIEND_PT',
         ],
         transaction: t,
       });
@@ -202,28 +200,28 @@ export class blossomService {
               },
             ],
             attributes: [
-              "USER_ID",
-              "MATCH_TYP",
-              "MATCH_GRD",
+              'USER_ID',
+              'MATCH_TYP',
+              'MATCH_GRD',
               [
                 fn(
-                  "SUM",
+                  'SUM',
                   literal(
-                    "CASE WHEN MATCH_TYP = 0 THEN MATCH_CHG + MATCH_CHG_RAW ELSE 0 END"
-                  )
+                    'CASE WHEN MATCH_TYP = 0 THEN MATCH_CHG + MATCH_CHG_RAW ELSE 0 END',
+                  ),
                 ),
-                "MATCH_CHG",
+                'MATCH_CHG',
               ],
-              [fn("COUNT", literal("*")), "MATCH_CNT"],
+              [fn('COUNT', literal('*')), 'MATCH_CNT'],
               [
-                fn("COUNT", literal("CASE WHEN MATCH_RES = -1 THEN 1 END")),
-                "MATCH_CNT_VIC",
+                fn('COUNT', literal('CASE WHEN MATCH_RES = -1 THEN 1 END')),
+                'MATCH_CNT_VIC',
               ],
               [
-                fn("COUNT", literal("CASE WHEN MATCH_RES = 1 THEN 1 END")),
-                "MATCH_CNT_DEF",
+                fn('COUNT', literal('CASE WHEN MATCH_RES = 1 THEN 1 END')),
+                'MATCH_CNT_DEF',
               ],
-              [col("Map.MAP_MD"), "MAP_MD"],
+              [col('Map.MAP_MD'), 'MAP_MD'],
             ],
             where: {
               [Op.or]: [
@@ -245,22 +243,22 @@ export class blossomService {
                 },
               ],
             },
-            group: ["USER_ID", "MATCH_TYP", "MATCH_GRD", "MAP_MD"],
+            group: ['USER_ID', 'MATCH_TYP', 'MATCH_GRD', 'MAP_MD'],
             raw: true,
             transaction: t,
           }).then((result) => {
             result.length > 0 && records.push(...result);
           });
-        })
+        }),
       );
 
       await UserRecords.bulkCreate(records, {
         ignoreDuplicates: true,
         updateOnDuplicate: [
-          "MATCH_CHG",
-          "MATCH_CNT",
-          "MATCH_CNT_VIC",
-          "MATCH_CNT_DEF",
+          'MATCH_CHG',
+          'MATCH_CNT',
+          'MATCH_CNT_VIC',
+          'MATCH_CNT_DEF',
         ],
         transaction: t,
       });

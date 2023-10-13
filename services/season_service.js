@@ -73,12 +73,12 @@ export class seasonService {
       });
 
       /*await MapRotation.destroy({
-                ROTATION_TRP_BOOL: false
-            }, {
-                where: {
-                    ROTATION_TRP_BOOL: true
-                }
-            })*/
+          ROTATION_TRP_BOOL: false
+      }, {
+          where: {
+              ROTATION_TRP_BOOL: true
+          }
+      })*/
 
       if (Date.now() > newDate.endDate) {
         await this.insertSeason();

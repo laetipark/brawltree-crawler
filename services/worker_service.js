@@ -22,7 +22,7 @@ export class workerService {
       try {
         await Users.update(
           {
-            CYCLE_NO: config.scheduleNumber,
+            CYCLE_NO: config.processNumber,
           },
           {
             where: {

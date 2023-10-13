@@ -1,6 +1,6 @@
 export default (sequelize, DataTypes) => {
   const Maps = sequelize.define(
-    "Maps",
+    'Maps',
     {
       MAP_ID: {
         type: DataTypes.CHAR(8),
@@ -18,39 +18,40 @@ export default (sequelize, DataTypes) => {
       },
     },
     {
-      charset: "utf8mb4",
-      collate: "utf8mb4_unicode_ci",
-      tableName: "MAPS",
-      timestamps: false,
-      underscore: false,
+      charset: 'utf8mb4',
+      collate: 'utf8mb4_unicode_ci',
+      tableName: 'MAPS',
+      timestamps: true,
       paranoid: false,
-    }
+      createdAt: 'CREATED_AT',
+      updatedAt: 'UPDATED_AT',
+    },
   );
 
   Maps.associate = (models) => {
     Maps.hasOne(models.MapRotation, {
-      foreignKey: "MAP_ID",
-      sourceKey: "MAP_ID",
+      foreignKey: 'MAP_ID',
+      sourceKey: 'MAP_ID',
     });
 
     Maps.hasMany(models.Events, {
-      foreignKey: "MAP_ID",
-      sourceKey: "MAP_ID",
+      foreignKey: 'MAP_ID',
+      sourceKey: 'MAP_ID',
     });
 
     Maps.hasMany(models.UserBattles, {
-      foreignKey: "MAP_ID",
-      sourceKey: "MAP_ID",
+      foreignKey: 'MAP_ID',
+      sourceKey: 'MAP_ID',
     });
 
     Maps.hasMany(models.UserBrawlerBattles, {
-      foreignKey: "MAP_ID",
-      sourceKey: "MAP_ID",
+      foreignKey: 'MAP_ID',
+      sourceKey: 'MAP_ID',
     });
 
     Maps.hasMany(models.BrawlerStats, {
-      foreignKey: "MAP_ID",
-      sourceKey: "MAP_ID",
+      foreignKey: 'MAP_ID',
+      sourceKey: 'MAP_ID',
     });
   };
 

@@ -1,6 +1,6 @@
 export default (sequelize, DataTypes) => {
   const MapRotation = sequelize.define(
-    "MapRotation",
+    'MapRotation',
     {
       MAP_ID: {
         type: DataTypes.CHAR(8),
@@ -17,24 +17,24 @@ export default (sequelize, DataTypes) => {
       },
     },
     {
-      charset: "utf8mb4",
-      collate: "utf8mb4_unicode_ci",
-      tableName: "MAP_ROTATION",
+      charset: 'utf8mb4',
+      collate: 'utf8mb4_unicode_ci',
+      tableName: 'MAP_ROTATION',
       timestamps: false,
       underscore: false,
       paranoid: false,
-    }
+    },
   );
 
   MapRotation.associate = (models) => {
     MapRotation.belongsTo(models.Maps, {
-      foreignKey: "MAP_ID",
-      sourceKey: "MAP_ID",
+      foreignKey: 'MAP_ID',
+      sourceKey: 'MAP_ID',
     });
 
     MapRotation.hasMany(models.Events, {
-      foreignKey: "MAP_ID",
-      sourceKey: "MAP_ID",
+      foreignKey: 'MAP_ID',
+      sourceKey: 'MAP_ID',
     });
   };
 

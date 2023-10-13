@@ -1,6 +1,6 @@
 export default (sequelize, DataTypes) => {
   const UserRecords = sequelize.define(
-    "UserRecords",
+    'UserRecords',
     {
       USER_ID: {
         type: DataTypes.STRING(12),
@@ -40,24 +40,25 @@ export default (sequelize, DataTypes) => {
       },
     },
     {
-      charset: "utf8mb4",
-      collate: "utf8mb4_unicode_ci",
-      tableName: "USER_RECORDS",
-      timestamps: false,
-      underscore: false,
+      charset: 'utf8mb4',
+      collate: 'utf8mb4_unicode_ci',
+      tableName: 'USER_RECORDS',
+      timestamps: true,
       paranoid: false,
-    }
+      createdAt: 'CREATED_AT',
+      updatedAt: 'UPDATED_AT',
+    },
   );
 
   UserRecords.associate = (models) => {
     UserRecords.belongsTo(models.Users, {
-      foreignKey: "USER_ID",
-      sourceKey: "USER_ID",
+      foreignKey: 'USER_ID',
+      sourceKey: 'USER_ID',
     });
 
     UserRecords.belongsTo(models.UserProfile, {
-      foreignKey: "USER_ID",
-      sourceKey: "USER_ID",
+      foreignKey: 'USER_ID',
+      sourceKey: 'USER_ID',
     });
   };
 

@@ -1,6 +1,6 @@
 export default (sequelize, DataTypes) => {
   const BattleTrio = sequelize.define(
-    "BattleTrio",
+    'BattleTrio',
     {
       MAP_ID: {
         type: DataTypes.CHAR(8),
@@ -37,45 +37,46 @@ export default (sequelize, DataTypes) => {
         allowNull: false,
       },
       MATCH_CNT: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.INTEGER.UNSIGNED,
         allowNull: true,
       },
       MATCH_CNT_VIC: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.INTEGER.UNSIGNED,
         allowNull: true,
       },
       MATCH_CNT_DEF: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.INTEGER.UNSIGNED,
         allowNull: true,
       },
     },
     {
-      charset: "utf8mb4",
-      collate: "utf8mb4_unicode_ci",
-      tableName: "BATTLE_TRIO",
-      timestamps: false,
-      underscore: false,
+      charset: 'utf8mb4',
+      collate: 'utf8mb4_unicode_ci',
+      tableName: 'BATTLE_TRIO',
+      timestamps: true,
       paranoid: false,
-    }
+      createdAt: 'CREATED_AT',
+      updatedAt: 'UPDATED_AT',
+    },
   );
 
   BattleTrio.associate = (models) => {
     BattleTrio.belongsTo(models.Maps, {
-      foreignKey: "MAP_ID",
-      sourceKey: "MAP_ID",
+      foreignKey: 'MAP_ID',
+      sourceKey: 'MAP_ID',
     });
 
     BattleTrio.belongsTo(models.Brawlers, {
-      foreignKey: "BRAWLER_1_ID",
-      sourceKey: "BRAWLER_ID",
+      foreignKey: 'BRAWLER_1_ID',
+      sourceKey: 'BRAWLER_ID',
     });
     BattleTrio.belongsTo(models.Brawlers, {
-      foreignKey: "BRAWLER_2_ID",
-      sourceKey: "BRAWLER_ID",
+      foreignKey: 'BRAWLER_2_ID',
+      sourceKey: 'BRAWLER_ID',
     });
     BattleTrio.belongsTo(models.Brawlers, {
-      foreignKey: "BRAWLER_3_ID",
-      sourceKey: "BRAWLER_ID",
+      foreignKey: 'BRAWLER_3_ID',
+      sourceKey: 'BRAWLER_ID',
     });
   };
 

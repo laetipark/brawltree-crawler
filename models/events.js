@@ -1,9 +1,9 @@
 export default (sequelize, DataTypes) => {
   const Events = sequelize.define(
-    "Events",
+    'Events',
     {
       ROTATION_SLT_NO: {
-        type: DataTypes.TINYINT,
+        type: DataTypes.TINYINT.UNSIGNED,
         primaryKey: true,
         allowNull: false,
       },
@@ -18,7 +18,7 @@ export default (sequelize, DataTypes) => {
       },
       MAP_ID: {
         type: DataTypes.CHAR(8),
-        allowNull: true,
+        allowNull: false,
       },
       MAP_MDFS: {
         type: DataTypes.STRING(50),
@@ -26,24 +26,24 @@ export default (sequelize, DataTypes) => {
       },
     },
     {
-      charset: "utf8mb4",
-      collate: "utf8mb4_unicode_ci",
-      tableName: "EVENTS",
+      charset: 'utf8mb4',
+      collate: 'utf8mb4_unicode_ci',
+      tableName: 'EVENTS',
       timestamps: false,
-      underscore: false,
       paranoid: false,
-    }
+      underscore: false,
+    },
   );
 
   Events.associate = (models) => {
     Events.belongsTo(models.Maps, {
-      foreignKey: "MAP_ID",
-      sourceKey: "MAP_ID",
+      foreignKey: 'MAP_ID',
+      sourceKey: 'MAP_ID',
     });
 
     Events.belongsTo(models.MapRotation, {
-      foreignKey: "MAP_ID",
-      sourceKey: "MAP_ID",
+      foreignKey: 'MAP_ID',
+      sourceKey: 'MAP_ID',
     });
   };
 

@@ -1,6 +1,6 @@
 export default (sequelize, DataTypes) => {
   const UserBattles = sequelize.define(
-    "UserBattles",
+    'UserBattles',
     {
       USER_ID: {
         type: DataTypes.STRING(12),
@@ -48,7 +48,7 @@ export default (sequelize, DataTypes) => {
       },
       MATCH_RNK: {
         type: DataTypes.TINYINT,
-        allowNull: true,
+        allowNull: false,
       },
       MATCH_RES: {
         type: DataTypes.TINYINT,
@@ -84,34 +84,36 @@ export default (sequelize, DataTypes) => {
       },
     },
     {
-      charset: "utf8mb4",
-      collate: "utf8mb4_unicode_ci",
-      tableName: "USER_BATTLES",
-      timestamps: false,
-      underscore: false,
-      paranoid: false,
-    }
+      charset: 'utf8mb4',
+      collate: 'utf8mb4_unicode_ci',
+      tableName: 'USER_BATTLES',
+      timestamps: true,
+      paranoid: true,
+      createdAt: 'CREATED_AT',
+      updatedAt: 'UPDATED_AT',
+      deletedAt: 'DELETED_AT',
+    },
   );
 
   UserBattles.associate = (models) => {
     UserBattles.belongsTo(models.Users, {
-      foreignKey: "USER_ID",
-      sourceKey: "USER_ID",
+      foreignKey: 'USER_ID',
+      sourceKey: 'USER_ID',
     });
 
     UserBattles.belongsTo(models.UserProfile, {
-      foreignKey: "USER_ID",
-      sourceKey: "USER_ID",
+      foreignKey: 'USER_ID',
+      sourceKey: 'USER_ID',
     });
 
     UserBattles.belongsTo(models.Brawlers, {
-      foreignKey: "BRAWLER_ID",
-      sourceKey: "BRAWLER_ID",
+      foreignKey: 'BRAWLER_ID',
+      sourceKey: 'BRAWLER_ID',
     });
 
     UserBattles.belongsTo(models.Maps, {
-      foreignKey: "MAP_ID",
-      sourceKey: "MAP_ID",
+      foreignKey: 'MAP_ID',
+      sourceKey: 'MAP_ID',
     });
   };
 

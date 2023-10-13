@@ -39,7 +39,7 @@ export class authService {
       .then((res) => {
         return res.data;
       })
-      .catch((err) => console.error(err));
+      .catch((err) => console.error(err.response?.data));
   };
 
   /** 멤버 기록과 소유 브롤러 정보 데이터베이스에 추가
@@ -241,14 +241,12 @@ export class authService {
         const battleLogs = res.data;
         await this.insertUserBattles(battleLogs, userID);
 
-        const newUserLastCheck = new Date();
         const newUserLastBattle = dateService.getDate(
           battleLogs?.items[0].battleTime,
         );
 
         await Users.update(
           {
-            USER_LST_CK: newUserLastCheck,
             USER_LST_BT: newUserLastBattle,
           },
           {
@@ -261,18 +259,24 @@ export class authService {
         await this.updateUserBrawlerBattles(userID);
 
         if (cycle) {
-          setTimeout(() => {
-            this.manageUsers(userID, cycle);
-          }, 20 * 60 * 1000);
+          setTimeout(
+            () => {
+              this.manageUsers(userID, cycle);
+            },
+            20 * 60 * 1000,
+          );
         }
       });
     } catch (err) {
       console.error(err.response?.data);
       const errorTime = err.response?.status === 404 ? 20 : 0;
 
-      setTimeout(() => {
-        this.manageUsers(userID, cycle);
-      }, (5 + errorTime) * 60 * 1000);
+      setTimeout(
+        () => {
+          this.manageUsers(userID, cycle);
+        },
+        (5 + errorTime) * 60 * 1000,
+      );
     } finally {
       // 요청이 완료되면 다음 요청을 확인하고 실행
       const index = this.userBattles.indexOf(requestInfo);
@@ -280,13 +284,16 @@ export class authService {
         this.userBattles.splice(index, 1);
       }
 
-      setTimeout(async () => {
-        const nextRequest = this.pendingRequests.shift();
-        if (nextRequest) {
-          const { userID, cycle } = nextRequest;
-          await this.manageUsers(userID, cycle);
-        }
-      }, Math.floor(Math.random() * 10001) + 60000);
+      setTimeout(
+        async () => {
+          const nextRequest = this.pendingRequests.shift();
+          if (nextRequest) {
+            const { userID, cycle } = nextRequest;
+            await this.manageUsers(userID, cycle);
+          }
+        },
+        Math.floor(Math.random() * 10001) + 60000,
+      );
     }
   };
 

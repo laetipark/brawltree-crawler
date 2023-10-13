@@ -1,6 +1,6 @@
 export default (sequelize, DataTypes) => {
   return sequelize.define(
-    "Seasons",
+    'Seasons',
     {
       SEASON_NO: {
         type: DataTypes.TINYINT.UNSIGNED,
@@ -17,12 +17,12 @@ export default (sequelize, DataTypes) => {
       },
     },
     {
-      charset: "utf8mb4",
-      collate: "utf8mb4_unicode_ci",
-      tableName: "SEASONS",
+      charset: 'utf8mb4',
+      collate: 'utf8mb4_unicode_ci',
+      tableName: 'SEASONS',
       timestamps: false,
       underscore: false,
       paranoid: false,
-    }
+    },
   );
 };

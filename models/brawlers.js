@@ -1,6 +1,6 @@
 export default (sequelize, DataTypes) => {
   const Brawlers = sequelize.define(
-    "Brawlers",
+    'Brawlers',
     {
       BRAWLER_ID: {
         type: DataTypes.CHAR(8),
@@ -15,7 +15,7 @@ export default (sequelize, DataTypes) => {
         type: DataTypes.STRING(20),
         allowNull: true,
       },
-      BRAWLER_CL: {
+      BRAWLER_RL: {
         type: DataTypes.STRING(20),
         allowNull: true,
       },
@@ -61,39 +61,40 @@ export default (sequelize, DataTypes) => {
       },
     },
     {
-      charset: "utf8mb4",
-      collate: "utf8mb4_unicode_ci",
-      tableName: "BRAWLERS",
-      timestamps: false,
-      underscore: false,
+      charset: 'utf8mb4',
+      collate: 'utf8mb4_unicode_ci',
+      tableName: 'BRAWLERS',
+      timestamps: true,
       paranoid: false,
-    }
+      createdAt: 'CREATED_AT',
+      updatedAt: 'UPDATED_AT',
+    },
   );
 
   Brawlers.associate = (models) => {
     Brawlers.hasMany(models.BrawlerStats, {
-      foreignKey: "BRAWLER_ID",
-      sourceKey: "BRAWLER_ID",
+      foreignKey: 'BRAWLER_ID',
+      sourceKey: 'BRAWLER_ID',
     });
 
     Brawlers.hasMany(models.UserBattles, {
-      foreignKey: "BRAWLER_ID",
-      sourceKey: "BRAWLER_ID",
+      foreignKey: 'BRAWLER_ID',
+      sourceKey: 'BRAWLER_ID',
     });
 
     Brawlers.hasMany(models.UserBrawlers, {
-      foreignKey: "BRAWLER_ID",
-      sourceKey: "BRAWLER_ID",
+      foreignKey: 'BRAWLER_ID',
+      sourceKey: 'BRAWLER_ID',
     });
 
     Brawlers.hasMany(models.UserBrawlerItems, {
-      foreignKey: "BRAWLER_ID",
-      sourceKey: "BRAWLER_ID",
+      foreignKey: 'BRAWLER_ID',
+      sourceKey: 'BRAWLER_ID',
     });
 
     Brawlers.hasMany(models.UserBrawlerBattles, {
-      foreignKey: "BRAWLER_ID",
-      sourceKey: "BRAWLER_ID",
+      foreignKey: 'BRAWLER_ID',
+      sourceKey: 'BRAWLER_ID',
     });
   };
 
