@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": "./",
+    "declaration": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "incremental": true,
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "paths": {
+      "~/configs/*": [
+        "./src/configs/*"
+      ],
+      "~/database/*": [
+        "./src/database/*"
+      ],
+      "~/dto/*": [
+        "./src/dto/*"
+      ],
+      "~/entities/*": [
+        "./src/entities/*"
+      ],
+      "~/public/*": [
+        "./src/public/*"
+      ],
+      "~/services/*": [
+        "./src/services/*"
+      ]
+    },
+    "preserveValueImports": false,
+    "removeComments": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "sourceMap": false,
+    "target": "ESNext"
+  }
+}

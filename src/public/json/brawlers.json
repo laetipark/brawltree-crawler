@@ -1,0 +1,1811 @@
+{
+  "items": [
+    {
+      "id": 16000000,
+      "rarity": "Trophy Road",
+      "class": "Damage Dealer",
+      "gender": "Female",
+      "icon": "<:Brawler_1:1015890389993005096>",
+      "speed": 820,
+      "health": [
+        3800,
+        3990,
+        4180,
+        4370,
+        4560,
+        4750,
+        4940,
+        5130,
+        5320,
+        5510,
+        5700
+      ],
+      "attack": {
+        "name": "Buckshot",
+        "content": "Shelly's boomstick fires a wide spread of pellets to a medium range. The more pellets hit, the greater the damage.",
+        "projectiles": 5,
+        "damage": [
+          300,
+          315,
+          330,
+          345,
+          360,
+          375,
+          390,
+          405,
+          420,
+          435,
+          450
+        ],
+        "spread": 30,
+        "speed": 3100,
+        "range": 7.67,
+        "reload": 1.5
+      },
+      "super": {
+        "name": "Super Shell",
+        "content": "Shelly's Super Shell obliterates both cover and enemies. Any survivors get knocked back.",
+        "projectiles": 9,
+        "damage": [
+          320,
+          336,
+          352,
+          368,
+          384,
+          400,
+          416,
+          432,
+          448,
+          464,
+          480
+        ],
+        "spread": 50,
+        "speed": 4130,
+        "range": 7.67,
+        "width": 0.33
+      },
+      "starPowers": [
+        {
+          "id": 23000076,
+          "content": "Shelly's Super shells slow down enemies {x1}% for {x2} seconds!",
+          "x1": 0,
+          "x2": 2
+        },
+        {
+          "id": 23000135,
+          "content": "When Shelly falls below {x1}% health, she instantly heals for {x2} health. Band-Aid recharges in {%x3} seconds.",
+          "x1": 40,
+          "x2": 2000,
+          "x3": 15
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000255,
+          "content": "Shelly dashes ahead {x1} tiles, skipping a few unnecessary steps!",
+          "x1": 3.33
+        },
+        {
+          "id": 23000288,
+          "content": "On activation, for the next {x1} seconds Shelly's main attacks focuses the fire to a smaller area {x2}° with an increased range {x3} tiles.",
+          "x1": 5,
+          "x2": 10,
+          "x3": 10
+        }
+      ]
+    },
+    {
+      "id": 16000001,
+      "rarity": "Rare",
+      "class": "Damage Dealer",
+      "gender": "Male",
+      "icon": "<:Brawler_3:1015890393272946700>",
+      "starPowers": [
+        {
+          "id": 23000077,
+          "content": "이동 속도가 13% 증가합니다."
+        },
+        {
+          "id": 23000138,
+          "content": "일반 공격 사거리와 탄환 속도가 11% 증가합니다."
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000273,
+          "content": "즉시 탄환 2개를 장전합니다."
+        },
+        {
+          "id": 23000319,
+          "content": "다음 공격이 6연발이 아닌 장애물과 적을 관통하는 0.67타일의 강력한 단발을 발사합니다. 피해량은 일반 공격 2발과 같습니다."
+        }
+      ]
+    },
+    {
+      "id": 16000002,
+      "rarity": "Rare",
+      "class": "Tank",
+      "gender": "Male",
+      "icon": "<:Brawler_4:1015890395323973673>",
+      "starPowers": [
+        {
+          "id": 23000078,
+          "content": "불의 체력이 60% 이하로 떨어지면 재장전 속도가 두 배로 빨라집니다!"
+        },
+        {
+          "id": 23000137,
+          "content": "체력이 40% 이하로 떨어지면 입는 피해량을 30% 감소시키는 실드를 얻습니다."
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000272,
+          "content": "즉시 1500 HP를 회복합니다."
+        },
+        {
+          "id": 23000310,
+          "content": "특수 공격 도중 힘차게 발을 굴러 근처에 있는 적을 1.5초 동안 느려지게 만듭니다."
+        }
+      ]
+    },
+    {
+      "id": 16000003,
+      "rarity": "Rare",
+      "class": "Damage Dealer",
+      "gender": "Male",
+      "icon": "<:Brawler_6:1015890398989791292>",
+      "starPowers": [
+        {
+          "id": 23000079,
+          "content": "로켓 레인이 쏟아붓는 로켓의 수가 44% 늘어납니다."
+        },
+        {
+          "id": 23000150,
+          "content": "로켓 발사기에 네 번째 탄을 장착해 탄환 용량이 증가합니다.(원래는 보온병을 넣고 다녔다고 하네요.)"
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000245,
+          "content": "발아래에 로켓을 발사해 폭발과 함께 공중으로 뛰어오릅니다. 폭발 근처의 적에게 500 피해를 줍니다."
+        },
+        {
+          "id": 23000316,
+          "content": "다음 공격에 더 크고, 빠르고, 폭발 범위가 커진 메가 로켓을 발사합니다. 메가 로켓은 벽을 파괴할 수 있습니다."
+        }
+      ]
+    },
+    {
+      "id": 16000004,
+      "rarity": "Super Rare",
+      "class": "Damage Dealer",
+      "gender": "Male",
+      "icon": "<:Brawler_17:1015890421261549629>",
+      "starPowers": [
+        {
+          "id": 23000080,
+          "content": "일반 및 특수 공격의 탄환이 처음 튕겨져 나올 때 과충전되며 +124 추가 피해를 줍니다."
+        },
+        {
+          "id": 23000156,
+          "content": "HP가 40% 이하로 떨어지면 이동 속도가 34% 증가합니다."
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000246,
+          "content": "12타일 내 사방으로 320 피해를 주는 통통탄 4발을 두 번 발사합니다."
+        },
+        {
+          "id": 23000409,
+          "content": "다음 공격으로 탄환이 튕길 때마다 200 HP를 회복합니다."
+        }
+      ]
+    },
+    {
+      "id": 16000005,
+      "rarity": "Legendary",
+      "class": "Damage Dealer",
+      "gender": "Male",
+      "icon": "<:Brawler_39:1015890462424453130>",
+      "starPowers": [
+        {
+          "id": 23000081,
+          "content": "스파이크가 자신의 특수 공격의 효과 범위 안에 있으면 초당 800HP를 회복합니다."
+        },
+        {
+          "id": 23000151,
+          "content": "가시 수류탄의 가시가 휘어지며 날아가 대상을 좀 더 쉽게 맞출 수 있습니다."
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000247,
+          "content": "주위 모든 방향으로 가시 10개를 3번 발사하며, 가시 하나 당 520 피해를 줍니다."
+        },
+        {
+          "id": 23000406,
+          "content": "1750 HP를 가진 커다란 선인장을 불러냅니다. 선인장 뒤에 엄폐할 수 있으며, 선인장이 파괴되면 폭발하며 근처 아군을 1000만큼 치유합니다."
+        }
+      ]
+    },
+    {
+      "id": 16000006,
+      "rarity": "Rare",
+      "class": "Artillery",
+      "gender": "Male",
+      "icon": "<:Brawler_14:1015890415058161724>",
+      "starPowers": [
+        {
+          "id": 23000082,
+          "content": "공격할 때마다 400 HP를 회복합니다."
+        },
+        {
+          "id": 23000158,
+          "content": "일반 공격의 초당 피해량이 +200 증가합니다."
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000250,
+          "content": "끈적끈적한 혼합물을 떨어뜨려 웅덩이를 4초간 만들며, 웅덩이에 접촉하는 적은 속도가 느려집니다."
+        },
+        {
+          "id": 23000293,
+          "content": "근처의 아군에게 치료 칵테일을 던져 초당 500 HP를 회복하는 웅덩이를 만듭니다."
+        }
+      ]
+    },
+    {
+      "id": 16000007,
+      "rarity": "Super Rare",
+      "class": "Controller",
+      "gender": "Female",
+      "icon": "<:Brawler_5:1015890397144285194>",
+      "starPowers": [
+        {
+          "id": 23000083,
+          "content": "제시가 일반 공격으로 자신의 터렛을 맞히면 터렛이 896 HP를 회복합니다."
+        },
+        {
+          "id": 23000149,
+          "content": "제시의 터렛, 스크래피가 적 사이를 튕겨 다니는 에너지 볼을 발사합니다. 튕긴 에너지 볼은 기본 거리의 51%인 4.5타일 만큼 이동합니다."
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000251,
+          "content": "터렛으로 충격파를 일으켜 효과 범위 안의 모든 적을 느리게 만듭니다."
+        },
+        {
+          "id": 23000295,
+          "content": "터렛의 공격 속도가 5초 동안 2배로 증가합니다."
+        }
+      ]
+    },
+    {
+      "id": 16000008,
+      "rarity": "Rare",
+      "class": "Damage Dealer",
+      "gender": "Male",
+      "icon": "<:Brawler_2:1015890391507144715>",
+      "starPowers": [
+        {
+          "id": 23000084,
+          "content": "소환된 곰이 적 브롤러를 공격할 때마다 니타가 800 체력을 회복합니다. 니타가 적 브롤러에게 피해를 주면 곰이 800 체력을 회복합니다."
+        },
+        {
+          "id": 23000136,
+          "content": "곰의 공격 속도가 더 빨라집니다. 앞발 휘두르기의 간격이 60% 감소합니다."
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000249,
+          "content": "1초 후 곰이 바닥을 쳐 3.33타일 효과 범위 내의 적을 1초 동안 기절시킵니다."
+        },
+        {
+          "id": 23000314,
+          "content": "3초 동안 소환한 곰이 35% 피해를 흡수하는 보호막을 얻습니다."
+        }
+      ]
+    },
+    {
+      "id": 16000009,
+      "rarity": "Super Rare",
+      "class": "Artillery",
+      "gender": "Male",
+      "icon": "<:Brawler_7:1015890400852070430>",
+      "starPowers": [
+        {
+          "id": 23000085,
+          "content": "다이너마이트의 폭발을 이용해 지형물을 뛰어넘을 수 있습니다!"
+        },
+        {
+          "id": 23000155,
+          "content": "특수 공격의 피해량이 +1000 증가합니다."
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000258,
+          "content": "맹렬하게 회전하며 주변에 20개의 다이너마이트를 던집니다. 회전 시 이동 속도가 20.83% 증가하며 다이너마이트마다 적에게 1200 피해를 줍니다."
+        },
+        {
+          "id": 23000294,
+          "content": "활성화 시 다음 일반 공격이 적을 1.5초 동안 기절시킵니다."
+        }
+      ]
+    },
+    {
+      "id": 16000010,
+      "rarity": "Super Rare",
+      "class": "Damage Dealer",
+      "gender": "Male",
+      "icon": "<:Brawler_13:1015890413065883749>",
+      "starPowers": [
+        {
+          "id": 23000086,
+          "content": "특수 공격에 적중당한 적을 불태워 4초 동안 1200 피해를 줍니다."
+        },
+        {
+          "id": 23000140,
+          "content": "특수 공격을 사용한 후 이동 속도가 4초간 25% 빨라집니다."
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000264,
+          "content": "3타일 범위 내의 가장 가까운 적을 잡아, 넓은 어깨너머 뒤로 5.33타일 만큼 메칩니다. 마치 팬케이크 같군요!"
+        },
+        {
+          "id": 23000292,
+          "content": "3.33타일 내 가장 가까이 있는 적의 위치에 10타일의 작은 유성을 소환합니다. 유성은 2000 피해를 주며 벽을 파괴합니다."
+        }
+      ]
+    },
+    {
+      "id": 16000011,
+      "rarity": "Mythic",
+      "class": "Assassin",
+      "gender": "Male",
+      "icon": "<:Brawler_31:1015890447715029052>",
+      "starPowers": [
+        {
+          "id": 23000087,
+          "content": "브롤러를 처치할 때마다 1000 HP를 회복합니다."
+        },
+        {
+          "id": 23000154,
+          "content": "장거리 돌진을 2초 빨리 얻습니다."
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000265,
+          "content": "3.33타일 범위로 삽을 크게 휘둘러 주위의 모든 적에게 1300 피해를 줍니다."
+        },
+        {
+          "id": 23000290,
+          "content": "4초 동안 재장전 속도가 1.2초로 2배 빨라집니다."
+        }
+      ]
+    },
+    {
+      "id": 16000012,
+      "rarity": "Legendary",
+      "class": "Assassin",
+      "gender": "Male",
+      "icon": "<:Brawler_40:1015890463967948842>",
+      "starPowers": [
+        {
+          "id": 23000088,
+          "content": "단검의 독이 적의 공격력을 감소시켜 적의 피해량이 25% 감소합니다."
+        },
+        {
+          "id": 23000143,
+          "content": "HP가 50% 이하로 떨어진 적에게 주는 일반 공격 및 특수 공격의 피해량이 +152 증가합니다."
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000243,
+          "content": "3초 동안 40%의 피해를 막는 쉴드가 생깁니다."
+        },
+        {
+          "id": 23000286,
+          "content": "3초 동안 현재 독 효과가 걸린 적들이 느려집니다."
+        }
+      ]
+    },
+    {
+      "id": 16000013,
+      "rarity": "Rare",
+      "class": "Support",
+      "gender": "Male",
+      "icon": "<:Brawler_15:1015890416731684934>",
+      "starPowers": [
+        {
+          "id": 23000089,
+          "content": "일반 공격이 아군에 적중하면, 적중당한 아군의 HP가 700만큼 회복됩니다."
+        },
+        {
+          "id": 23000144,
+          "content": "특수 공격이 적에게는 1000 피해를 줍니다."
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000267,
+          "content": "포코가 자신과 3.33타일 내 주변 아군의 HP를 5초 동안 초당 400 씩 회복합니다."
+        },
+        {
+          "id": 23000350,
+          "content": "6.67타일 내 넓은 범위에 걸쳐 아군 브롤러에게 활성화된 해로운 효과를 제거하고 2초 동안 면역 효과를 부여합니다."
+        }
+      ]
+    },
+    {
+      "id": 16000014,
+      "rarity": "Epic",
+      "class": "Controller",
+      "gender": "Male",
+      "icon": "<:Brawler_8:1015890403800653884>",
+      "starPowers": [
+        {
+          "id": 23000090,
+          "content": "평소보다 150% 더 먼 거리에서 덤불에 숨은 적을 발견할 수 있습니다."
+        },
+        {
+          "id": 23000148,
+          "content": "덫이 적을 뒤로 밀쳐내는 대신 2초간 적을 마비시킵니다!"
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000263,
+          "content": "2타일 효과 범위 내의 자신과 아군의 특수 공격을 초당 5%씩 충전하는 HP 1000의 토템을 설치합니다. 시간이 지날수록 토템의 HP가 50만큼 감소합니다."
+        },
+        {
+          "id": 23000289,
+          "content": "1.5초 뒤 덫을 폭발시킵니다. 폭발하기 전까지 덫이 적에게 감지되지 않습니다."
+        }
+      ]
+    },
+    {
+      "id": 16000015,
+      "rarity": "Epic",
+      "class": "Marksman",
+      "gender": "Female",
+      "icon": "<:Brawler_22:1015890430577098833>",
+      "starPowers": [
+        {
+          "id": 23000091,
+          "content": "파이퍼가 덤불에 숨은 상태에서 공격하면, +800(최대 사거리 기준)만큼 추가 피해를 줍니다."
+        },
+        {
+          "id": 23000152,
+          "content": "일반 공격이 상대에 적중하면 탄환 0.4개를 즉시 재장전합니다."
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000268,
+          "content": "7타일 내 가장 가까운 적에게 호신용 탄환을 발사해 100의 피해를 주고, 뒤로 밀쳐내며 1초동안 느리게 만듭니다."
+        },
+        {
+          "id": 23000291,
+          "content": "활성화 시 다음 일반 공격이 적을 최대 13.4타일까지 추적합니다."
+        }
+      ]
+    },
+    {
+      "id": 16000016,
+      "rarity": "Epic",
+      "class": "Support",
+      "gender": "Female",
+      "icon": "<:Brawler_23:1015890432263196712>",
+      "starPowers": [
+        {
+          "id": 23000092,
+          "content": "메탈스톰으로 적을 적중할 때마다 자신 및 가까운 아군의 HP가 48만큼 회복됩니다."
+        },
+        {
+          "id": 23000139,
+          "content": "힐링 터렛이 적에게 초당 800 피해를 줍니다."
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000257,
+          "content": "3.33타일 범위의 치유 터렛의 부스터를 가동해 터렛의 효과 범위 내 자신 및 아군의 HP를 1200만큼 치유하는 파동을 일으킵니다."
+        },
+        {
+          "id": 23000404,
+          "content": "다음 공격이 적중할 때마다 적중한 상대의 최대 탄환의 25%를 빼앗아 자신의 탄을 50% 채웁니다."
+        }
+      ]
+    },
+    {
+      "id": 16000017,
+      "rarity": "Mythic",
+      "class": "Damage Dealer",
+      "gender": "Female",
+      "icon": "<:Brawler_32:1015890449627619389>",
+      "starPowers": [
+        {
+          "id": 23000093,
+          "content": "특수 공격으로 다른 차원의 그림자를 소환합니다. 소환된 그림자가 적들을 공격합니다."
+        },
+        {
+          "id": 23000160,
+          "content": "특수 공격으로 다른 차원의 그림자를 소환합니다. 소환된 그림자가 타라와 팀원의 HP를 회복시켜줍니다."
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000266,
+          "content": "자신과 아군이 4초 동안 모든 적을 볼 수 있습니다. 덤불 안에 숨은 적도 발견할 수 있습니다."
+        },
+        {
+          "id": 23000356,
+          "content": "자신 주변을 3개의 HP 800의 500 피해를 주는 약한 그림자로 감싸 6초 동안 적을 공격하게 합니다."
+        }
+      ]
+    },
+    {
+      "id": 16000018,
+      "rarity": "Super Rare",
+      "class": "Tank",
+      "gender": "Male",
+      "icon": "<:Brawler_18:1015890422960242748>",
+      "starPowers": [
+        {
+          "id": 23000094,
+          "content": "특수 공격을 사용한 후 대릴의 통이 강화되어, 입는 피해가 2초 동안 25% 감소합니다."
+        },
+        {
+          "id": 23000157,
+          "content": "특수 공격을 사용할 때 5초 동안 재장전 속도가 두 배로 증가합니다."
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000260,
+          "content": "회전하며 사방으로 8타일까지 날아가는 탄환을 뿌립니다. 각 탄환은 400의 피해를 주고, 적을 맞추면 특수 공격이 25% 충전됩니다!"
+        },
+        {
+          "id": 23000313,
+          "content": "5초 동안 자신 주위 2.67타일 만큼 감속 지대를 만듭니다."
+        }
+      ]
+    },
+    {
+      "id": 16000019,
+      "rarity": "Super Rare",
+      "class": "Artillery",
+      "gender": "Female",
+      "icon": "<:Brawler_19:1015925628719075328>",
+      "starPowers": [
+        {
+          "id": 23000099,
+          "content": "금화 주머니가 명중할 때마다 금화가 100% 더 넓게 원뿔 모양으로 흩어지며, 금화 공격이 2개 더 추가됩니다."
+        },
+        {
+          "id": 23000142,
+          "content": "대포 배치 시 2.67타일 범위 내 근처의 적을 밀쳐내고 1000의 피해를 줍니다."
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000248,
+          "content": "적의 공격을 막아내는 HP 2000의 소금통을 놓습니다. 직접 소금통을 공격하면 체력 100이 감소하지만 금화 주머니가 터져 주변의 적에게 피해를 줄 수도 있습니다."
+        },
+        {
+          "id": 23000287,
+          "content": "페니의 대포가 사정거리 안에 보이는 모든 적에게 포탄을 발사합니다."
+        }
+      ]
+    },
+    {
+      "id": 16000020,
+      "rarity": "Epic",
+      "class": "Tank",
+      "gender": "Male",
+      "icon": "<:Brawler_24:1015890434293235763>",
+      "starPowers": [
+        {
+          "id": 23000104,
+          "content": "프랭크는 처치한 적 브롤러의 파워를 흡수할 수 있습니다. 적의 파워를 흡수하면 12초 동안 피해량이 50% 증가합니다!"
+        },
+        {
+          "id": 23000153,
+          "content": "HP가 +1100만큼 증가합니다."
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000261,
+          "content": "자신에게 걸린 방해 효과를 즉시 해제하며, 일시적으로 기절, 감속, 밀쳐지는 효과에 면역됩니다."
+        },
+        {
+          "id": 23000351,
+          "content": "다음 공격이 100%의 추가 피해를 주고 적을 자신 쪽으로 끌어당깁니다."
+        }
+      ]
+    },
+    {
+      "id": 16000021,
+      "rarity": "Epic",
+      "class": "Controller",
+      "gender": "Male",
+      "icon": "<:Brawler_33:1015890451351490611>",
+      "starPowers": [
+        {
+          "id": 23000109
+        },
+        {
+          "id": 23000159
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000252
+        },
+        {
+          "id": 23000352
+        }
+      ]
+    },
+    {
+      "id": 16000022,
+      "rarity": "Super Rare",
+      "class": "Artillery",
+      "gender": "Male",
+      "icon": "<:Brawler_9:1015890405918781450>",
+      "starPowers": [
+        {
+          "id": 23000114
+        },
+        {
+          "id": 23000161
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000253
+        },
+        {
+          "id": 23000355
+        }
+      ]
+    },
+    {
+      "id": 16000023,
+      "rarity": "Legendary",
+      "class": "Assassin",
+      "gender": "Male",
+      "icon": "<:Brawler_41:1015890466069303388>",
+      "starPowers": [
+        {
+          "id": 23000119
+        },
+        {
+          "id": 23000141
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000276
+        },
+        {
+          "id": 23000408
+        }
+      ]
+    },
+    {
+      "id": 16000024,
+      "rarity": "Rare",
+      "class": "Tank",
+      "gender": "Female",
+      "icon": "<:Brawler_16:1015890418610753616>",
+      "starPowers": [
+        {
+          "id": 23000124
+        },
+        {
+          "id": 23000147
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000242
+        },
+        {
+          "id": 23000348
+        }
+      ]
+    },
+    {
+      "id": 16000025,
+      "rarity": "Super Rare",
+      "class": "Damage Dealer",
+      "gender": "Male",
+      "icon": "<:Brawler_20:1015890426638630962>",
+      "starPowers": [
+        {
+          "id": 23000129
+        },
+        {
+          "id": 23000145
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000262
+        },
+        {
+          "id": 23000317
+        }
+      ]
+    },
+    {
+      "id": 16000026,
+      "rarity": "Epic",
+      "class": "Tank",
+      "gender": "Female",
+      "icon": "<:Brawler_25:1015890436302311445>",
+      "starPowers": [
+        {
+          "id": 23000134
+        },
+        {
+          "id": 23000146
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000275
+        },
+        {
+          "id": 23000458
+        }
+      ]
+    },
+    {
+      "id": 16000027,
+      "rarity": "Super Rare",
+      "class": "Damage Dealer",
+      "gender": "Male",
+      "icon": "<:Brawler_10:1015890407818805299>",
+      "starPowers": [
+        {
+          "id": 23000168
+        },
+        {
+          "id": 23000181
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000259
+        },
+        {
+          "id": 23000318
+        }
+      ]
+    },
+    {
+      "id": 16000028,
+      "rarity": "Legendary",
+      "class": "Controller",
+      "gender": "Male",
+      "icon": "<:Brawler_42:1015890468292272139>",
+      "starPowers": [
+        {
+          "id": 23000186
+        },
+        {
+          "id": 23000187
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000270
+        },
+        {
+          "id": 23000405
+        }
+      ]
+    },
+    {
+      "id": 16000029,
+      "rarity": "Epic",
+      "class": "Marksman",
+      "gender": "Female",
+      "icon": "<:Brawler_26:1015890438235902022>",
+      "starPowers": [
+        {
+          "id": 23000192
+        },
+        {
+          "id": 23000193
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000271
+        },
+        {
+          "id": 23000312
+        }
+      ]
+    },
+    {
+      "id": 16000030,
+      "rarity": "Epic",
+      "class": "Controller",
+      "gender": "Female",
+      "icon": "<:Brawler_11:1015890409521684500>",
+      "starPowers": [
+        {
+          "id": 23000198
+        },
+        {
+          "id": 23000199
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000274
+        },
+        {
+          "id": 23000459
+        }
+      ]
+    },
+    {
+      "id": 16000031,
+      "rarity": "Mythic",
+      "class": "Controller",
+      "gender": "Male",
+      "icon": "<:Brawler_35:1015890455231213578>",
+      "starPowers": [
+        {
+          "id": 23000204
+        },
+        {
+          "id": 23000205
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000269
+        },
+        {
+          "id": 23000349
+        }
+      ]
+    },
+    {
+      "id": 16000032,
+      "rarity": "Mythic",
+      "class": "Support",
+      "gender": "Female",
+      "icon": "<:Brawler_34:1015890453440233533>",
+      "starPowers": [
+        {
+          "id": 23000210
+        },
+        {
+          "id": 23000211
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000254
+        },
+        {
+          "id": 23000311
+        }
+      ]
+    },
+    {
+      "id": 16000034,
+      "rarity": "Super Rare",
+      "class": "Tank",
+      "gender": "Female",
+      "icon": "<:Brawler_21:1015890428698046537>",
+      "starPowers": [
+        {
+          "id": 23000222
+        },
+        {
+          "id": 23000223
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000256
+        },
+        {
+          "id": 23000486
+        }
+      ]
+    },
+    {
+      "id": 16000035,
+      "rarity": "Chromatic",
+      "class": "Controller",
+      "gender": "Male",
+      "icon": "<:Brawler_45:1015890475741347851>",
+      "starPowers": [
+        {
+          "id": 23000228
+        },
+        {
+          "id": 23000229
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000277
+        },
+        {
+          "id": 23000407
+        }
+      ]
+    },
+    {
+      "id": 16000036,
+      "rarity": "Epic",
+      "class": "Marksman",
+      "gender": "Female",
+      "icon": "<:Brawler_27:1015890439972339753>",
+      "starPowers": [
+        {
+          "id": 23000234
+        },
+        {
+          "id": 23000235
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000278
+        },
+        {
+          "id": 23000353
+        }
+      ]
+    },
+    {
+      "id": 16000037,
+      "rarity": "Mythic",
+      "class": "Artillery",
+      "gender": "Male",
+      "icon": "<:Brawler_36:1015890456900542575>",
+      "starPowers": [
+        {
+          "id": 23000240
+        },
+        {
+          "id": 23000241
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000244
+        },
+        {
+          "id": 23000315
+        }
+      ]
+    },
+    {
+      "id": 16000038,
+      "rarity": "Chromatic",
+      "class": "Damage Dealer",
+      "gender": "Male",
+      "icon": "<:Brawler_46:1015890477393915944>",
+      "starPowers": [
+        {
+          "id": 23000283
+        },
+        {
+          "id": 23000284
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000285
+        },
+        {
+          "id": 23000485
+        }
+      ]
+    },
+    {
+      "id": 16000039,
+      "rarity": "Chromatic",
+      "class": "Damage Dealer",
+      "gender": "Female",
+      "icon": "<:Brawler_47:1015890479763705967>",
+      "starPowers": [
+        {
+          "id": 23000300
+        },
+        {
+          "id": 23000301
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000302
+        },
+        {
+          "id": 23000457
+        }
+      ]
+    },
+    {
+      "id": 16000040,
+      "rarity": "Legendary",
+      "class": "Controller",
+      "gender": "Female",
+      "icon": "<:Brawler_43:1015890470406213683>",
+      "starPowers": [
+        {
+          "id": 23000307
+        },
+        {
+          "id": 23000308
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000309
+        },
+        {
+          "id": 23000488
+        }
+      ]
+    },
+    {
+      "id": 16000041,
+      "rarity": "Chromatic",
+      "class": "Controller",
+      "gender": "Male",
+      "icon": "<:Brawler_48:1015890482066358272>",
+      "starPowers": [
+        {
+          "id": 23000324
+        },
+        {
+          "id": 23000325
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000326
+        },
+        {
+          "id": 23000400
+        }
+      ]
+    },
+    {
+      "id": 16000042,
+      "rarity": "Mythic",
+      "class": "Support",
+      "gender": "Male",
+      "icon": "<:Brawler_37:1015890458888646726>",
+      "starPowers": [
+        {
+          "id": 23000331
+        },
+        {
+          "id": 23000332
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000333
+        },
+        {
+          "id": 23000461
+        }
+      ]
+    },
+    {
+      "id": 16000043,
+      "rarity": "Epic",
+      "class": "Assassin",
+      "gender": "Male",
+      "icon": "<:Brawler_28:1015890442069491763>",
+      "starPowers": [
+        {
+          "id": 23000338
+        },
+        {
+          "id": 23000339
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000340
+        },
+        {
+          "id": 23000403
+        }
+      ]
+    },
+    {
+      "id": 16000044,
+      "rarity": "Chromatic",
+      "class": "Support",
+      "gender": "Male",
+      "icon": "<:Brawler_49:1015890484276764742>",
+      "starPowers": [
+        {
+          "id": 23000345
+        },
+        {
+          "id": 23000346
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000347
+        },
+        {
+          "id": 23000402
+        }
+      ]
+    },
+    {
+      "id": 16000045,
+      "rarity": "Epic",
+      "class": "Assassin",
+      "gender": "Male",
+      "icon": "<:Brawler_12:1015890411128094781>",
+      "starPowers": [
+        {
+          "id": 23000362
+        },
+        {
+          "id": 23000363
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000364
+        },
+        {
+          "id": 23000401
+        }
+      ]
+    },
+    {
+      "id": 16000046,
+      "rarity": "Chromatic",
+      "class": "Marksman",
+      "gender": "Female",
+      "icon": "<:Brawler_50:1015890486986276944>",
+      "starPowers": [
+        {
+          "id": 23000369
+        },
+        {
+          "id": 23000370
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000371
+        },
+        {
+          "id": 23000463
+        }
+      ]
+    },
+    {
+      "id": 16000047,
+      "rarity": "Mythic",
+      "class": "Controller",
+      "gender": "Male",
+      "icon": "<:Brawler_38:1015890460797059092>",
+      "starPowers": [
+        {
+          "id": 23000376
+        },
+        {
+          "id": 23000377
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000378
+        },
+        {
+          "id": 23000462
+        }
+      ]
+    },
+    {
+      "id": 16000048,
+      "rarity": "Epic",
+      "class": "Artillery",
+      "gender": "Male",
+      "icon": "<:Brawler_30:1015925632074518548>",
+      "starPowers": [
+        {
+          "id": 23000383
+        },
+        {
+          "id": 23000384
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000385
+        },
+        {
+          "id": 23000460
+        }
+      ]
+    },
+    {
+      "id": 16000049,
+      "rarity": "Chromatic",
+      "class": "Assassin",
+      "gender": "Male",
+      "icon": "<:Brawler_51:1015890889383628881>",
+      "starPowers": [
+        {
+          "id": 23000390
+        },
+        {
+          "id": 23000391
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000392
+        },
+        {
+          "id": 23000490
+        }
+      ]
+    },
+    {
+      "id": 16000050,
+      "rarity": "Epic",
+      "class": "Controller",
+      "gender": "Male",
+      "icon": "<:Brawler_29:1015890443646541905>",
+      "starPowers": [
+        {
+          "id": 23000397
+        },
+        {
+          "id": 23000398
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000399
+        },
+        {
+          "id": 23000487
+        }
+      ]
+    },
+    {
+      "id": 16000051,
+      "rarity": "Chromatic",
+      "class": "Tank",
+      "gender": "Male",
+      "icon": "<:Brawler_52:1015925261730066523>",
+      "starPowers": [
+        {
+          "id": 23000414
+        },
+        {
+          "id": 23000415
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000416
+        },
+        {
+          "id": 23000465
+        }
+      ]
+    },
+    {
+      "id": 16000052,
+      "rarity": "Legendary",
+      "class": "Tank",
+      "gender": "Female",
+      "icon": "<:Brawler_44:1015925634767257600>",
+      "starPowers": [
+        {
+          "id": 23000421
+        },
+        {
+          "id": 23000422
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000423
+        },
+        {
+          "id": 23000489
+        }
+      ]
+    },
+    {
+      "id": 16000053,
+      "rarity": "Chromatic",
+      "class": "Damage Dealer",
+      "gender": "Female",
+      "icon": "<:Brawler_53:1015925264867405824>",
+      "starPowers": [
+        {
+          "id": 23000431
+        },
+        {
+          "id": 23000432
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000433
+        },
+        {
+          "id": 23000456
+        }
+      ]
+    },
+    {
+      "id": 16000054,
+      "rarity": "Chromatic",
+      "class": "Assassin",
+      "gender": "Male",
+      "icon": "<:Brawler_54:1015925267392376852>",
+      "starPowers": [
+        {
+          "id": 23000438
+        },
+        {
+          "id": 23000439
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000440
+        },
+        {
+          "id": 23000464
+        }
+      ]
+    },
+    {
+      "id": 16000056,
+      "rarity": "Chromatic",
+      "class": "Damage Dealer",
+      "gender": "Female",
+      "icon": "<:Brawler_55:1015925269757956138>",
+      "starPowers": [
+        {
+          "id": 23000452
+        },
+        {
+          "id": 23000453
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000454
+        },
+        {
+          "id": 23000455
+        }
+      ]
+    },
+    {
+      "id": 16000057,
+      "rarity": "Chromatic",
+      "class": "Marksman",
+      "gender": "Female",
+      "icon": "<:Brawler_56:1015925272731721799>",
+      "starPowers": [
+        {
+          "id": 23000470
+        },
+        {
+          "id": 23000471
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000472
+        },
+        {
+          "id": 23000473
+        }
+      ]
+    },
+    {
+      "id": 16000058,
+      "rarity": "Epic",
+      "class": "Marksman",
+      "gender": "Female",
+      "icon": "<:Brawler_57:1015925275931971634>",
+      "starPowers": [
+        {
+          "id": 23000478
+        },
+        {
+          "id": 23000479
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000480
+        },
+        {
+          "id": 23000481
+        }
+      ]
+    },
+    {
+      "id": 16000059,
+      "rarity": "Chromatic",
+      "class": "Controller",
+      "gender": "Male",
+      "icon": "<:Brawler_58:1015925277672624241>",
+      "starPowers": [
+        {
+          "id": 23000495
+        },
+        {
+          "id": 23000496
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000497
+        },
+        {
+          "id": 23000498
+        }
+      ]
+    },
+    {
+      "id": 16000060,
+      "rarity": "Chromatic",
+      "class": "Assassin",
+      "gender": "Male",
+      "icon": "<:Brawler_59:1016745571924586596>",
+      "starPowers": [
+        {
+          "id": 23000503
+        },
+        {
+          "id": 23000504
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000505
+        },
+        {
+          "id": 23000506
+        }
+      ]
+    },
+    {
+      "id": 16000061,
+      "rarity": "Super Rare",
+      "class": "Support",
+      "gender": "Male",
+      "icon": "<:Brawler_60:1016745574441160734>",
+      "starPowers": [
+        {
+          "id": 23000511
+        },
+        {
+          "id": 23000512
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000513
+        },
+        {
+          "id": 23000514
+        }
+      ]
+    },
+    {
+      "id": 16000062,
+      "rarity": "Chromatic",
+      "class": "Tank",
+      "gender": "Male",
+      "icon": "<:Brawler_64:1067132770033348708>",
+      "starPowers": [
+        {
+          "id": 23000519
+        },
+        {
+          "id": 23000520
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000521
+        },
+        {
+          "id": 23000522
+        }
+      ]
+    },
+    {
+      "id": 16000063,
+      "rarity": "Legendary",
+      "class": "Damage Dealer",
+      "gender": "Male",
+      "icon": "<:Brawler_61:1067131467907477654>",
+      "starPowers": [
+        {
+          "id": 23000527
+        },
+        {
+          "id": 23000528
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000529
+        },
+        {
+          "id": 23000530
+        }
+      ]
+    },
+    {
+      "id": 16000064,
+      "rarity": "Mythic",
+      "class": "Support",
+      "gender": "Male",
+      "icon": "<:Brawler_62:1067131584295206972>",
+      "starPowers": [
+        {
+          "id": 23000535
+        },
+        {
+          "id": 23000536
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000537
+        },
+        {
+          "id": 23000538
+        }
+      ]
+    },
+    {
+      "id": 16000065,
+      "rarity": "Chromatic",
+      "class": "Marksman",
+      "gender": "Female",
+      "icon": "<:Brawler_63:1067131629035847720>",
+      "starPowers": [
+        {
+          "id": 23000543
+        },
+        {
+          "id": 23000544
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000545
+        },
+        {
+          "id": 23000546
+        }
+      ]
+    },
+    {
+      "id": 16000066,
+      "rarity": "Chromatic",
+      "class": "Damage Dealer",
+      "gender": "Male",
+      "icon": "<:emoji_rt:1099927550517592125>",
+      "starPowers": [
+        {
+          "id": 23000553
+        },
+        {
+          "id": 23000554
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000555
+        },
+        {
+          "id": 23000556
+        }
+      ]
+    },
+    {
+      "id": 16000067,
+      "rarity": "Mythic",
+      "class": "Controller",
+      "gender": "Female",
+      "icon": "<:emoji_willow:1099927628170928208>",
+      "starPowers": [
+        {
+          "id": 23000561
+        },
+        {
+          "id": 23000562
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000563
+        },
+        {
+          "id": 23000564
+        }
+      ]
+    },
+    {
+      "id": 16000068,
+      "rarity": "Chromatic",
+      "class": "Marksman",
+      "gender": "Female",
+      "icon": "<:1600068:1103307401869926467>",
+      "starPowers": [
+        {
+          "id": 23000569
+        },
+        {
+          "id": 23000570
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000571
+        },
+        {
+          "id": 23000572
+        }
+      ]
+    },
+    {
+      "id": 16000069,
+      "rarity": "Epic",
+      "class": "Tank",
+      "gender": "Male",
+      "icon": "<:1600069:1103307397780484226>",
+      "starPowers": [
+        {
+          "id": 23000577
+        },
+        {
+          "id": 23000578
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000579
+        },
+        {
+          "id": 23000580
+        }
+      ]
+    },
+    {
+      "id": 16000070,
+      "rarity": "Chromatic",
+      "class": "Assassin",
+      "gender": "Male",
+      "icon": "<:cordelius_pin:1127419587210793061>",
+      "starPowers": [
+        {
+          "id": 23000585
+        },
+        {
+          "id": 23000586
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000587
+        },
+        {
+          "id": 23000588
+        }
+      ]
+    },
+    {
+      "id": 16000071,
+      "rarity": "Mythic",
+      "class": "Support",
+      "gender": "Male",
+      "icon": "<:doug:1127419591929372722>",
+      "starPowers": [
+        {
+          "id": 23000593
+        },
+        {
+          "id": 23000594
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000595
+        },
+        {
+          "id": 23000596
+        }
+      ]
+    },
+    {
+      "id": 16000072,
+      "rarity": "Chromatic",
+      "class": "Damage Dealer",
+      "gender": "Female",
+      "icon": "",
+      "starPowers": [
+        {
+          "id": 23000593
+        },
+        {
+          "id": 23000594
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000595
+        },
+        {
+          "id": 23000596
+        }
+      ]
+    },
+    {
+      "id": 16000073,
+      "rarity": "Mythic",
+      "class": "Damage Dealer",
+      "gender": "Male",
+      "icon": "",
+      "starPowers": [
+        {
+          "id": 23000593
+        },
+        {
+          "id": 23000594
+        }
+      ],
+      "gadgets": [
+        {
+          "id": 23000595
+        },
+        {
+          "id": 23000596
+        }
+      ]
+    }
+  ]
+}
