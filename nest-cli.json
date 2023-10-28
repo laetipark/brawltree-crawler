@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "assets": [
+      {
+        "include": "./configs/env/.development.env",
+        "outDir": "./dist/"
+      },
+      {
+        "include": "./configs/env/.production.env",
+        "outDir": "./dist/"
+      }
+    ]
+  }
+}

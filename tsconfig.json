@@ -1,40 +1,50 @@
 {
   "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
-    "baseUrl": "./",
+    "module": "commonjs",
     "declaration": true,
+    "removeComments": true,
     "emitDecoratorMetadata": true,
-    "esModuleInterop": true,
     "experimentalDecorators": true,
-    "incremental": true,
-    "module": "CommonJS",
-    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2021",
+    "sourceMap": true,
     "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
     "paths": {
+      "~/blossom/*": [
+        "./src/blossom/*"
+      ],
+      "~/brawlers/*": [
+        "./src/brawlers/*"
+      ],
       "~/configs/*": [
         "./src/configs/*"
       ],
       "~/database/*": [
         "./src/database/*"
       ],
-      "~/dto/*": [
-        "./src/dto/*"
+      "~/interfaces/*": [
+        "./src/interfaces/*"
       ],
-      "~/entities/*": [
-        "./src/entities/*"
+      "~/maps/*": [
+        "./src/maps/*"
       ],
       "~/public/*": [
         "./src/public/*"
       ],
-      "~/services/*": [
-        "./src/services/*"
+      "~/seasons/*": [
+        "./src/seasons/*"
+      ],
+      "~/users/*": [
+        "./src/users/*"
+      ],
+      "~/utils/*": [
+        "./src/utils/*"
       ]
-    },
-    "preserveValueImports": false,
-    "removeComments": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "sourceMap": false,
-    "target": "ESNext"
+    }
   }
 }
