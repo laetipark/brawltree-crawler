@@ -28,8 +28,10 @@
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/schedule": "^3.0.4",
     "@nestjs/typeorm": "^10.0.0",
+    "@types/oracledb": "^6.0.2",
     "cross-env": "^7.0.3",
     "mysql2": "^3.6.2",
+    "oracledb": "^5.5.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "typeorm": "^0.3.17"
@@ -60,7 +62,7 @@
       "json",
       "ts"
     ],
-    "rootDir": "src",
+    "rootDir": "test",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"

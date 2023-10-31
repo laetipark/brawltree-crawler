@@ -8,9 +8,9 @@ import { ConfigModule } from '@nestjs/config';
 import AppConfig from '~/configs/app.config';
 import DatabaseConfig from '~/configs/database.config';
 import AppConfigService from './configs/app-config.service';
-import { UsersModule } from './users/users.module';
-import { BrawlersModule } from './brawlers/brawlers.module';
-import { SeasonsModule } from './seasons/seasons.module';
+import { UsersModule } from '~/users/users.module';
+import { BrawlersModule } from '~/brawlers/brawlers.module';
+import { SeasonsModule } from '~/seasons/seasons.module';
 import { WorkerModule } from './worker/worker.module';
 import { MapsModule } from '~/maps/maps.module';
 

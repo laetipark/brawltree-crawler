@@ -16,10 +16,10 @@
     "resolveJsonModule": true,
     "paths": {
       "~/blossom/*": [
-        "./src/blossom/*"
+        "./src/features/blossom/*"
       ],
       "~/brawlers/*": [
-        "./src/brawlers/*"
+        "./src/features/brawlers/*"
       ],
       "~/configs/*": [
         "./src/configs/*"
@@ -31,16 +31,16 @@
         "./src/interfaces/*"
       ],
       "~/maps/*": [
-        "./src/maps/*"
+        "./src/features/maps/*"
       ],
       "~/public/*": [
         "./src/public/*"
       ],
       "~/seasons/*": [
-        "./src/seasons/*"
+        "./src/features/seasons/*"
       ],
       "~/users/*": [
-        "./src/users/*"
+        "./src/features/users/*"
       ],
       "~/utils/*": [
         "./src/utils/*"
