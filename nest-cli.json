@@ -13,6 +13,18 @@
         "include": "./configs/env/.production.env",
         "outDir": "./dist/"
       }
-    ]
+    ],
+    "webpack": true
+  },
+  "projects": {
+    "users": {
+      "type": "library",
+      "root": "libs/users",
+      "entryFile": "index",
+      "sourceRoot": "libs/users/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/users/tsconfig.lib.json"
+      }
+    }
   }
 }
