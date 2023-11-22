@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
-import { MapRotation } from './maps.entity';
+import { MapRotation } from '~/maps/entities/maps.entity';
 
 @Entity({ name: 'EVENTS' })
 export class Events {
@@ -43,6 +43,6 @@ export class Events {
   modifiers: string;
 
   @ManyToOne(() => MapRotation, (mapRotation) => mapRotation.events)
-  @JoinColumn({ name: 'MAP_ID', referencedColumnName: 'mapID' })
+  @JoinColumn({ name: 'map_id', referencedColumnName: 'mapID' })
   mapRotation: Relation<MapRotation>;
 }

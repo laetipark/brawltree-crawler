@@ -11,11 +11,13 @@ export class Seasons {
 
   @Column({
     name: 'SEASON_BGN_DT',
+    type: 'timestamp',
   })
   beginDate: Date;
 
   @Column({
     name: 'SEASON_END_DT',
+    type: 'timestamp',
   })
   endDate: Date;
 }

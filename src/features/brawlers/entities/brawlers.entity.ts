@@ -1,30 +1,37 @@
-import { Entity, PrimaryColumn, Column, OneToMany, Relation } from 'typeorm';
-import { BaseEntity } from '~/database/entities/base.entity';
-import { BrawlerStats } from './brawler-stats.entity';
-import { UserBattles } from '~/users/entities/users.entity';
 import {
-  UserBrawlers,
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryColumn,
+} from 'typeorm';
+import { BaseEntity } from '~/database/entities/base.entity';
+import { BattleStats } from './battle-stats.entity';
+import { UserBattles } from '~/users/entities/user-battles.entity';
+import {
   UserBrawlerBattles,
   UserBrawlerItems,
+  UserBrawlers,
 } from '~/users/entities/user-brawlers.entity';
 
-@Entity({ name: 'BRAWLERS' })
+@Entity({ name: 'brawlers' })
 export class Brawlers extends BaseEntity {
   @PrimaryColumn({
-    name: 'BRAWLER_ID',
+    name: 'id',
     length: 8,
   })
-  brawlerID: string;
+  id: string;
 
   @Column({
-    name: 'BRAWLER_NM',
+    name: 'name',
     type: 'varchar',
     length: 20,
   })
   name: string;
 
   @Column({
-    name: 'BRAWLER_RRT',
+    name: 'false',
     type: 'varchar',
     length: 20,
     nullable: true,
@@ -32,7 +39,7 @@ export class Brawlers extends BaseEntity {
   rarity: string;
 
   @Column({
-    name: 'BRAWLER_RL',
+    name: 'role',
     type: 'varchar',
     length: 20,
     nullable: true,
@@ -40,7 +47,7 @@ export class Brawlers extends BaseEntity {
   role: string;
 
   @Column({
-    name: 'BRAWLER_GNDR',
+    name: 'gender',
     type: 'varchar',
     length: 10,
     nullable: true,
@@ -48,77 +55,50 @@ export class Brawlers extends BaseEntity {
   gender: string;
 
   @Column({
-    name: 'BRAWLER_ICN',
+    name: 'discord_pin',
     type: 'varchar',
     length: 40,
     nullable: true,
   })
   icon: string;
 
-  @Column({
-    name: 'BRAWLER_SP1_ID',
-    length: 8,
-  })
-  starPowerID1: string;
+  @OneToMany(() => BrawlerItems, (brawler) => brawler.brawler)
+  brawlerItems: BrawlerItems[];
 
-  @Column({
-    name: 'BRAWLER_SP1_NM',
-    type: 'varchar',
-    length: 30,
-  })
-  starPowerName1: string;
-
-  @Column({
-    name: 'BRAWLER_SP2_ID',
-    length: 8,
-  })
-  starPowerID2: string;
-
-  @Column({
-    name: 'BRAWLER_SP2_NM',
-    type: 'varchar',
-    length: 30,
-  })
-  starPowerName2: string;
-
-  @Column({
-    name: 'BRAWLER_GDG1_ID',
-    length: 8,
-  })
-  gadgetID1: string;
-
-  @Column({
-    name: 'BRAWLER_GDG1_NM',
-    type: 'varchar',
-    length: 30,
-  })
-  gadgetName1: string;
-
-  @Column({
-    name: 'BRAWLER_GDG2_ID',
-    length: 8,
-  })
-  gadgetID2: string;
-
-  @Column({
-    name: 'BRAWLER_GDG2_NM',
-    type: 'varchar',
-    length: 30,
-  })
-  gadgetName2: string;
-
-  @OneToMany(() => BrawlerStats, (brawler) => brawler.brawler)
-  brawlerStats: Relation<BrawlerStats[]>;
+  @OneToMany(() => BattleStats, (brawler) => brawler.brawler)
+  battleStats: BattleStats[];
 
   @OneToMany(() => UserBattles, (battle) => battle.brawler)
-  userBattles: Relation<UserBattles[]>;
+  userBattles: UserBattles[];
 
   @OneToMany(() => UserBrawlers, (brawler) => brawler.brawler)
-  userBrawlers: Relation<UserBrawlers[]>;
+  userBrawlers: UserBrawlers[];
 
   @OneToMany(() => UserBrawlerBattles, (brawler) => brawler.brawler)
-  userBrawlerBattles: Relation<UserBrawlerBattles[]>;
+  userBrawlerBattles: UserBrawlerBattles[];
 
   @OneToMany(() => UserBrawlerItems, (brawler) => brawler.brawler)
-  userBrawlerItems: Relation<UserBrawlerItems[]>;
+  userBrawlerItems: UserBrawlerItems[];
+}
+
+@Entity({ name: 'brawler_items' })
+export class BrawlerItems {
+  @PrimaryColumn({ type: 'char', length: 8 })
+  id: string;
+
+  @Column({ name: 'brawler_id', type: 'char', length: 8 })
+  brawlerID: string;
+
+  @Column({ type: 'varchar', length: 20 })
+  kind: string;
+
+  @Column({ type: 'varchar', length: 30 })
+  name: string;
+
+  @OneToMany(() => UserBrawlerItems, (brawler) => brawler.brawlerItems)
+  userBrawlerItems: UserBrawlerItems[];
+
+  @ManyToOne(() => Brawlers, (brawler) => brawler.brawlerItems)
+  @JoinColumn({ name: 'brawler_id', referencedColumnName: 'id' })
+  brawler: Brawlers;
 }

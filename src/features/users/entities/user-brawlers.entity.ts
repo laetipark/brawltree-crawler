@@ -1,95 +1,88 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryColumn,
-  Relation,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 import { BaseEntity } from '~/database/entities/base.entity';
 import { Users } from './users.entity';
-import { Brawlers } from '~/brawlers/entities/brawlers.entity';
+import { BrawlerItems, Brawlers } from '~/brawlers/entities/brawlers.entity';
 import { Maps } from '~/maps/entities/maps.entity';
 
 abstract class Common extends BaseEntity {
   @PrimaryColumn({
-    name: 'USER_ID',
+    name: 'user_id',
     type: 'varchar',
-    length: 12,
+    length: 20,
   })
   userID: string;
 
   @PrimaryColumn({
-    name: 'BRAWLER_ID',
+    name: 'brawler_id',
     length: 8,
   })
   brawlerID: string;
 }
 
-@Entity({ name: 'USER_BRAWLERS' })
+@Entity({ name: 'user_brawlers' })
 export class UserBrawlers extends Common {
   @Column({
-    name: 'BRAWLER_PWR',
+    name: 'brawler_power',
     type: 'tinyint',
   })
   brawlerPower: number;
 
   @Column({
-    name: 'TROPHY_BGN',
+    name: 'begin_trophies',
     type: 'smallint',
   })
   beginTrophies: number;
 
   @Column({
-    name: 'TROPHY_CUR',
+    name: 'current_trophies',
     type: 'smallint',
   })
   currentTrophies: number;
 
   @Column({
-    name: 'TROPHY_HGH',
+    name: 'highest_trophies',
     type: 'smallint',
   })
   highestTrophies: number;
 
   @Column({
-    name: 'TROPHY_RNK',
+    name: 'brawler_rank',
     type: 'varchar',
     length: 2,
   })
   brawlerRank: string;
 
   @ManyToOne(() => Users, (user) => user.userBrawlers)
-  @JoinColumn({ name: 'USER_ID', referencedColumnName: 'userID' })
-  user: Relation<Users>;
+  @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
+  user: Users;
 
   @ManyToOne(() => Brawlers, (brawler) => brawler.userBrawlers)
-  @JoinColumn({ name: 'BRAWLER_ID', referencedColumnName: 'brawlerID' })
-  brawler: Relation<Brawlers>;
+  @JoinColumn({ name: 'brawler_id', referencedColumnName: 'id' })
+  brawler: Brawlers;
 }
 
-@Entity({ name: 'USER_BRAWLER_BATTLES' })
+@Entity({ name: 'user_brawler_battles' })
 export class UserBrawlerBattles extends Common {
   @PrimaryColumn({
-    name: 'MAP_ID',
+    name: 'map_id',
     length: 8,
   })
   mapID: string;
 
   @PrimaryColumn({
-    name: 'MATCH_TYP',
+    name: 'match_type',
     type: 'tinyint',
   })
   matchType: number;
 
   @PrimaryColumn({
-    name: 'MATCH_GRD',
+    name: 'match_grade',
     type: 'tinyint',
   })
   matchGrade: number;
 
   @Column({
-    name: 'MATCH_CNT',
+    name: 'match_count',
     type: 'int',
     unsigned: true,
     nullable: true,
@@ -97,53 +90,43 @@ export class UserBrawlerBattles extends Common {
   matchCount: number;
 
   @Column({
-    name: 'MATCH_CNT_VIC',
+    name: 'victories_count',
     type: 'int',
     unsigned: true,
     nullable: true,
   })
-  victoryCount: number;
+  victoriesCount: number;
 
   @Column({
-    name: 'MATCH_CNT_DEF',
+    name: 'defeats_count',
     type: 'int',
     unsigned: true,
     nullable: true,
   })
-  defeatCount: number;
+  defeatsCount: number;
 
   @ManyToOne(() => Brawlers, (brawler) => brawler.userBrawlerBattles)
-  @JoinColumn({ name: 'BRAWLER_ID', referencedColumnName: 'brawlerID' })
-  brawler: Relation<Brawlers>;
+  @JoinColumn({ name: 'brawler_id', referencedColumnName: 'id' })
+  brawler: Brawlers;
 
   @ManyToOne(() => Maps, (map) => map.userBrawlerBattles)
-  @JoinColumn({ name: 'MAP_ID', referencedColumnName: 'mapID' })
-  map: Relation<Maps>;
+  @JoinColumn({ name: 'map_id', referencedColumnName: 'mapID' })
+  map: Maps;
 }
 
-@Entity({ name: 'USER_BRAWLER_ITEMS' })
+@Entity({ name: 'user_brawler_items' })
 export class UserBrawlerItems extends Common {
   @PrimaryColumn({
-    name: 'ITEM_ID',
+    name: 'item_id',
     length: 8,
   })
   itemID: string;
 
-  @Column({
-    name: 'ITEM_K',
-    type: 'varchar',
-    length: 12,
-  })
-  itemKind: string;
-
-  @Column({
-    name: 'ITEM_NM',
-    type: 'varchar',
-    length: 30,
-  })
-  itemName: string;
-
   @ManyToOne(() => Brawlers, (brawler) => brawler.userBrawlerItems)
-  @JoinColumn({ name: 'BRAWLER_ID', referencedColumnName: 'brawlerID' })
-  brawler: Relation<Brawlers>;
+  @JoinColumn({ name: 'brawler_id', referencedColumnName: 'id' })
+  brawler: Brawlers;
+
+  @ManyToOne(() => BrawlerItems, (brawler) => brawler.userBrawlerItems)
+  @JoinColumn({ name: 'item_id', referencedColumnName: 'id' })
+  brawlerItems: BrawlerItems;
 }

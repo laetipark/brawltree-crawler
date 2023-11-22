@@ -37,3 +37,5 @@ lerna-debug.log*
 # Custom
 /src/configs/env/
 /ecosystem.config.cjs
+/.development.env
+/.production.env

@@ -1,14 +1,14 @@
 import {
-  Entity,
-  PrimaryColumn,
   Column,
-  OneToOne,
-  OneToMany,
-  Relation,
+  Entity,
   JoinColumn,
+  OneToMany,
+  OneToOne,
+  PrimaryColumn,
+  Relation,
 } from 'typeorm';
 import { BaseEntity } from '~/database/entities/base.entity';
-import { Events } from './events.entity';
+import { Events } from '~/maps/entities/events.entity';
 import { UserBrawlerBattles } from '~/users/entities/user-brawlers.entity';
 
 abstract class Common extends BaseEntity {
