@@ -1,4 +1,4 @@
-export type UserResponse = {
+export type UserResponseType = {
   club: {
     tag: string;
     name: string;

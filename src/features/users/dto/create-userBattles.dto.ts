@@ -1,20 +1,57 @@
+import { IsBoolean, IsDateString, IsNumber, IsString } from 'class-validator';
+
 export class CreateUserBattlesDto {
-  userID: string;
-  playerID: string;
-  brawlerID: string;
-  matchDate: Date;
-  mapID: string;
-  modeCode: number;
-  matchType: number;
-  matchGrade: number;
-  duration: number;
-  matchRank: number;
-  matchResult: number;
-  matchChange: number;
-  matchChangeRaw: number;
-  playerName: string;
-  teamNumber: number;
-  isStarPlayer: boolean;
-  brawlerPower: number;
-  brawlerTrophies: number;
+  @IsString()
+  userID!: string;
+
+  @IsString()
+  playerID!: string;
+
+  @IsString()
+  brawlerID!: string;
+
+  @IsDateString()
+  battleTime!: Date;
+
+  @IsString()
+  mapID!: string;
+
+  @IsNumber()
+  modeCode!: number;
+
+  @IsNumber()
+  matchType!: number;
+
+  @IsNumber()
+  matchGrade!: number;
+
+  @IsNumber()
+  duration!: number;
+
+  @IsNumber()
+  gameRank!: number;
+
+  @IsNumber()
+  gameResult!: number;
+
+  @IsNumber()
+  trophyChange!: number;
+
+  @IsNumber()
+  duelsTrophyChange!: number;
+
+  @IsString()
+  playerName!: string;
+
+  @IsNumber()
+  teamNumber!: number;
+
+  @IsBoolean()
+  isStarPlayer!: boolean;
+
+  @IsNumber()
+  brawlerPower!: number;
+
+  @IsNumber()
+  brawlerTrophies!: number;
 }
