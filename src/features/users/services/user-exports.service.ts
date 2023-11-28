@@ -1,26 +1,53 @@
 import { HttpService } from '@nestjs/axios';
-import { HttpException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { firstValueFrom } from 'rxjs';
-import { Repository } from 'typeorm';
-
-import UsersService from '~/users/services/users.service';
-import UserProfileService from '~/users/services/user-profile.service';
+import { DataSource, Repository } from 'typeorm';
 import UserBattlesService from '~/users/services/user-battles.service';
 import DateService from '~/utils/services/date.service';
 import { Users } from '~/users/entities/users.entity';
-import FailureResponse from '~/interfaces/enum/failure-response.enum';
-import UserRequestType from '~/interfaces/types/user-request.type';
+import { catchError, firstValueFrom, map } from 'rxjs';
+import { NotFoundException } from '@nestjs/common';
+import { CreateUserProfileDto } from '~/users/dto/create-user-profile.dto';
+import { UserResponseType } from '~/interfaces/types/user-response.type';
+import SeasonsService from '~/seasons/seasons.service';
+import {
+  UserBrawlerItems,
+  UserBrawlers,
+} from '~/users/entities/user-brawlers.entity';
+import { UserBattles } from '~/users/entities/user-battles.entity';
+import { UserProfile } from '~/users/entities/user-profile.entity';
 
 export default class UserExportsService {
   constructor(
+    private readonly dataSource: DataSource,
     @InjectRepository(Users) private readonly users: Repository<Users>,
-    private readonly usersService: UsersService,
-    private readonly userProfileService: UserProfileService,
+    @InjectRepository(UserProfile)
+    private readonly userProfile: Repository<UserProfile>,
+    @InjectRepository(UserBattles)
+    private readonly userBattles: Repository<UserBattles>,
+    @InjectRepository(UserBrawlers)
+    private readonly userBrawlers: Repository<UserBrawlers>,
+    @InjectRepository(UserBrawlerItems)
+    private readonly userBrawlerItems: Repository<UserBrawlerItems>,
     private readonly userBattlesService: UserBattlesService,
+    private readonly seasonsService: SeasonsService,
     private readonly dateService: DateService,
     private readonly httpService: HttpService,
   ) {}
+
+  /** 사용자 프로필 반환
+   * @param userID 사용자 ID */
+  async getUser(userID: string) {
+    return firstValueFrom(
+      this.httpService.get(`players/%23${userID}`).pipe(
+        map((res) => {
+          return res.data;
+        }),
+        catchError(() => {
+          throw new NotFoundException(`User ${userID} not Found`);
+        }),
+      ),
+    );
+  }
 
   async getUsers() {
     return await this.users
@@ -33,7 +60,176 @@ export default class UserExportsService {
       });
   }
 
-  async getUserCycle() {
+  /** 사용자 프로필과 사용자 브롤러 정보 추가
+   * @param user 멤버 json
+   */
+  async updateUserProfile(user: UserResponseType) {
+    const season = await this.seasonsService.selectRecentSeason();
+
+    return await this.dataSource.transaction(async (manager) => {
+      const userBattlesRepository = manager.withRepository(this.userBattles);
+      const userProfileRepository = manager.withRepository(this.userProfile);
+      const userBrawlersRepository = manager.withRepository(this.userBrawlers);
+      const userBrawlerItemsRepository = manager.withRepository(
+        this.userBrawlerItems,
+      );
+
+      /** 파워 리그 랭크 반환
+       * @param id 사용자 ID
+       * @param typeNum 게임 타입 번호
+       * @param column 열 이름 */
+      const getRankPL = async (id: string, typeNum: number, column: string) => {
+        return await userBattlesRepository
+          .createQueryBuilder('ub')
+          .select('ub.brawlerTrophies', 'brawlerTrophies')
+          .where('ub.userID = :id AND ub.playerID = :id', {
+            id: id,
+          })
+          .andWhere('ub.matchType = :type', {
+            type: typeNum,
+          })
+          .orderBy(`ub.${column}`, 'DESC')
+          .getRawOne()
+          .then((result) => {
+            return result != null ? result.brawlerTrophies - 1 : 0;
+          });
+      };
+
+      /** 파워 리그 랭크 반환
+       * @param id 사용자 ID
+       * @param brawlerID 브롤러 ID
+       * @param currentTrophies 현재 트로피 개수 */
+      const getTrophyBegin = async (
+        id: string,
+        brawlerID: string,
+        currentTrophies: number,
+      ) => {
+        return await userBattlesRepository
+          .createQueryBuilder('ub')
+          .select('ub.brawlerTrophies', 'brawlerTrophies')
+          .where('ub.userID = :id AND ub.playerID = :id', {
+            id: id,
+          })
+          .andWhere('ub.brawlerID = :brawlerID', {
+            brawlerID: brawlerID,
+          })
+          .andWhere('ub.battleTime > :date', {
+            date: season.beginDate,
+          })
+          .andWhere('ub.matchType = 0')
+          .orderBy(`ub.battleTime`, 'ASC')
+          .getRawOne()
+          .then((result) => {
+            return result != null ? result.brawlerTrophies : currentTrophies;
+          });
+      };
+
+      // 사용자 프로필 정보 저장
+      const [
+        soloRankCurrent,
+        teamRankCurrent,
+        soloRankHighest,
+        teamRankHighest,
+      ] = await Promise.all([
+        getRankPL(user.tag, 2, 'battleTime'),
+        getRankPL(user.tag, 3, 'battleTime'),
+        getRankPL(user.tag, 2, 'brawlerTrophies'),
+        getRankPL(user.tag, 3, 'brawlerTrophies'),
+      ]);
+
+      const userProfile: CreateUserProfileDto = {
+        userID: user.tag,
+        name: user.name,
+        profileIcon: user.icon.id,
+        clubID: user.club.tag,
+        clubName: user.club.name,
+        currentTrophies: user.trophies,
+        highestTrophies: user.highestTrophies,
+        trioMatchVictories: user['3vs3Victories'],
+        duoMatchVictories: user.duoVictories,
+        soloMatchVictories: user.soloVictories,
+        brawlerRank25: user.brawlers.filter(({ rank }) => rank >= 25).length,
+        brawlerRank30: user.brawlers.filter(({ rank }) => rank >= 30).length,
+        brawlerRank35: user.brawlers.filter(({ rank }) => rank >= 35).length,
+        currentSoloPL: soloRankCurrent,
+        highestSoloPL: soloRankHighest,
+        currentTeamPL: teamRankCurrent,
+        highestTeamPL: teamRankHighest,
+      };
+
+      // 사용자 브롤러와 사용자 브롤러 아이템 정보 저장
+      const brawlers = [];
+      const brawlerItems = [];
+      const brawlerItemIDs = [];
+
+      user.brawlers.map(async (brawler) => {
+        const brawlerID = brawler.id;
+        const brawlerPower = brawler.power;
+        const trophyBegin = await getTrophyBegin(
+          user.tag,
+          brawlerID,
+          brawler.trophies,
+        );
+
+        brawlers.push({
+          userID: user.tag,
+          brawlerID: brawlerID,
+          brawlerPower: brawlerPower,
+          beginTrophies: trophyBegin,
+          currentTrophies: brawler.trophies,
+          highestTrophies: brawler.highestTrophies,
+          brawlerRank: brawler.rank,
+        });
+
+        const gears = brawler.gears;
+        const starPowers = brawler.starPowers;
+        const gadgets = brawler.gadgets;
+
+        gears.map(async ({ id }) => {
+          brawlerItems.push({
+            userID: user.tag,
+            brawlerID: brawlerID,
+            itemID: id,
+          });
+          brawlerItemIDs.push(id);
+        });
+
+        starPowers.map(async ({ id }) => {
+          brawlerItems.push({
+            userID: user.tag,
+            brawlerID: brawlerID,
+            itemID: id,
+          });
+          brawlerItemIDs.push(id);
+        });
+
+        gadgets.map(async ({ id }) => {
+          brawlerItems.push({
+            userID: user.tag,
+            brawlerID: brawlerID,
+            itemID: id,
+          });
+          brawlerItemIDs.push(id);
+        });
+      });
+
+      // 사용자 프로필 추가
+      await userProfileRepository.upsert(
+        userProfileRepository.create(userProfile),
+        ['user.id'],
+      );
+      // 사용자 브롤러 추가
+      await userBrawlersRepository.upsert(brawlers, ['userID', 'brawlerID']);
+      // 사용자 브롤러 아이템 추가
+      await userBrawlerItemsRepository.upsert(brawlerItems, [
+        'userID',
+        'brawlerID',
+        'itemID',
+      ]);
+    });
+  }
+
+  async updateUserCycle() {
     await this.users
       .createQueryBuilder()
       .update()
@@ -55,95 +251,22 @@ export default class UserExportsService {
   }
 
   /** 사용자 전투 기록 관리
-   * @param userID 사용자 ID
-   * @param isCycle 요청 순환 여부 */
-  async fetchBattleRequest({ userID, isCycle }: UserRequestType) {
+   * @param battleLogs 사용자 ID
+   * @param userID 요청 순환 여부 */
+  async updateUserBattlesByResponse(battleLogs: any, userID: string) {
     try {
-      // 사용자 전투 기록 반환
-      const response = await firstValueFrom(
-        this.httpService.get(`players/%23${userID}/battlelog`),
-      );
-      const battleLogs = response.data;
-
-      // 사용자 전투 기록 추가
-      battleLogs &&
-        (await this.userBattlesService.insertUserBattles(battleLogs, userID));
-
-      /** @type Date 최근 전투 시간 반환 */
-      const newUserLastBattle: Date = this.dateService.getDate(
-        battleLogs?.items.find((battle: any) => {
-          return battle.event.id !== 0;
-        }).battleTime,
-      );
-
-      /** 사용자 최근 전투 시간 변경 */
-      await this.users
-        .createQueryBuilder()
-        .update()
-        .set({
-          lastBattledOn: newUserLastBattle,
-          cycleCount: 0,
-        })
-        .where('id = :id', {
-          id: `#${userID}`,
-        })
-        .execute();
-
-      /** 사용자 브롤러 전투 정보 변경 */
+      /** @type Date 전투 기록 변경 후 최근 전투 시간 반환 */
+      await this.userBattlesService.insertUserBattles(battleLogs, userID);
       await this.userBattlesService.updateUserBrawlerBattles(userID);
-
-      /** 20분 후에 manageUserRequests 메서드 실행 */
-      if (isCycle) {
-        setTimeout(
-          () => {
-            this.fetchBattleRequest({ userID, isCycle: isCycle });
-          },
-          20 * 60 * 1000,
-        );
-      }
     } catch (error) {
-      Logger.error(JSON.stringify(error.response?.data), userID);
-      const errorTime = error.response?.status === 404 ? 50 : 0;
-
-      if (error.response?.status === 404) {
-        await this.users
-          .createQueryBuilder(`u`)
-          .update()
-          .set({
-            cycleCount: () => `cycleCount + 1`,
-          })
-          .where('id = :id', {
-            id: `#${userID}`,
-          })
-          .execute();
-      }
-
-      const user = await this.users
-        .createQueryBuilder(`u`)
-        .select(`u.cycleCount`, `cycleCount`)
-        .where('u.id = :id', {
-          id: `#${userID}`,
-        })
-        .getRawOne();
-
-      if ((user?.cycleCount || 0) > 9) {
-        await this.users.softDelete({
-          id: `#${userID}`,
-        });
-      } else {
-        /** 10(60)분 후에 manageUserRequests 실행 */
-        setTimeout(
-          () => {
-            this.fetchBattleRequest({ userID, isCycle: isCycle });
-          },
-          (10 + errorTime) * 60 * 1000,
-        );
-      }
-
-      throw new HttpException(
-        FailureResponse.USER_BATTLES_UPDATE_FAILED,
-        error.response?.status,
-      );
+      // FA
     }
+  }
+
+  setBattleResponse(user: string) {
+    return {
+      id: user,
+      request: this.httpService.get(`players/%23${user}/battlelog`),
+    };
   }
 }

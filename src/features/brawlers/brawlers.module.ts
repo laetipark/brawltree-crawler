@@ -1,39 +1,18 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Brawlers } from '~/brawlers/entities/brawlers.entity';
-import { UserBattles } from '~/users/entities/users.entity';
-import DateService from '~/utils/date.service';
-import { HttpModule } from '@nestjs/axios';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import http from 'http';
-import https from 'https';
-import BrawlerService from '~/brawlers/brawler.service';
-import {
-  BattleTrio,
-  BrawlerStats,
-} from '~/brawlers/entities/brawler-stats.entity';
+import { UserBattles } from '~/users/entities/user-battles.entity';
+import BrawlersService from '~/brawlers/brawlers.service';
+import { BattleStats } from '~/brawlers/entities/battle-stats.entity';
 import { Maps } from '~/maps/entities/maps.entity';
+import { UtilsModule } from '~/utils/utils.module';
 
 @Module({
   imports: [
-    HttpModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        baseURL: configService.get<string>('axios.baseURL'),
-        headers: configService.get<any>('axios.headers'),
-        httpAgent: new http.Agent({ keepAlive: true }),
-        httpsAgent: new https.Agent({ keepAlive: true }),
-      }),
-      inject: [ConfigService],
-    }),
-    TypeOrmModule.forFeature([
-      Brawlers,
-      BattleTrio,
-      BrawlerStats,
-      Maps,
-      UserBattles,
-    ]),
+    TypeOrmModule.forFeature([Brawlers, BattleStats, Maps, UserBattles]),
+    UtilsModule,
   ],
-  providers: [BrawlerService, DateService],
+  providers: [BrawlersService],
+  exports: [BrawlersService],
 })
 export class BrawlersModule {}

@@ -1,6 +1,6 @@
 import { IsBoolean, IsDateString, IsNumber, IsString } from 'class-validator';
 
-export class CreateUserBattlesDto {
+export class CreateUserBattleDto {
   @IsString()
   userID!: string;
 

@@ -1,4 +1,4 @@
-export class CreateUserBrawlersDto {
+export class CreateUserBrawlerDto {
   userID: string;
   brawlerID: string;
   brawlerPower: number;

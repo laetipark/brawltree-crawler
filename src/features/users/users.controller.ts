@@ -1,7 +1,5 @@
 import { Controller, Param, Patch, Post } from '@nestjs/common';
 import UsersService from '~/users/services/users.service';
-import UserProfileService from '~/users/services/user-profile.service';
-import UserBattlesService from '~/users/services/user-battles.service';
 import SuccessResponse from '~/interfaces/enum/success.response';
 import UserExportsService from '~/users/services/user-exports.service';
 
@@ -9,8 +7,6 @@ import UserExportsService from '~/users/services/user-exports.service';
 export class UsersController {
   constructor(
     private usersService: UsersService,
-    private userProfileService: UserProfileService,
-    private userBattlesService: UserBattlesService,
     private userExportsService: UserExportsService,
   ) {}
 
@@ -18,11 +14,11 @@ export class UsersController {
    * @param id user tag */
   @Post('/:id')
   async insertUser(@Param('id') id: string) {
-    const user = await this.usersService.getUser(id);
+    const user = await this.userExportsService.getUser(id);
 
     await this.usersService.insertUser({
       id: user.tag,
-      lastBattledOn: new Date(0),
+      lastBattledOn: new Date(1000),
       crew: null,
       crewName: null,
     });
@@ -37,13 +33,13 @@ export class UsersController {
    * @param id user tag */
   @Patch('/:id')
   async updateUser(@Param('id') id: string) {
-    const user = await this.usersService.getUser(id);
+    const user = await this.userExportsService.getUser(id);
 
-    await this.userProfileService.updateUserProfile(user);
-    await this.userExportsService.fetchBattleRequest({
-      userID: id,
-      isCycle: false,
-    });
+    await this.userExportsService.updateUserProfile(user);
+    await this.userExportsService.updateUserBattlesByResponse(
+      this.userExportsService.setBattleResponse(id),
+      id,
+    );
 
     return {
       message: SuccessResponse.USER_UPDATED,

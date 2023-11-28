@@ -3,22 +3,19 @@ import { Brawlers } from './entities/brawlers.entity';
 
 import brawlerJSON from '~/public/json/brawlers.json';
 
-import { UserBattles } from '~/users/entities/users.entity';
+import { UserBattles } from '~/users/entities/user-battles.entity';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom, map } from 'rxjs';
 import { Maps } from '~/maps/entities/maps.entity';
-import {
-  BattleTrio,
-  BrawlerStats,
-} from '~/brawlers/entities/brawler-stats.entity';
+import { BattleStats } from '~/brawlers/entities/battle-stats.entity';
 import { Cron } from '@nestjs/schedule';
-import DateService from '~/utils/date.service';
-import { Injectable } from '@nestjs/common';
+import DateService from '~/utils/services/date.service';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { isMainThread } from 'worker_threads';
 
 @Injectable()
-export default class BrawlerService {
+export default class BrawlersService {
   constructor(
     private readonly dataSource: DataSource,
     @InjectRepository(Brawlers)
@@ -27,7 +24,11 @@ export default class BrawlerService {
     private userBattles: Repository<UserBattles>,
     private readonly dateService: DateService,
     private readonly httpService: HttpService,
-  ) {}
+  ) {
+    this.insertBrawler().then(() => {
+      Logger.log(`Brawler Data Initialized`, 'Brawlers');
+    });
+  }
 
   async insertBrawler() {
     const brawlers = await firstValueFrom(
@@ -35,7 +36,7 @@ export default class BrawlerService {
         map((res) => {
           return res.data.items.map((brawler) => {
             return {
-              brawlerID: brawler.id,
+              id: brawler.id,
               name: brawler.name,
               rarity:
                 brawlerJSON.items.find((item) => item?.id === brawler.id)
@@ -49,24 +50,16 @@ export default class BrawlerService {
               icon:
                 brawlerJSON.items.find((item) => item?.id === brawler.id)
                   ?.icon || null,
-              starPowerID1: brawler.starPowers[0].id,
-              starPowerName1: brawler.starPowers[0].name,
-              starPowerID2: brawler.starPowers[1].id,
-              starPowerName2: brawler.starPowers[1].name,
-              gadgetID1: brawler.gadgets[0].id,
-              gadgetName1: brawler.gadgets[0].name,
-              gadgetID2: brawler.gadgets[1].id,
-              gadgetName2: brawler.gadgets[1].name,
             };
           });
         }),
       ),
     );
 
-    await this.brawlers.upsert(brawlers, ['brawlerID']);
+    await this.brawlers.upsert(brawlers, ['id']);
   }
 
-  async updateBattleTrio(date: string) {
+  /*async updateBattleTrio(date: string) {
     await this.dataSource.transaction(async (manager) => {
       const battleTrios = await manager
         .createQueryBuilder()
@@ -92,21 +85,21 @@ export default class BrawlerService {
             .addSelect('ub.teamNumber', 'teamNumber')
             .addSelect('COUNT(*)', 'matchCount')
             .addSelect(
-              'COUNT(CASE WHEN ub.matchResult = -1 THEN 1 ELSE NULL END)',
+              'COUNT(CASE WHEN ub.gameResult = -1 THEN 1 ELSE NULL END)',
               'victoryCount',
             )
             .addSelect(
-              'COUNT(CASE WHEN ub.matchResult = 1 THEN 1 ELSE NULL END)',
+              'COUNT(CASE WHEN ub.gameResult = 1 THEN 1 ELSE NULL END)',
               'defeatCount',
             )
             .from(UserBattles, 'ub')
             .innerJoin(Maps, 'm', 'ub.mapID = m.mapID')
             .where('ub.modeCode = 3')
-            .andWhere('ub.matchDate BETWEEN :begin AND :end', {
+            .andWhere('ub.battleTime BETWEEN :begin AND :end', {
               begin: new Date(new Date(date).getTime() - 70 * 60 * 1000),
               end: new Date(new Date(date).getTime() - 10 * 60 * 1000),
             })
-            .groupBy('ub.matchDate')
+            .groupBy('ub.battleTime')
             .addGroupBy('ub.mapID')
             .addGroupBy('ub.matchType')
             .addGroupBy('ub.matchGrade')
@@ -153,36 +146,31 @@ export default class BrawlerService {
           .orIgnore()
           .execute());
     });
-  }
+  }*/
 
-  async updateBrawlerStats(date: string) {
+  async updateBattleStats() {
     await this.dataSource.transaction(async (manager) => {
       const userBattlesRepository = manager.withRepository(this.userBattles);
 
       const brawlerStats = await userBattlesRepository
         .createQueryBuilder('ub')
-        .select(`CAST("${date}" AS DATETIME)`, 'aggregationDate')
-        .addSelect('ub.brawlerID', 'brawlerID')
+        .select('ub.brawlerID', 'brawlerID')
         .addSelect('ub.mapID', 'mapID')
         .addSelect('ub.matchType', 'matchType')
         .addSelect('ub.matchGrade', 'matchGrade')
         .addSelect('COUNT(*)', 'matchCount')
         .addSelect(
-          'COUNT(CASE WHEN ub.matchResult = -1 THEN 1 ELSE NULL END)',
+          'COUNT(CASE WHEN ub.gameResult = -1 THEN 1 ELSE NULL END)',
           'victoryCount',
         )
         .addSelect(
-          'COUNT(CASE WHEN ub.matchResult = 1 THEN 1 ELSE NULL END)',
+          'COUNT(CASE WHEN ub.gameResult = 1 THEN 1 ELSE NULL END)',
           'defeatCount',
         )
         .addSelect('m.mode', 'mode')
-        .innerJoin(Maps, 'm', 'ub.mapID = m.mapID')
+        .innerJoin(Maps, 'm', 'ub.mapID = m.id')
         .where('ub.matchType IN (0, 2, 3)')
         .andWhere('ub.modeCode = 3')
-        .andWhere('ub.matchDate BETWEEN :begin AND :end', {
-          begin: new Date(new Date(date).getTime() - 70 * 60 * 1000),
-          end: new Date(new Date(date).getTime() - 10 * 60 * 1000),
-        })
         .groupBy('ub.brawlerID')
         .addGroupBy('ub.mapID')
         .addGroupBy('ub.matchType')
@@ -194,7 +182,7 @@ export default class BrawlerService {
         (await manager
           .createQueryBuilder()
           .insert()
-          .into(BrawlerStats)
+          .into(BattleStats)
           .values(brawlerStats)
           .orIgnore()
           .execute());
@@ -223,17 +211,16 @@ export default class BrawlerService {
         });
     };*/
 
-  @Cron('* 0-23/1 * * *')
+  @Cron('0 0-23/1 * * *')
   async updateBrawlers() {
     if (isMainThread) {
       const date = new Date();
       date.setSeconds(0);
       date.setMilliseconds(0);
-      const dateFormat = this.dateService.getDateFormat(date);
 
       await this.insertBrawler();
-      await this.updateBattleTrio(dateFormat);
-      await this.updateBrawlerStats(dateFormat);
+      /*await this.updateBattleTrio(dateFormat);*/
+      await this.updateBattleStats();
     }
   }
 }

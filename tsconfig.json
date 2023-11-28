@@ -21,8 +21,8 @@
       "~/brawlers/*": [
         "./src/features/brawlers/*"
       ],
-      "~/configs/*": [
-        "./src/configs/*"
+      "~/config/*": [
+        "./src/config/*"
       ],
       "~/database/*": [
         "./src/database/*"

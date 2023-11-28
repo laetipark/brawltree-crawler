@@ -1,17 +1,18 @@
 import { DataSource, Repository } from 'typeorm';
 
-import { Events } from './entities/events.entity';
-import { MapRotation, Maps } from './entities/maps.entity';
+import { Events } from '~/maps/entities/events.entity';
+import { Maps } from '~/maps/entities/maps.entity';
 
-import DateService from '~/utils/date.service';
-
+import DateService from '~/utils/services/date.service';
 import rotationPL from '~/public/json/power_league.json';
 import { HttpService } from '@nestjs/axios';
-import { catchError, firstValueFrom, map } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { Cron } from '@nestjs/schedule';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { isMainThread } from 'worker_threads';
+import { MapRotation } from '~/maps/entities/map-rotation.entity';
+import { CreateMapDto } from '~/maps/dto/create-map.dto';
 
 @Injectable()
 export default class MapsService {
@@ -25,7 +26,9 @@ export default class MapsService {
     private mapRotation: Repository<MapRotation>,
     private dateService: DateService,
     private readonly httpService: HttpService,
-  ) {}
+  ) {
+    this.insertRotation().then(() => {});
+  }
 
   async updateRotation() {
     await this.dataSource.transaction(async (manager) => {
@@ -35,7 +38,7 @@ export default class MapsService {
       const trophyLeagueMaps = await eventsRepository
         .createQueryBuilder('e')
         .select('e.mapID', 'mapID')
-        .where('e.slotNumber IN (1, 2, 3, 4, 5, 6, 33)')
+        .where('e.id IN (1, 2, 3, 4, 5, 6, 33)')
         .getRawMany()
         .then((result) => {
           return result.map((map) => {
@@ -105,60 +108,56 @@ export default class MapsService {
   }
 
   async insertRotation() {
-    const responseEvent = await firstValueFrom(
-      this.httpService.get('/events/rotation').pipe(
-        map((res) => {
-          return res.data;
-        }),
-        catchError((err) => {
-          console.error(
-            'insertRotation',
-            err.response?.status,
-            err.response?.data,
-          );
+    try {
+      const responseEvent = await firstValueFrom(
+        this.httpService.get('/events/rotation').pipe(),
+      );
 
-          throw 'An error happened!';
-        }),
-      ),
-    );
+      const maps = responseEvent.data;
+      maps &&
+        (await this.dataSource.transaction(async (manager) => {
+          const eventsRepository = manager.withRepository(this.events);
+          const mapsRepository = manager.withRepository(this.maps);
 
-    responseEvent &&
-      (await this.dataSource.transaction(async (manager) => {
-        const eventsRepository = manager.withRepository(this.events);
-        const mapsRepository = manager.withRepository(this.maps);
+          for (const item of maps) {
+            const mapID = item.event.id;
+            const mapMode = item.event.mode;
+            const mapName = item.event.map;
 
-        for (const item of responseEvent) {
-          const mapID = item.event.id;
-          const mapMode = item.event.mode;
-          const mapName = item.event.map;
+            const beginTime = new Date(
+              this.dateService.getDate(item.startTime),
+            );
+            const endTime = new Date(this.dateService.getDate(item.endTime));
+            const modifiers = item.event.modifiers?.at(0);
 
-          const beginTime = new Date(this.dateService.getDate(item.startTime));
-          const endTime = new Date(this.dateService.getDate(item.endTime));
-          const modifiers = item.event.modifiers?.at(0);
+            const slotID = item.slotId;
 
-          const slotID = item.slotId;
+            await mapsRepository.upsert(
+              {
+                id: mapID,
+                mode: mapMode,
+                name: mapName,
+              },
+              ['id'],
+            );
 
-          await mapsRepository.upsert(
-            {
-              mapID: mapID,
-              mode: mapMode,
-              name: mapName,
-            },
-            ['mapID'],
-          );
+            await eventsRepository.upsert(
+              {
+                id: slotID,
+                startTime: beginTime,
+                endTime: endTime,
+                mapID: mapID,
+                modifiers: modifiers,
+              },
+              ['mapID'],
+            );
+          }
+        }));
+    } catch (error) {
+      Logger.error(error.response?.data, error.response?.status);
 
-          await eventsRepository.upsert(
-            {
-              mapID: mapID,
-              slotNumber: slotID,
-              beginDate: beginTime,
-              endDate: endTime,
-              modifiers: modifiers,
-            },
-            ['mapID'],
-          );
-        }
-      }));
+      throw 'An error happened!';
+    }
   }
 
   async deleteRotation() {
@@ -166,27 +165,35 @@ export default class MapsService {
       .createQueryBuilder()
       .delete()
       .where(
-        'endDate < DATE_FORMAT(DATE_SUB(NOW(), INTERVAL :date HOUR), "%Y-%m-%d-%H") AND slotNumber IN (4, 6, 33)',
+        'endTime < DATE_FORMAT(DATE_SUB(NOW(), INTERVAL :date HOUR), "%Y-%m-%d-%H") AND id IN (4, 6, 33)',
         {
           date: 360,
         },
       )
       .orWhere(
-        'endDate < DATE_FORMAT(DATE_SUB(NOW(), INTERVAL :date HOUR), "%Y-%m-%d-%H") AND slotNumber NOT IN (4, 6, 33)',
+        'endTime < DATE_FORMAT(DATE_SUB(NOW(), INTERVAL :date HOUR), "%Y-%m-%d-%H") AND id NOT IN (4, 6, 33)',
         {
           date: 168,
         },
       )
       .orWhere(
-        'endDate < DATE_FORMAT(DATE_SUB(NOW(), INTERVAL :date HOUR), "%Y-%m-%d-%H") AND slotNumber = 8',
+        'endTime < DATE_FORMAT(DATE_SUB(NOW(), INTERVAL :date HOUR), "%Y-%m-%d-%H") AND id = 8',
         {
           date: 144,
         },
       )
       .orWhere(
-        'endDate < DATE_FORMAT(NOW(), "%Y-%m-%d-%H") AND slotNumber BETWEEN 20 AND 26',
+        'endTime < DATE_FORMAT(NOW(), "%Y-%m-%d-%H") AND id BETWEEN 20 AND 26',
       )
       .execute();
+  }
+
+  async insertMaps(maps: CreateMapDto[]) {
+    try {
+      await this.maps.upsert(maps, ['id']);
+    } catch (error) {
+      Logger.error(error);
+    }
   }
 
   @Cron('0 1 * * * *')

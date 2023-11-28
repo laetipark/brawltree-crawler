@@ -1,6 +1,6 @@
 import { Repository } from 'typeorm';
-import { Seasons } from './entities/seasons.entity';
-import { CreateSeasonsDto } from './dto/create-season.dto';
+import { Seasons } from '~/seasons/entities/seasons.entity';
+import { CreateSeasonsDto } from '~/seasons/dto/create-season.dto';
 import { Cron } from '@nestjs/schedule';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,7 +16,7 @@ export default class SeasonsService {
     const recentSeason = await this.checkSeason();
 
     if (Date.now() > new Date(recentSeason.endDate).getTime()) {
-      const id = recentSeason.seasonNumber + 1;
+      const id = recentSeason.id + 1;
       const beginDate = new Date(
         new Date(recentSeason.beginDate).setMonth(
           new Date(recentSeason.beginDate).getMonth() + 2,
@@ -87,7 +87,7 @@ export default class SeasonsService {
       .find({
         take: 1,
         order: {
-          seasonNumber: 'DESC',
+          id: 'DESC',
         },
       })
       .then((result) => result[0]);

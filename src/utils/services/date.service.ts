@@ -1,5 +1,5 @@
 export default class DateService {
-  getDate(date) {
+  getDate(date: string): Date {
     return new Date(
       Date.UTC(
         parseInt(date.substring(0, 4)),

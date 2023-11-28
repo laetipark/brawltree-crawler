@@ -1,35 +1,30 @@
-import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import { Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { firstValueFrom, map } from 'rxjs';
-
-import { UserFriends, UserRecords } from '~/blossom/entities/blossom.entity';
-import { UserBattles, Users } from '~/users/entities/users.entity';
-import { Maps } from '~/maps/entities/maps.entity';
-import { CreateUsersDto } from '~/users/dto/create-users.dto';
-
-import UsersService from '~/users/services/users.service';
-import UserProfileService from '~/users/services/user-profile.service';
-
-import crewJSON from '~/public/json/crew.json';
-import DateService from '~/utils/date.service';
-import SeasonsService from '~/seasons/seasons.service';
 import { isMainThread } from 'worker_threads';
 
+import { UserFriends, UserRecords } from './entities/crew.entity';
+import { Users } from '~/users/entities/users.entity';
+import { Maps } from '~/maps/entities/maps.entity';
+import { CreateUserDto } from '~/users/dto/create-user.dto';
+
+import crewJSON from '~/public/json/crew.json';
+import DateService from '~/utils/services/date.service';
+import { UserBattles } from '~/users/entities/user-battles.entity';
+import UserExportsService from '~/users/services/user-exports.service';
+
 @Injectable()
-export default class BlossomService {
+export default class CrewService {
   constructor(
     private readonly dataSource: DataSource,
     @InjectRepository(Users) private users: Repository<Users>,
     @InjectRepository(UserBattles) private userBattles: Repository<UserBattles>,
     @InjectRepository(UserFriends) private userFriends: Repository<UserFriends>,
     @InjectRepository(UserRecords) private userRecords: Repository<UserRecords>,
-    private seasonsService: SeasonsService,
-    private userService: UsersService,
-    private userProfileService: UserProfileService,
+    private readonly usersService: UserExportsService,
     private readonly dateService: DateService,
     private readonly httpService: HttpService,
   ) {}
@@ -37,15 +32,15 @@ export default class BlossomService {
   /** Blossom Members Account update
    * @return Blossom Member ID Array */
   async updateMembers(): Promise<string[]> {
-    /** @type CreateUsersDto[] 클럽 멤버  */
+    /** @type CreateUserDto[] 클럽 멤버  */
     const clubMembers: Users[] = await firstValueFrom(
       this.httpService.get('/clubs/%23C2RCY8C2/members').pipe(
         map((res) => {
           const members = res.data;
           return members.items.map(({ name, tag }) => {
             return {
-              userID: tag,
-              lastBattleAt: new Date(0),
+              id: tag,
+              lastBattledOn: new Date(1000),
               crew: 'Blossom',
               crewName: name,
             };
@@ -54,27 +49,27 @@ export default class BlossomService {
       ),
     );
 
-    /** @type CreateUsersDto[] 크루 멤버  */
-    const crewMembers: CreateUsersDto[] = crewJSON.map((member) => {
+    /** @type CreateUserDto[] 크루 멤버  */
+    const crewMembers: CreateUserDto[] = crewJSON.map((member) => {
       return {
-        userID: member.tag,
-        lastBattleAt: new Date(0),
+        id: member.tag,
+        lastBattledOn: new Date(1000),
         crew: 'Team',
         crewName: member.name,
       };
     });
 
     const memberGroup = crewMembers.concat(clubMembers);
-    /** @type CreateUsersDto[] 클럽 + 크루 멤버 */
-    const members: CreateUsersDto[] = memberGroup.filter((item1, idx1) => {
+    /** @type CreateUserDto[] 클럽 + 크루 멤버 */
+    const members: CreateUserDto[] = memberGroup.filter((item1, idx1) => {
       return (
         memberGroup.findIndex((item2) => {
-          return item1.userID === item2.userID;
+          return item1.id === item2.id;
         }) === idx1
       );
     });
     /** @type string[] 클럽 + 크루 멤버 ID */
-    const memberIDs: string[] = members.map((member) => member.userID);
+    const memberIDs: string[] = members.map((member) => member.id);
 
     await this.dataSource.transaction(async (manager) => {
       const usersRepository = manager.withRepository(this.users);
@@ -99,23 +94,22 @@ export default class BlossomService {
   /** Update Blossom Members UserProfile
    * @param members Member ID Array */
   async updateMemberProfiles(members: string[]) {
-    const season = await this.seasonsService.selectRecentSeason();
-
     await Promise.all(
       /** member profile update
        * @param member 멤버 ID*/
       members.map(async (member) => {
-        const user = await this.userService.getUser(member.replace('#', ''));
+        const user = await this.usersService.getUser(member.replace('#', ''));
 
         if (user !== undefined) {
-          await this.userProfileService.updateUserProfile(user, season);
+          await this.usersService.updateUserProfile(user);
         }
       }),
     );
   }
 
   /** Update Blossom Members UserFriends
-   * @param members Member ID Array */
+   * @param members Member ID Array
+   * @param date */
   async updateMemberFriends(members: string[], date: string) {
     const friends = [];
 
@@ -135,30 +129,30 @@ export default class BlossomService {
             .addSelect('ub.playerName', 'name')
             .addSelect('COUNT(*)', 'matchCount')
             .addSelect(
-              'COUNT(CASE WHEN ub.matchResult = -1 THEN 1 END)',
+              'COUNT(CASE WHEN ub.gameResult = -1 THEN 1 END)',
               'victoryCount',
             )
             .addSelect(
-              'COUNT(CASE WHEN ub.matchResult = 1 THEN 1 END)',
+              'COUNT(CASE WHEN ub.gameResult = 1 THEN 1 END)',
               'defeatCount',
             )
             .addSelect(
               'ROUND(SUM(' +
-                'CASE WHEN ub.matchResult = -1 THEN 0.005 * CAST(ub.matchGrade AS UNSIGNED) ' +
-                'WHEN ub.matchResult = 0 THEN 0.0025 * CAST(ub.matchGrade AS UNSIGNED) ' +
+                'CASE WHEN ub.gameResult = -1 THEN 0.005 * CAST(ub.matchGrade AS UNSIGNED) ' +
+                'WHEN ub.gameResult = 0 THEN 0.0025 * CAST(ub.matchGrade AS UNSIGNED) ' +
                 'ELSE 0.001 * CAST(ub.matchGrade AS UNSIGNED) END)' +
                 ', 2)',
               'friendPoints',
             )
             .addSelect('m.mode', 'mode')
-            .innerJoin(Maps, 'm', 'ub.mapID = m.mapID')
+            .innerJoin(Maps, 'm', 'ub.mapID = m.id')
             .where('ub.userID = :id AND ub.playerID != :id', {
               id: member,
             })
             .andWhere('ub.playerID IN (:ids)', {
               ids: members,
             })
-            .andWhere('ub.matchDate BETWEEN :begin AND :end', {
+            .andWhere('ub.battleTime BETWEEN :begin AND :end', {
               begin: new Date(new Date(date).getTime() - 70 * 60 * 1000),
               end: new Date(new Date(date).getTime() - 10 * 60 * 1000),
             })
@@ -212,18 +206,18 @@ export default class BlossomService {
             )
             .addSelect('COUNT(*)', 'matchCount')
             .addSelect(
-              'COUNT(CASE WHEN ub.matchResult = -1 THEN 1 END)',
+              'COUNT(CASE WHEN ub.gameResult = -1 THEN 1 END)',
               'victoryCount',
             )
             .addSelect(
-              'COUNT(CASE WHEN ub.matchResult = 1 THEN 1 END)',
+              'COUNT(CASE WHEN ub.gameResult = 1 THEN 1 END)',
               'defeatCount',
             )
             .addSelect('m.mode', 'mode')
-            .innerJoin(Maps, 'm', 'ub.mapID = m.mapID')
+            .innerJoin(Maps, 'm', 'ub.mapID = m.id')
             .where(
               '(ub.userID = :id1 AND ub.playerID = :id1 AND ' +
-                'ub.matchDate BETWEEN :begin AND :end)',
+                'ub.battleTime BETWEEN :begin AND :end)',
               {
                 id1: member,
                 begin: new Date(new Date(date).getTime() - 70 * 60 * 1000),
@@ -232,7 +226,7 @@ export default class BlossomService {
             )
             .orWhere(
               '(ub.userID = :id2 AND ub.playerID = :id2 AND ' +
-                'ub.matchDate BETWEEN :begin AND :end AND ' +
+                'ub.battleTime BETWEEN :begin AND :end AND ' +
                 '(ub.matchType = 0 OR (ub.matchType = 3)))',
               {
                 id2: member,

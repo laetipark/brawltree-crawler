@@ -6,10 +6,12 @@ import { DataSource, Repository } from 'typeorm';
 import { Users } from '~/users/entities/users.entity';
 import { UserBattles } from '~/users/entities/user-battles.entity';
 import { UserBrawlerBattles } from '~/users/entities/user-brawlers.entity';
-import { CreateUserBattlesDto } from '~/users/dto/create-userBattles.dto';
+import { CreateUserBattleDto } from '~/users/dto/create-userBattle.dto';
 
 import DateService from '~/utils/services/date.service';
 import AppConfigService from '~/utils/services/app-config.service';
+import { CreateMapDto } from '~/maps/dto/create-map.dto';
+import MapsService from '~/maps/maps.service';
 
 const typeNameArray = [
   'ranked',
@@ -23,16 +25,13 @@ const resultNameArray = ['victory', 'draw', 'defeat'];
 
 @Injectable()
 export default class UserBattlesService {
-  /*  userRequests: UserRequestType[] = [];
-    pendingRequests: UserRequestType[] = [];
-    private readonly maxRequests: number = 2;*/
-
   constructor(
     private dataSource: DataSource,
     @InjectRepository(Users) private readonly users: Repository<Users>,
     @InjectRepository(UserBattles) private userBattles: Repository<UserBattles>,
     @InjectRepository(UserBrawlerBattles)
     private userBrawlerBattles: Repository<UserBrawlerBattles>,
+    private readonly mapsService: MapsService,
     private readonly dateService: DateService,
     private readonly configService: AppConfigService,
   ) {}
@@ -161,119 +160,171 @@ export default class UserBattlesService {
     };
 
     const userID = `#${id}`;
-    await this.dataSource.transaction(async (manager) => {
-      const usersRepository = manager.withRepository(this.users);
+    const user = await this.users
+      .createQueryBuilder('u')
+      .select('u.lastBattledOn', 'lastBattledOn')
+      .where('u.id = :id', {
+        id: userID,
+      })
+      .getRawOne();
 
-      const userLastUpdate = await usersRepository
-        .createQueryBuilder('u')
-        .select('u.lastBattledOn', 'lastBattledOn')
-        .getRawOne();
+    /** 사용자 최근 전투 시간 반환
+     * @return lastBattleDateResponse 최근 전투 시간 반환 */
+    const lastBattleDate = await this.dataSource.transaction(
+      async (manager) => {
+        const userBattlesRepository = manager.withRepository(this.userBattles);
 
-      const lastBattleDate = new Date(userLastUpdate.lastBattledOn);
-      const lastBattleDateResponse = this.dateService.getDate(
-        battleLogs?.items[0].battleTime,
-      );
-      const battles: CreateUserBattlesDto[] = [];
+        const rawBattles = battleLogs.items.filter((battle: any) => {
+          return battle.event.id !== 0;
+        });
 
-      if (lastBattleDate.toString() !== lastBattleDateResponse.toString()) {
-        for (const item of battleLogs?.items) {
-          if (item.event.id !== 0 && item.battle.type !== undefined) {
-            // 전투 시작 시각
-            const battleTime = this.dateService.getDate(item.battleTime);
-            // 전투 시간
-            const duration =
-              item.battle.duration != null && item.battle.duration > 0
-                ? item.battle.duration
-                : 0;
-            // 전투 타입
-            const matchType = typeNameArray.indexOf(item.battle.type);
+        const lastBattleDate = new Date(user.lastBattledOn);
+        const lastBattleDateResponse =
+          rawBattles.length > 0
+            ? this.dateService.getDate(rawBattles[0].battleTime)
+            : lastBattleDate;
 
-            /** @type number 게임 모드 번호
-             * 3: 트리오 모드 / 2: 듀오 모드 / 1: 솔로 모드 / 0: 듀얼 */
-            const modeCode: number = (
-              await this.configService.getModeClass()
-            ).tripleModes.includes(item.event.mode)
-              ? 3
-              : (await this.configService.getModeClass()).duoModes.includes(
-                    item.event.mode,
-                  )
-                ? 2
-                : (
-                      await this.configService.getModeClass()
-                    ).soloModes.survive.includes(item.event.mode)
-                  ? 1
+        const battles: CreateUserBattleDto[] = [];
+        const maps: CreateMapDto[] = [];
+
+        if (lastBattleDate !== lastBattleDateResponse) {
+          for (const item of rawBattles) {
+            if (item.event.id !== 0 && item.battle.type !== undefined) {
+              maps.push({
+                id: item.event.id,
+                mode: item.event.mode,
+                name: item.event.map,
+              });
+
+              // 전투 시작 시각
+              const battleTime = this.dateService.getDate(item.battleTime);
+              // 전투 시간
+              const duration =
+                item.battle.duration != null && item.battle.duration > 0
+                  ? item.battle.duration
                   : 0;
-            const trophyChange =
-              item.battle.trophyChange !== undefined
-                ? item.battle.trophyChange
-                : 0;
+              // 전투 타입
+              const matchType = typeNameArray.indexOf(item.battle.type);
 
-            // 전투 팀 배열 설정
-            const teams =
-              item.battle.teams !== undefined
-                ? item.battle.teams
-                : item.battle.players;
+              /** @type number 게임 모드 번호
+               * 3: 트리오 모드 / 2: 듀오 모드 / 1: 솔로 모드 / 0: 듀얼 */
+              const modeCode: number = (
+                await this.configService.getModeClass()
+              ).tripleModes.includes(item.event.mode)
+                ? 3
+                : (await this.configService.getModeClass()).duoModes.includes(
+                      item.event.mode,
+                    )
+                  ? 2
+                  : (
+                        await this.configService.getModeClass()
+                      ).soloModes.survive.includes(item.event.mode)
+                    ? 1
+                    : 0;
+              const trophyChange =
+                item.battle.trophyChange !== undefined
+                  ? item.battle.trophyChange
+                  : 0;
 
-            // 전투에서 가장 트로피 개수 높은 사용자
-            const highestTrophies = Math.max(
-              ...teams.map((team) => {
-                if ([3, 2].includes(modeCode)) {
-                  return Math.max(
-                    ...team.map(({ brawler }) => {
-                      return brawler.trophies;
-                    }),
-                  );
-                } else if (modeCode === 0) {
-                  return Math.max(
-                    ...team.brawlers.map(({ trophies }) => {
-                      return trophies;
-                    }),
-                  );
-                } else {
-                  return team.brawler.trophies;
-                }
-              }),
-            );
+              // 전투 팀 배열 설정
+              const teams =
+                item.battle.teams !== undefined
+                  ? item.battle.teams
+                  : item.battle.players;
 
-            // 전투 등급
-            const matchGrade = await getGrade(matchType, highestTrophies);
+              // 전투에서 가장 트로피 개수 높은 사용자
+              const highestTrophies = Math.max(
+                ...teams.map((team) => {
+                  if ([3, 2].includes(modeCode)) {
+                    return Math.max(
+                      ...team.map(({ brawler }) => {
+                        return brawler.trophies;
+                      }),
+                    );
+                  } else if (modeCode === 0) {
+                    return Math.max(
+                      ...team.brawlers.map(({ trophies }) => {
+                        return trophies;
+                      }),
+                    );
+                  } else {
+                    return team.brawler.trophies;
+                  }
+                }),
+              );
 
-            // 전투 기록 플레이어 정보 저장
-            if (new Date(lastBattleDate) < battleTime) {
-              const match = {
-                result: resultNameArray.indexOf(item.battle.result) - 1,
-                brawler: 0,
-              };
+              // 전투 등급
+              const matchGrade = await getGrade(matchType, highestTrophies);
 
-              for (const teamNumber in teams) {
-                const players = [2, 3].includes(modeCode)
-                  ? teams[teamNumber]
-                  : teams;
-                const teamResult = players
-                  .map(({ tag }) => tag)
-                  .includes(userID)
-                  ? resultNameArray.indexOf(item.battle.result) - 1
-                  : (resultNameArray.indexOf(item.battle.result) - 1) * -1;
+              // 전투 기록 플레이어 정보 저장
+              if (new Date(lastBattleDate) < battleTime) {
+                const match = {
+                  result: resultNameArray.indexOf(item.battle.result) - 1,
+                  brawler: 0,
+                };
 
-                for (const playerNumber in players) {
-                  const gameRank: number =
-                    modeCode === 1
-                      ? parseInt(playerNumber)
-                      : modeCode === 2
-                        ? parseInt(teamNumber)
-                        : -1;
-                  const gameResult = getResult(
-                    teams.length,
-                    gameRank,
-                    teamResult,
-                  );
+                for (const teamNumber in teams) {
+                  const players = [2, 3].includes(modeCode)
+                    ? teams[teamNumber]
+                    : teams;
+                  const teamResult = players
+                    .map(({ tag }) => tag)
+                    .includes(userID)
+                    ? resultNameArray.indexOf(item.battle.result) - 1
+                    : (resultNameArray.indexOf(item.battle.result) - 1) * -1;
 
-                  if (modeCode === 0) {
-                    for (const brawler of players[playerNumber]?.brawlers) {
+                  for (const playerNumber in players) {
+                    const gameRank: number =
+                      modeCode === 1
+                        ? parseInt(playerNumber)
+                        : modeCode === 2
+                          ? parseInt(teamNumber)
+                          : -1;
+                    const gameResult = getResult(
+                      teams.length,
+                      gameRank,
+                      teamResult,
+                    );
+
+                    if (modeCode === 0) {
+                      for (const brawler of players[playerNumber]?.brawlers) {
+                        battles.push({
+                          userID,
+                          playerID: players[playerNumber].tag,
+                          brawlerID: brawler.id,
+                          battleTime,
+                          mapID: item.event.id,
+                          modeCode,
+                          matchType,
+                          matchGrade,
+                          duration,
+                          gameRank,
+                          gameResult,
+                          trophyChange: 0,
+                          duelsTrophyChange: brawler.trophyChange,
+                          playerName: players[playerNumber].name,
+                          teamNumber: parseInt(teamNumber),
+                          isStarPlayer: false,
+                          brawlerPower: brawler.power,
+                          brawlerTrophies: brawler.trophies,
+                        });
+                      }
+                    } else {
+                      const isStarPlayer =
+                        item.battle.starPlayer !== undefined &&
+                        item.battle.starPlayer !== null &&
+                        players[playerNumber].tag ===
+                          item.battle.starPlayer.tag;
+
+                      if (players[playerNumber].tag === userID) {
+                        match.result = gameResult;
+                        match.brawler = players[playerNumber].brawler.id;
+                      }
+
                       battles.push({
                         userID,
                         playerID: players[playerNumber].tag,
-                        brawlerID: brawler.id,
+                        brawlerID: players[playerNumber].brawler.id,
                         battleTime,
                         mapID: item.event.id,
                         modeCode,
@@ -282,64 +333,52 @@ export default class UserBattlesService {
                         duration,
                         gameRank,
                         gameResult,
-                        trophyChange: 0,
-                        duelsTrophyChange: brawler.trophyChange,
+                        trophyChange,
+                        duelsTrophyChange: 0,
                         playerName: players[playerNumber].name,
-                        teamNumber: parseInt(teamNumber),
-                        isStarPlayer: false,
-                        brawlerPower: brawler.power,
-                        brawlerTrophies: brawler.trophies,
+                        teamNumber: [1, 2].includes(modeCode)
+                          ? gameRank
+                          : parseInt(teamNumber),
+                        isStarPlayer,
+                        brawlerPower: players[playerNumber].brawler.power,
+                        brawlerTrophies: players[playerNumber].brawler.trophies,
                       });
                     }
-                  } else {
-                    const isStarPlayer =
-                      item.battle.starPlayer !== undefined &&
-                      item.battle.starPlayer !== null &&
-                      players[playerNumber].tag === item.battle.starPlayer.tag;
-
-                    if (players[playerNumber].tag === userID) {
-                      match.result = gameResult;
-                      match.brawler = players[playerNumber].brawler.id;
-                    }
-
-                    battles.push({
-                      userID,
-                      playerID: players[playerNumber].tag,
-                      brawlerID: players[playerNumber].brawler.id,
-                      battleTime,
-                      mapID: item.event.id,
-                      modeCode,
-                      matchType,
-                      matchGrade,
-                      duration,
-                      gameRank,
-                      gameResult,
-                      trophyChange,
-                      duelsTrophyChange: 0,
-                      playerName: players[playerNumber].name,
-                      teamNumber: [1, 2].includes(modeCode)
-                        ? gameRank
-                        : parseInt(teamNumber),
-                      isStarPlayer,
-                      brawlerPower: players[playerNumber].brawler.power,
-                      brawlerTrophies: players[playerNumber].brawler.trophies,
-                    });
                   }
                 }
               }
             }
           }
-        }
-      } // battleLogs 탐색 종료
+        } // battleLogs 탐색 종료
 
-      // 사용자 전투 기록 추가
-      await manager
-        .createQueryBuilder()
-        .insert()
-        .into(UserBattles)
-        .values(battles)
-        .orIgnore()
-        .execute();
-    });
+        // 맵 정보 추가
+        const mapIDs = Array.from(new Set(maps.map((item) => item.id)));
+        await this.mapsService.insertMaps(
+          mapIDs.map((id) => maps.find((item) => item.id === id)),
+        );
+
+        // 사용자 전투 기록 추가
+        await userBattlesRepository
+          .createQueryBuilder()
+          .insert()
+          .values(battles)
+          .orIgnore()
+          .execute();
+
+        return lastBattleDateResponse;
+      },
+    );
+
+    // 사용자 최근 전투 시간 변경
+    await this.users
+      .createQueryBuilder()
+      .update()
+      .set({
+        lastBattledOn: lastBattleDate || user.lastBattledOn,
+      })
+      .where('id = :id', {
+        id: `#${userID}`,
+      })
+      .execute();
   }
 }

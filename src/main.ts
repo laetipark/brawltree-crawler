@@ -2,7 +2,7 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
-import { WorkerService } from './worker/worker.service';
+import WorkersService from './workers/services/workers.service';
 import { isMainThread } from 'worker_threads';
 
 async function bootstrap() {
@@ -19,12 +19,15 @@ async function bootstrap() {
     await app.listen(port);
   }
 
-  const workerService = app.get(WorkerService);
+  const workerService = app.get(WorkersService);
   await workerService.startCrawling();
 
   return port;
 }
 
 bootstrap().then((port) => {
-  Logger.log(`🌸 | Plant Brawl Tree Crawler ${port && `at ${port}`}`);
+  Logger.log(
+    `🌸 | Plant Brawl Tree Crawler ${port && `at ${port}`}`,
+    'Brawl Tree',
+  );
 });
