@@ -34,7 +34,7 @@ export class Brawltree1700655045629 implements MigrationInterface {
     await queryRunner.query(`CREATE TABLE \`maps\`
                              (
                                  \`id\`         char(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci     NOT NULL,
-                                 \`mode_name\`  varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+                                 \`mode\`       varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
                                  \`name\`       varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
                                  \`created_at\` timestamp                                                    NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                  \`updated_at\` timestamp                                                    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -75,7 +75,6 @@ export class Brawltree1700655045629 implements MigrationInterface {
                                  \`crew\`            varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci          DEFAULT NULL,
                                  \`crew_name\`       varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci          DEFAULT NULL,
                                  \`is_cycle\`        tinyint(1)                                                   NOT NULL DEFAULT '0',
-                                 \`cycle_count\`     tinyint                                                      NOT NULL DEFAULT '0',
                                  \`created_at\`      timestamp                                                    NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                  \`updated_at\`      timestamp                                                    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                                  \`deleted_at\`      timestamp                                                    NULL     DEFAULT NULL,
@@ -256,6 +255,16 @@ export class Brawltree1700655045629 implements MigrationInterface {
                                  \`updated_at\`      timestamp                                                    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                                  PRIMARY KEY (\`user_id\`, \`match_type\`, \`match_grade\`, \`mode_name\`),
                                  CONSTRAINT \`user_records_fk1\` FOREIGN KEY (\`user_id\`) REFERENCES \`users\` (\`id\`) ON DELETE CASCADE
+                             ) ENGINE = InnoDB
+                               DEFAULT CHARSET = utf8mb4
+                               COLLATE = utf8mb4_unicode_ci;`);
+
+    await queryRunner.query(`CREATE TABLE \`seasons\`
+                             (
+                                 \`id\`         tinyint unsigned NOT NULL,
+                                 \`begin_date\` timestamp        NOT NULL,
+                                 \`end_date\`   timestamp        NOT NULL,
+                                 PRIMARY KEY (\`id\`)
                              ) ENGINE = InnoDB
                                DEFAULT CHARSET = utf8mb4
                                COLLATE = utf8mb4_unicode_ci;`);

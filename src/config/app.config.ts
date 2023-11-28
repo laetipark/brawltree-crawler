@@ -57,5 +57,6 @@ export default () => ({
     timezone: process.env.DATABASE_TIMEZONE,
     entities: ['dist/**/**/*.entity.{ts,js}'],
     synchronize: false,
+    logging: process.env.NODE_ENV === 'production',
   },
 });

@@ -11,4 +11,4 @@ npm run migration:run
 npm run seed:run
 
 # NestJS 앱 실행
-npm run start
+npm run start:prod

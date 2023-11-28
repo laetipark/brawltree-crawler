@@ -2,7 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 import { BaseEntity } from '~/database/entities/base.entity';
 import { Brawlers } from '~/brawlers/entities/brawlers.entity';
 
-@Entity({ name: 'BRAWLER_STATS' })
+@Entity({ name: 'battle_stats' })
 export class BattleStats extends BaseEntity {
   @PrimaryColumn({
     name: 'map_id',

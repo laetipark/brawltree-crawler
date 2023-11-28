@@ -5,44 +5,42 @@ import {
   ManyToOne,
   PrimaryColumn,
   PrimaryGeneratedColumn,
-  Relation,
 } from 'typeorm';
-import { MapRotation } from '~/maps/entities/maps.entity';
+import { Maps } from '~/maps/entities/maps.entity';
 
 @Entity({ name: 'EVENTS' })
 export class Events {
   @PrimaryGeneratedColumn({
-    name: 'ROTATION_SLT_NO',
+    name: 'id',
     type: 'tinyint',
     unsigned: true,
   })
-  slotNumber: number;
+  id: number;
 
   @PrimaryColumn({
-    name: 'ROTATION_BGN_DT',
+    name: 'start_time',
   })
-  beginDate: Date;
+  startTime: Date;
 
   @Column({
-    name: 'ROTATION_END_DT',
+    name: 'end_time',
   })
-  endDate: Date;
+  endTime: Date;
 
   @Column({
-    name: 'MAP_ID',
+    name: 'map_id',
     length: 8,
   })
   mapID: string;
 
   @Column({
-    name: 'MAP_MDFS',
     type: 'varchar',
     length: 50,
     nullable: true,
   })
   modifiers: string;
 
-  @ManyToOne(() => MapRotation, (mapRotation) => mapRotation.events)
-  @JoinColumn({ name: 'map_id', referencedColumnName: 'mapID' })
-  mapRotation: Relation<MapRotation>;
+  @ManyToOne(() => Maps, (map) => map.events)
+  @JoinColumn({ name: 'map_id', referencedColumnName: 'id' })
+  map: Maps;
 }

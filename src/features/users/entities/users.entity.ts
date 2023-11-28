@@ -1,16 +1,9 @@
-import {
-  Column,
-  Entity,
-  OneToMany,
-  OneToOne,
-  PrimaryColumn,
-  Relation,
-} from 'typeorm';
+import { Column, Entity, OneToMany, OneToOne, PrimaryColumn } from 'typeorm';
 import { SoftDeleteEntity } from '~/database/entities/base.entity';
 import { UserProfile } from '~/users/entities/user-profile.entity';
 import { UserBattles } from '~/users/entities/user-battles.entity';
 import { UserBrawlers } from './user-brawlers.entity';
-import { UserFriends, UserRecords } from '~/blossom/entities/blossom.entity';
+import { UserFriends, UserRecords } from '../../crew/entities/crew.entity';
 
 @Entity({ name: 'users' })
 export class Users extends SoftDeleteEntity {
@@ -48,25 +41,18 @@ export class Users extends SoftDeleteEntity {
   })
   isCycle: boolean;
 
-  @Column({
-    name: 'cycle_count',
-    type: 'tinyint',
-    default: 0,
-  })
-  cycleCount: number;
-
   @OneToOne(() => UserProfile)
-  userProfile: Relation<UserProfile>;
+  userProfile: UserProfile;
 
   @OneToMany(() => UserBattles, (battle) => battle.user)
-  userBattles: Relation<UserBattles[]>;
+  userBattles: UserBattles[];
 
   @OneToMany(() => UserBrawlers, (brawler) => brawler.user)
-  userBrawlers: Relation<UserBrawlers[]>;
+  userBrawlers: UserBrawlers[];
 
   @OneToMany(() => UserRecords, (record) => record.user)
-  userRecords: Relation<UserRecords[]>;
+  userRecords: UserRecords[];
 
   @OneToMany(() => UserFriends, (friend) => friend.user)
-  userFriends: Relation<UserFriends[]>;
+  userFriends: UserFriends[];
 }

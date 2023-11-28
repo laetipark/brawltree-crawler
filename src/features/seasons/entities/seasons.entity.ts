@@ -1,22 +1,21 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity({ name: 'SEASONS' })
+@Entity({ name: 'seasons' })
 export class Seasons {
   @PrimaryGeneratedColumn({
-    name: 'SEASON_NO',
     type: 'tinyint',
     unsigned: true,
   })
-  seasonNumber: number;
+  id: number;
 
   @Column({
-    name: 'SEASON_BGN_DT',
+    name: 'begin_date',
     type: 'timestamp',
   })
   beginDate: Date;
 
   @Column({
-    name: 'SEASON_END_DT',
+    name: 'end_date',
     type: 'timestamp',
   })
   endDate: Date;

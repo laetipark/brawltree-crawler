@@ -110,7 +110,7 @@ export class UserBrawlerBattles extends Common {
   brawler: Brawlers;
 
   @ManyToOne(() => Maps, (map) => map.userBrawlerBattles)
-  @JoinColumn({ name: 'map_id', referencedColumnName: 'mapID' })
+  @JoinColumn({ name: 'map_id', referencedColumnName: 'id' })
   map: Maps;
 }
 

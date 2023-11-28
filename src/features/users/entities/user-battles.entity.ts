@@ -3,7 +3,7 @@ import { Brawlers } from '~/brawlers/entities/brawlers.entity';
 import { Users } from '~/users/entities/users.entity';
 import { BaseEntity } from '~/database/entities/base.entity';
 
-@Entity({ name: 'USER_BATTLES' })
+@Entity({ name: 'user_battles' })
 export class UserBattles extends BaseEntity {
   @PrimaryColumn({
     name: 'user_id',

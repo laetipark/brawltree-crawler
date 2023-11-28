@@ -31,7 +31,7 @@ export class Brawlers extends BaseEntity {
   name: string;
 
   @Column({
-    name: 'false',
+    name: 'rarity',
     type: 'varchar',
     length: 20,
     nullable: true,
