@@ -1,17 +1,15 @@
 import { Injectable } from '@nestjs/common';
-
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 
+import MapsService from '~/maps/maps.service';
+import DateService from '~/utils/services/date.service';
+import AppConfigService from '~/utils/services/app-config.service';
 import { Users } from '~/users/entities/users.entity';
 import { UserBattles } from '~/users/entities/user-battles.entity';
 import { UserBrawlerBattles } from '~/users/entities/user-brawlers.entity';
 import { CreateUserBattleDto } from '~/users/dto/create-userBattle.dto';
-
-import DateService from '~/utils/services/date.service';
-import AppConfigService from '~/utils/services/app-config.service';
 import { CreateMapDto } from '~/maps/dto/create-map.dto';
-import MapsService from '~/maps/maps.service';
 
 const typeNameArray = [
   'ranked',
@@ -35,24 +33,6 @@ export default class UserBattlesService {
     private readonly dateService: DateService,
     private readonly configService: AppConfigService,
   ) {}
-
-  /*
-    /!** Manage User Requests
-     * @param userID User ID
-     * @param cycle cycle status *!/
-    async manageUserRequests(userID: string, cycle: boolean) {
-      /!** @type UserRequestType 요청 정보 *!/
-      const requestInfo: UserRequestType = { userID, cycle };
-
-      /!** 최대 동시 실행 요청 수를 초과한 경우 대기열에 추가, 미만이면 바로 실행 *!/
-      if (this.userRequests.length >= this.maxRequests) {
-        this.pendingRequests.push(requestInfo);
-      } else {
-        this.userRequests.push(requestInfo);
-        await this.fetchBattleRequest(requestInfo);
-      }
-    }
-  */
 
   /** 사용자 브롤러 전투 정보 업데이트
    * @param id 사용자 ID */
@@ -159,6 +139,7 @@ export default class UserBattlesService {
       }
     };
 
+    // 사용자 tag와 사용자 마지막 전투 시간
     const userID = `#${id}`;
     const user = await this.users
       .createQueryBuilder('u')

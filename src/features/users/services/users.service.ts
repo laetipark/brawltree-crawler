@@ -12,6 +12,8 @@ export default class UsersService {
     private readonly users: Repository<Users>,
   ) {}
 
+  /** 사용자 정보 추가
+   * @param createUsersDto 사용자 생성 DTO */
   async insertUser(createUsersDto: CreateUserDto): Promise<Users> {
     return await this.users.save(this.users.create(createUsersDto));
   }

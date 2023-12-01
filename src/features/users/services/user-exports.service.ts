@@ -1,11 +1,10 @@
 import { HttpService } from '@nestjs/axios';
+import { NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import UserBattlesService from '~/users/services/user-battles.service';
-import DateService from '~/utils/services/date.service';
 import { Users } from '~/users/entities/users.entity';
 import { catchError, firstValueFrom, map } from 'rxjs';
-import { NotFoundException } from '@nestjs/common';
 import { CreateUserProfileDto } from '~/users/dto/create-user-profile.dto';
 import { UserResponseType } from '~/interfaces/types/user-response.type';
 import SeasonsService from '~/seasons/seasons.service';
@@ -30,7 +29,6 @@ export default class UserExportsService {
     private readonly userBrawlerItems: Repository<UserBrawlerItems>,
     private readonly userBattlesService: UserBattlesService,
     private readonly seasonsService: SeasonsService,
-    private readonly dateService: DateService,
     private readonly httpService: HttpService,
   ) {}
 
@@ -49,7 +47,8 @@ export default class UserExportsService {
     );
   }
 
-  async getUsers() {
+  /** 전체 사용자 ID 반환 */
+  async getUserIDs() {
     return await this.users
       .createQueryBuilder('u')
       .select('REPLACE(u.id, "#", "")', 'userID')
@@ -229,6 +228,7 @@ export default class UserExportsService {
     });
   }
 
+  /** 모든 사용자 isCycle 값 변경 */
   async updateUserCycle() {
     await this.users
       .createQueryBuilder()
@@ -239,6 +239,7 @@ export default class UserExportsService {
       .execute();
   }
 
+  /** isCycle false인 사용자 ID들 반환 */
   async getUserEmptyCycle() {
     return await this.users
       .createQueryBuilder('u')
@@ -263,7 +264,8 @@ export default class UserExportsService {
     }
   }
 
-  setBattleResponse(user: string) {
+  /** 사용자 전투 기록 응답 반환 */
+  setUserBattleResponse(user: string) {
     return {
       id: user,
       request: this.httpService.get(`players/%23${user}/battlelog`),

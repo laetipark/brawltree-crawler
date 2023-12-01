@@ -37,7 +37,7 @@ export class UsersController {
 
     await this.userExportsService.updateUserProfile(user);
     await this.userExportsService.updateUserBattlesByResponse(
-      this.userExportsService.setBattleResponse(id),
+      this.userExportsService.setUserBattleResponse(id),
       id,
     );
 
