@@ -19,7 +19,7 @@ export default class WorkersService {
   async startCrawling() {
     if (isMainThread) {
       // main thread 메시지 이벤트
-      const users = await this.userExportsService.getUsers();
+      const users = await this.userExportsService.getUserIDs();
       await this.userExportsService.updateUserCycle();
 
       const chunkSize = Math.ceil(users.length / 5);

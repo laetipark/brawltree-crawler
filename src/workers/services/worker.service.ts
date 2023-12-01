@@ -46,7 +46,7 @@ export default class WorkerService {
   }
 
   async fetchUserBattles(user: string) {
-    const response = this.userExportsService.setBattleResponse(user);
+    const response = this.userExportsService.setUserBattleResponse(user);
     try {
       const battleLogs = (await firstValueFrom(response.request)).data;
 
