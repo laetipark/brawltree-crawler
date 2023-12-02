@@ -7,14 +7,14 @@ import { firstValueFrom, map } from 'rxjs';
 import { isMainThread } from 'worker_threads';
 
 import { UserFriends, UserRecords } from './entities/crew.entity';
+import { UserBattles } from '~/users/entities/user-battles.entity';
 import { Users } from '~/users/entities/users.entity';
 import { Maps } from '~/maps/entities/maps.entity';
 import { CreateUserDto } from '~/users/dto/create-user.dto';
 
-import crewJSON from '~/public/json/crew.json';
 import DateService from '~/utils/services/date.service';
-import { UserBattles } from '~/users/entities/user-battles.entity';
 import UserExportsService from '~/users/services/user-exports.service';
+import crewJSON from '~/public/json/crew.json';
 
 @Injectable()
 export default class CrewService {
@@ -108,9 +108,8 @@ export default class CrewService {
   }
 
   /** Update Blossom Members UserFriends
-   * @param members Member ID Array
-   * @param date */
-  async updateMemberFriends(members: string[], date: string) {
+   * @param members Member ID Array */
+  async updateMemberFriends(members: string[]) {
     const friends = [];
 
     await this.dataSource.transaction(async (manager) => {
@@ -121,8 +120,7 @@ export default class CrewService {
         members.map(async (member) => {
           await userBattlesRepository
             .createQueryBuilder('ub')
-            .select(`CAST("${date}" AS DATETIME)`, 'aggregationDate')
-            .addSelect('ub.userID', 'userID')
+            .select('ub.userID', 'userID')
             .addSelect('ub.playerID', 'friendID')
             .addSelect('ub.matchType', 'matchType')
             .addSelect('ub.matchGrade', 'matchGrade')
@@ -152,10 +150,6 @@ export default class CrewService {
             .andWhere('ub.playerID IN (:ids)', {
               ids: members,
             })
-            .andWhere('ub.battleTime BETWEEN :begin AND :end', {
-              begin: new Date(new Date(date).getTime() - 70 * 60 * 1000),
-              end: new Date(new Date(date).getTime() - 10 * 60 * 1000),
-            })
             .andWhere('(ub.matchType = 0 OR (ub.matchType = 3))')
             .groupBy('userID')
             .addGroupBy('friendID')
@@ -183,9 +177,9 @@ export default class CrewService {
     });
   }
 
-  /** Blossom 멤버 UserRecords update
-   * @param members Member ID Array */
-  async updateMemberRecords(members: string[], date: string) {
+  /** Blossom Members UserRecords update
+   * @param members Member ID Array  */
+  async updateMemberRecords(members: string[]) {
     const records = [];
 
     await this.dataSource.transaction(async (manager) => {
@@ -196,8 +190,7 @@ export default class CrewService {
         members.map(async (member) => {
           await userBattlesRepository
             .createQueryBuilder('ub')
-            .select(`CAST("${date}" AS DATETIME)`, 'aggregationDate')
-            .addSelect('ub.userID', 'userID')
+            .select('ub.userID', 'userID')
             .addSelect('ub.matchType', 'matchType')
             .addSelect('ub.matchGrade', 'matchGrade')
             .addSelect(
@@ -215,23 +208,14 @@ export default class CrewService {
             )
             .addSelect('m.mode', 'mode')
             .innerJoin(Maps, 'm', 'ub.mapID = m.id')
-            .where(
-              '(ub.userID = :id1 AND ub.playerID = :id1 AND ' +
-                'ub.battleTime BETWEEN :begin AND :end)',
-              {
-                id1: member,
-                begin: new Date(new Date(date).getTime() - 70 * 60 * 1000),
-                end: new Date(new Date(date).getTime() - 10 * 60 * 1000),
-              },
-            )
+            .where('(ub.userID = :id1 AND ub.playerID = :id1', {
+              id1: member,
+            })
             .orWhere(
               '(ub.userID = :id2 AND ub.playerID = :id2 AND ' +
-                'ub.battleTime BETWEEN :begin AND :end AND ' +
                 '(ub.matchType = 0 OR (ub.matchType = 3)))',
               {
                 id2: member,
-                begin: new Date(Date.now() - 70 * 60 * 1000),
-                end: new Date(Date.now() - 10 * 60 * 1000),
               },
             )
             .groupBy('userID')
@@ -258,18 +242,18 @@ export default class CrewService {
     });
   }
 
+  /** 크루 멤버 주기적 정보 갱신 */
   @Cron('0-59/20 * * * *')
-  async updateBlossomMembers() {
+  async updateCrewMembers() {
     if (isMainThread) {
       const members = await this.updateMembers();
       const date = new Date();
       date.setSeconds(0);
       date.setMilliseconds(0);
-      const dateFormat = this.dateService.getDateFormat(date);
 
       await this.updateMemberProfiles(members);
-      await this.updateMemberFriends(members, dateFormat);
-      await this.updateMemberRecords(members, dateFormat);
+      await this.updateMemberFriends(members);
+      await this.updateMemberRecords(members);
     }
   }
 }

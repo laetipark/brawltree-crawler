@@ -12,8 +12,9 @@ export default class SeasonsService {
     @InjectRepository(Seasons) private seasons: Repository<Seasons>,
   ) {}
 
+  /** 시즌 갱신 */
   async updateSeason() {
-    const recentSeason = await this.checkSeason();
+    const recentSeason = await this.selectRecentSeason();
 
     if (Date.now() > new Date(recentSeason.endDate).getTime()) {
       const id = recentSeason.id + 1;
@@ -81,24 +82,14 @@ export default class SeasonsService {
     }
   }
 
-  /** 최근 시즌 불러오기 */
-  async selectRecentSeason(): Promise<Seasons> {
-    return await this.seasons
-      .find({
-        take: 1,
-        order: {
-          id: 'DESC',
-        },
-      })
-      .then((result) => result[0]);
-  }
-
+  /** 시즌 주기적 갱신 */
   @Cron('5 0-59/20 * * * *')
   async seasonService() {
     isMainThread && (await this.updateSeason());
   }
 
-  private async checkSeason(): Promise<Seasons> {
+  /** 최근 시즌 불러오기 */
+  private async selectRecentSeason(): Promise<Seasons> {
     return this.seasons
       .createQueryBuilder('s')
       .select('s.seasonNumber', 'seasonNumber')

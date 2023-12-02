@@ -39,3 +39,4 @@ lerna-debug.log*
 /ecosystem.config.cjs
 /.development.env
 /.production.env
+/src/public/json/
