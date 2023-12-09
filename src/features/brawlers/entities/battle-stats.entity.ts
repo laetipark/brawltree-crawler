@@ -49,7 +49,7 @@ export class BattleStats extends BaseEntity {
     unsigned: true,
     default: () => 0,
   })
-  victoryCount: number;
+  victoriesCount: number;
 
   @Column({
     name: 'defeats_count',
@@ -57,7 +57,7 @@ export class BattleStats extends BaseEntity {
     unsigned: true,
     default: () => 0,
   })
-  defeatCount: number;
+  defeatsCount: number;
 
   @ManyToOne(() => Brawlers, (brawler) => brawler.battleStats)
   @JoinColumn({ name: 'brawler_id', referencedColumnName: 'id' })

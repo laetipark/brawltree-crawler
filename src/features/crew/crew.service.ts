@@ -11,8 +11,6 @@ import { UserBattles } from '~/users/entities/user-battles.entity';
 import { Users } from '~/users/entities/users.entity';
 import { Maps } from '~/maps/entities/maps.entity';
 import { CreateUserDto } from '~/users/dto/create-user.dto';
-
-import DateService from '~/utils/services/date.service';
 import UserExportsService from '~/users/services/user-exports.service';
 import crewJSON from '~/public/json/crew.json';
 
@@ -25,7 +23,6 @@ export default class CrewService {
     @InjectRepository(UserFriends) private userFriends: Repository<UserFriends>,
     @InjectRepository(UserRecords) private userRecords: Repository<UserRecords>,
     private readonly usersService: UserExportsService,
-    private readonly dateService: DateService,
     private readonly httpService: HttpService,
   ) {}
 
@@ -74,7 +71,7 @@ export default class CrewService {
     await this.dataSource.transaction(async (manager) => {
       const usersRepository = manager.withRepository(this.users);
       /** Upsert blossom 멤버 및 Update memberIDs에 없는 멤버 null */
-      await usersRepository.upsert(members, ['userID']);
+      await usersRepository.upsert(members, ['id']);
       await usersRepository
         .createQueryBuilder()
         .update()
@@ -82,7 +79,7 @@ export default class CrewService {
           crew: null,
           crewName: null,
         })
-        .where('USER_ID NOT IN (:id)', {
+        .where('id NOT IN (:id)', {
           id: memberIDs,
         })
         .execute();

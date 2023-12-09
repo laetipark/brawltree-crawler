@@ -355,10 +355,10 @@ export default class UserBattlesService {
       .createQueryBuilder()
       .update()
       .set({
-        lastBattledOn: lastBattleDate || user.lastBattledOn,
+        lastBattledOn: lastBattleDate,
       })
       .where('id = :id', {
-        id: `#${userID}`,
+        id: userID,
       })
       .execute();
   }

@@ -18,6 +18,7 @@ import {
   UserBrawlerItems,
   UserBrawlers,
 } from '~/users/entities/user-brawlers.entity';
+import { BrawlerItems } from '~/brawlers/entities/brawlers.entity';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import {
       UserBrawlers,
       UserBrawlerBattles,
       UserBrawlerItems,
+      BrawlerItems,
     ]),
     BrawlersModule,
     MapsModule,

@@ -27,7 +27,9 @@ export default class MapsService {
     private dateService: DateService,
     private readonly httpService: HttpService,
   ) {
-    this.insertRotation().then(() => {});
+    this.updateMaps().then(() => {
+      Logger.log(`Maps Data Initialized`, 'Maps');
+    });
   }
 
   async updateRotation() {
@@ -79,7 +81,7 @@ export default class MapsService {
       await mapRotationRepository.upsert(mergedData, ['mapID']);
 
       await mapRotationRepository
-        .createQueryBuilder('mr')
+        .createQueryBuilder()
         .update()
         .set({
           isTrophyLeague: false,
@@ -90,7 +92,7 @@ export default class MapsService {
         .execute();
 
       await mapRotationRepository
-        .createQueryBuilder('mr')
+        .createQueryBuilder()
         .update()
         .set({
           isPowerLeague: false,
@@ -114,45 +116,38 @@ export default class MapsService {
       );
 
       const maps = responseEvent.data;
-      maps &&
-        (await this.dataSource.transaction(async (manager) => {
-          const eventsRepository = manager.withRepository(this.events);
-          const mapsRepository = manager.withRepository(this.maps);
 
-          for (const item of maps) {
-            const mapID = item.event.id;
-            const mapMode = item.event.mode;
-            const mapName = item.event.map;
+      for (const item of maps) {
+        const mapID = item.event.id;
+        const mapMode = item.event.mode;
+        const mapName = item.event.map;
 
-            const beginTime = new Date(
-              this.dateService.getDate(item.startTime),
-            );
-            const endTime = new Date(this.dateService.getDate(item.endTime));
-            const modifiers = item.event.modifiers?.at(0);
+        const beginTime = new Date(this.dateService.getDate(item.startTime));
+        const endTime = new Date(this.dateService.getDate(item.endTime));
+        const modifiers = item.event.modifiers?.at(0);
 
-            const slotID = item.slotId;
+        const slotID = item.slotId;
 
-            await mapsRepository.upsert(
-              {
-                id: mapID,
-                mode: mapMode,
-                name: mapName,
-              },
-              ['id'],
-            );
+        await this.maps.upsert(
+          {
+            id: mapID,
+            mode: mapMode,
+            name: mapName,
+          },
+          ['id'],
+        );
 
-            await eventsRepository.upsert(
-              {
-                id: slotID,
-                startTime: beginTime,
-                endTime: endTime,
-                mapID: mapID,
-                modifiers: modifiers,
-              },
-              ['mapID'],
-            );
-          }
-        }));
+        await this.events.upsert(
+          {
+            id: slotID,
+            startTime: beginTime,
+            endTime: endTime,
+            mapID: mapID,
+            modifiers: modifiers,
+          },
+          ['mapID'],
+        );
+      }
     } catch (error) {
       Logger.error(error.response?.data, error.response?.status);
 
@@ -196,8 +191,8 @@ export default class MapsService {
     }
   }
 
-  @Cron('0 1 * * * *')
-  async mapsService() {
+  @Cron('0 * * * *')
+  async updateMaps() {
     if (isMainThread) {
       await this.insertRotation();
       await this.updateRotation();

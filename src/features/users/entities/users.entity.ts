@@ -20,7 +20,6 @@ export class Users extends SoftDeleteEntity {
   lastBattledOn: Date;
 
   @Column({
-    name: 'crew',
     type: 'varchar',
     length: 20,
     nullable: true,

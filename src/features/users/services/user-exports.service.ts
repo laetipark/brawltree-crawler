@@ -14,11 +14,13 @@ import {
 } from '~/users/entities/user-brawlers.entity';
 import { UserBattles } from '~/users/entities/user-battles.entity';
 import { UserProfile } from '~/users/entities/user-profile.entity';
+import { BrawlerItems } from '~/brawlers/entities/brawlers.entity';
 
 export default class UserExportsService {
   constructor(
     private readonly dataSource: DataSource,
-    @InjectRepository(Users) private readonly users: Repository<Users>,
+    @InjectRepository(Users)
+    private readonly users: Repository<Users>,
     @InjectRepository(UserProfile)
     private readonly userProfile: Repository<UserProfile>,
     @InjectRepository(UserBattles)
@@ -27,6 +29,8 @@ export default class UserExportsService {
     private readonly userBrawlers: Repository<UserBrawlers>,
     @InjectRepository(UserBrawlerItems)
     private readonly userBrawlerItems: Repository<UserBrawlerItems>,
+    @InjectRepository(BrawlerItems)
+    private readonly brawlerItems: Repository<BrawlerItems>,
     private readonly userBattlesService: UserBattlesService,
     private readonly seasonsService: SeasonsService,
     private readonly httpService: HttpService,
@@ -65,13 +69,10 @@ export default class UserExportsService {
   async updateUserProfile(user: UserResponseType) {
     const season = await this.seasonsService.selectRecentSeason();
 
-    return await this.dataSource.transaction(async (manager) => {
+    const brawlerItems = await this.dataSource.transaction(async (manager) => {
       const userBattlesRepository = manager.withRepository(this.userBattles);
       const userProfileRepository = manager.withRepository(this.userProfile);
       const userBrawlersRepository = manager.withRepository(this.userBrawlers);
-      const userBrawlerItemsRepository = manager.withRepository(
-        this.userBrawlerItems,
-      );
 
       /** 파워 리그 랭크 반환
        * @param id 사용자 ID
@@ -159,7 +160,7 @@ export default class UserExportsService {
       // 사용자 브롤러와 사용자 브롤러 아이템 정보 저장
       const brawlers = [];
       const brawlerItems = [];
-      const brawlerItemIDs = [];
+      const brawlerGears = [];
 
       user.brawlers.map(async (brawler) => {
         const brawlerID = brawler.id;
@@ -184,13 +185,18 @@ export default class UserExportsService {
         const starPowers = brawler.starPowers;
         const gadgets = brawler.gadgets;
 
-        gears.map(async ({ id }) => {
+        gears.map(async ({ id, name }) => {
           brawlerItems.push({
             userID: user.tag,
             brawlerID: brawlerID,
             itemID: id,
           });
-          brawlerItemIDs.push(id);
+          brawlerGears.push({
+            id: id,
+            brawlerID: brawlerID,
+            kind: 'gear',
+            name: name,
+          });
         });
 
         starPowers.map(async ({ id }) => {
@@ -199,7 +205,6 @@ export default class UserExportsService {
             brawlerID: brawlerID,
             itemID: id,
           });
-          brawlerItemIDs.push(id);
         });
 
         gadgets.map(async ({ id }) => {
@@ -208,24 +213,21 @@ export default class UserExportsService {
             brawlerID: brawlerID,
             itemID: id,
           });
-          brawlerItemIDs.push(id);
         });
       });
 
       // 사용자 프로필 추가
       await userProfileRepository.upsert(
         userProfileRepository.create(userProfile),
-        ['user.id'],
+        ['userID'],
       );
       // 사용자 브롤러 추가
       await userBrawlersRepository.upsert(brawlers, ['userID', 'brawlerID']);
-      // 사용자 브롤러 아이템 추가
-      await userBrawlerItemsRepository.upsert(brawlerItems, [
-        'userID',
-        'brawlerID',
-        'itemID',
-      ]);
+
+      return { brawlerItems, brawlerGears };
     });
+
+    await this.updateUserBrawlerItems(brawlerItems);
   }
 
   /** 모든 사용자 isCycle 값 변경 */
@@ -270,5 +272,20 @@ export default class UserExportsService {
       id: user,
       request: this.httpService.get(`players/%23${user}/battlelog`),
     };
+  }
+
+  private async updateUserBrawlerItems({ brawlerGears, brawlerItems }) {
+    await this.brawlerItems
+      .createQueryBuilder()
+      .insert()
+      .values(brawlerGears)
+      .orIgnore()
+      .execute();
+    await this.userBrawlerItems
+      .createQueryBuilder()
+      .insert()
+      .values(brawlerItems)
+      .orIgnore()
+      .execute();
   }
 }

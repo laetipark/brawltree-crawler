@@ -2,6 +2,16 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class Brawltree1700655045629 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`CREATE TABLE \`seasons\`
+                             (
+                                 \`id\`         tinyint unsigned NOT NULL,
+                                 \`begin_date\` timestamp        NOT NULL,
+                                 \`end_date\`   timestamp        NOT NULL,
+                                 PRIMARY KEY (\`id\`)
+                             ) ENGINE = InnoDB
+                               DEFAULT CHARSET = utf8mb4
+                               COLLATE = utf8mb4_unicode_ci;`);
+
     await queryRunner.query(`CREATE TABLE \`brawlers\`
                              (
                                  \`id\`          char(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci     NOT NULL,
@@ -23,7 +33,10 @@ export class Brawltree1700655045629 implements MigrationInterface {
                                  \`brawler_id\` char(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci     NOT NULL,
                                  \`kind\`       varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
                                  \`name\`       varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-                                 PRIMARY KEY (\`id\`),
+                                 \`created_at\` timestamp                                                    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                 \`updated_at\` timestamp                                                    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                 \`deleted_at\` timestamp                                                    NULL     DEFAULT NULL,
+                                 PRIMARY KEY (\`id\`, \`brawler_id\`),
                                  KEY \`brawler_items_brawler_id_idx\` (\`brawler_id\`) USING BTREE,
                                  KEY \`brawler_items_kind_idx\` (\`kind\`) USING BTREE,
                                  CONSTRAINT \`brawler_items_fk1\` FOREIGN KEY (\`brawler_id\`) REFERENCES \`brawlers\` (\`id\`) ON DELETE CASCADE
@@ -48,8 +61,7 @@ export class Brawltree1700655045629 implements MigrationInterface {
                                  \`map_id\`           char(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
                                  \`is_trophy_league\` tinyint(1) DEFAULT NULL,
                                  \`is_power_league\`  tinyint(1) DEFAULT NULL,
-                                 PRIMARY KEY (\`map_id\`),
-                                 CONSTRAINT \`map_rotation_fk1\` FOREIGN KEY (\`map_id\`) REFERENCES \`maps\` (\`id\`) ON DELETE CASCADE
+                                 PRIMARY KEY (\`map_id\`)
                              ) ENGINE = InnoDB
                                DEFAULT CHARSET = utf8mb4
                                COLLATE = utf8mb4_unicode_ci;`);
@@ -193,9 +205,9 @@ export class Brawltree1700655045629 implements MigrationInterface {
                                  \`updated_at\` timestamp                                                    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                                  PRIMARY KEY (\`user_id\`, \`brawler_id\`, \`item_id\`),
                                  KEY \`user_brawler_items_fk1\` (\`brawler_id\`),
-                                 KEY \`user_brawler_items_fk2\` (\`item_id\`),
+                                 KEY \`user_brawler_items_fk2\` (\`item_id\`, \`brawler_id\`),
                                  CONSTRAINT \`user_brawler_items_fk1\` FOREIGN KEY (\`brawler_id\`) REFERENCES \`brawlers\` (\`id\`) ON DELETE CASCADE ON UPDATE RESTRICT,
-                                 CONSTRAINT \`user_brawler_items_fk2\` FOREIGN KEY (\`item_id\`) REFERENCES \`brawler_items\` (\`id\`) ON DELETE CASCADE
+                                 CONSTRAINT \`user_brawler_items_fk2\` FOREIGN KEY (\`item_id\`, \`brawler_id\`) REFERENCES \`brawler_items\` (\`id\`, \`brawler_id\`) ON DELETE CASCADE
                              ) ENGINE = InnoDB
                                DEFAULT CHARSET = utf8mb4
                                COLLATE = utf8mb4_unicode_ci;`);
@@ -258,16 +270,6 @@ export class Brawltree1700655045629 implements MigrationInterface {
                              ) ENGINE = InnoDB
                                DEFAULT CHARSET = utf8mb4
                                COLLATE = utf8mb4_unicode_ci;`);
-
-    await queryRunner.query(`CREATE TABLE \`seasons\`
-                             (
-                                 \`id\`         tinyint unsigned NOT NULL,
-                                 \`begin_date\` timestamp        NOT NULL,
-                                 \`end_date\`   timestamp        NOT NULL,
-                                 PRIMARY KEY (\`id\`)
-                             ) ENGINE = InnoDB
-                               DEFAULT CHARSET = utf8mb4
-                               COLLATE = utf8mb4_unicode_ci;`);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
@@ -285,5 +287,6 @@ export class Brawltree1700655045629 implements MigrationInterface {
     await queryRunner.query(`DROP TABLE \`maps\`;`);
     await queryRunner.query(`DROP TABLE \`brawler_items\`;`);
     await queryRunner.query(`DROP TABLE \`brawlers\`;`);
+    await queryRunner.query(`DROP TABLE \`seasons\`;`);
   }
 }

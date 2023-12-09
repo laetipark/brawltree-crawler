@@ -1,5 +1,4 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
-import { Maps } from '~/maps/entities/maps.entity';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity({ name: 'map_rotation' })
 export class MapRotation {
@@ -18,8 +17,4 @@ export class MapRotation {
     name: 'is_power_league',
   })
   isPowerLeague: boolean;
-
-  @OneToOne(() => Maps)
-  @JoinColumn({ name: 'map_id', referencedColumnName: 'id' })
-  map: Maps;
 }

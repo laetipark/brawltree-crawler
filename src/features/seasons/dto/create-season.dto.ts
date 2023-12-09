@@ -1,5 +1,5 @@
 export class CreateSeasonsDto {
-  seasonNumber: number;
+  id: number;
   beginDate: Date;
   endDate: Date;
 }

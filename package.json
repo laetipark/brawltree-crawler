@@ -1,6 +1,6 @@
 {
   "name": "brawltree-crawler",
-  "version": "2.1.0",
+  "version": "1.0.0",
   "description": "Plant Brawl Tree",
   "author": "laetipark",
   "private": true,
@@ -8,25 +8,25 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"libs/**/*.ts\"",
-    "start": "nest start",
-    "start:dev": "cross-env NODE_ENV=development nest start --watch",
-    "start:debug": "nest start --debug --watch",
-    "start:prod": "cross-env NODE_ENV=production node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "migration:create": "npm run typeorm migration:create ./src/database/migrations/brawltree",
+    "migration:generate": "npm run typeorm:migration migration:generate ./src/database/migrations/brawltree",
+    "migration:revert": "cross-env MIGRATION_TYPE=migrations npm run typeorm:migration migration:revert",
+    "migration:run": "cross-env MIGRATION_TYPE=migrations npm run typeorm:migration migration:run",
+    "seed:create": "npm run typeorm migration:create ./src/database/seeds/brawltree",
+    "seed:revert": "cross-env MIGRATION_TYPE=seeds npm run typeorm:migration migration:revert",
+    "seed:run": "cross-env MIGRATION_TYPE=seeds npm run typeorm:migration migration:run",
+    "start": "nest start",
+    "start:debug": "nest start --debug --watch",
+    "start:dev": "cross-env NODE_ENV=development nest start --watch",
+    "start:prod": "cross-env NODE_ENV=production node dist/main",
     "test": "jest",
-    "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:watch": "jest --watch",
     "typeorm": "node -r tsconfig-paths/register -r ts-node/register ./node_modules/typeorm/cli",
-    "typeorm:migration": "node -r tsconfig-paths/register -r ts-node/register ./node_modules/typeorm/cli -d ./src/database/data-source.ts",
-    "migration:create": "npm run typeorm migration:create ./src/database/migrations/brawltree",
-    "migration:generate": "npm run typeorm:migration migration:generate ./src/database/migrations/brawltree",
-    "migration:run": "cross-env MIGRATION_TYPE=migrations npm run typeorm:migration migration:run",
-    "migration:revert": "cross-env MIGRATION_TYPE=migrations npm run typeorm:migration migration:revert",
-    "seed:create": "npm run typeorm migration:create ./src/database/seeds/brawltree",
-    "seed:run": "cross-env MIGRATION_TYPE=seeds npm run typeorm:migration migration:run",
-    "seed:revert": "cross-env MIGRATION_TYPE=seeds npm run typeorm:migration migration:revert"
+    "typeorm:migration": "node -r tsconfig-paths/register -r ts-node/register ./node_modules/typeorm/cli -d ./src/database/data-source.ts"
   },
   "dependencies": {
     "@nestjs/axios": "^3.0.1",
@@ -41,9 +41,11 @@
     "axios": "^1.6.2",
     "class-validator": "^0.14.0",
     "cross-env": "^7.0.3",
+    "dotenv": "^16.3.1",
     "mysql2": "^3.6.5",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
+    "tsconfig-paths": "^4.2.0",
     "typeorm": "^0.3.17"
   },
   "devDependencies": {
@@ -55,7 +57,6 @@
     "@types/supertest": "^2.0.16",
     "@typescript-eslint/eslint-plugin": "^6.12.0",
     "@typescript-eslint/parser": "^6.12.0",
-    "dotenv": "^16.3.1",
     "eslint": "^8.54.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
@@ -64,8 +65,7 @@
     "source-map-support": "^0.5.21",
     "supertest": "^6.3.3",
     "ts-jest": "^29.1.0",
-    "ts-loader": "^9.5.1",
-    "tsconfig-paths": "^4.2.0"
+    "ts-loader": "^9.5.1"
   },
   "jest": {
     "moduleFileExtensions": [

@@ -6,7 +6,7 @@ import {
   OneToMany,
   PrimaryColumn,
 } from 'typeorm';
-import { BaseEntity } from '~/database/entities/base.entity';
+import { BaseEntity, SoftDeleteEntity } from '~/database/entities/base.entity';
 import { BattleStats } from './battle-stats.entity';
 import { UserBattles } from '~/users/entities/user-battles.entity';
 import {
@@ -18,20 +18,17 @@ import {
 @Entity({ name: 'brawlers' })
 export class Brawlers extends BaseEntity {
   @PrimaryColumn({
-    name: 'id',
     length: 8,
   })
   id: string;
 
   @Column({
-    name: 'name',
     type: 'varchar',
     length: 20,
   })
   name: string;
 
   @Column({
-    name: 'rarity',
     type: 'varchar',
     length: 20,
     nullable: true,
@@ -39,7 +36,6 @@ export class Brawlers extends BaseEntity {
   rarity: string;
 
   @Column({
-    name: 'role',
     type: 'varchar',
     length: 20,
     nullable: true,
@@ -47,7 +43,6 @@ export class Brawlers extends BaseEntity {
   role: string;
 
   @Column({
-    name: 'gender',
     type: 'varchar',
     length: 10,
     nullable: true,
@@ -82,11 +77,11 @@ export class Brawlers extends BaseEntity {
 }
 
 @Entity({ name: 'brawler_items' })
-export class BrawlerItems {
+export class BrawlerItems extends SoftDeleteEntity {
   @PrimaryColumn({ type: 'char', length: 8 })
   id: string;
 
-  @Column({ name: 'brawler_id', type: 'char', length: 8 })
+  @PrimaryColumn({ name: 'brawler_id', type: 'char', length: 8 })
   brawlerID: string;
 
   @Column({ type: 'varchar', length: 20 })
@@ -95,7 +90,7 @@ export class BrawlerItems {
   @Column({ type: 'varchar', length: 30 })
   name: string;
 
-  @OneToMany(() => UserBrawlerItems, (brawler) => brawler.brawlerItems)
+  @OneToMany(() => UserBrawlerItems, (brawler) => brawler.brawlerItem)
   userBrawlerItems: UserBrawlerItems[];
 
   @ManyToOne(() => Brawlers, (brawler) => brawler.brawlerItems)

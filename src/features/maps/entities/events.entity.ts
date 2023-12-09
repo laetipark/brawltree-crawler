@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { Maps } from '~/maps/entities/maps.entity';
 
-@Entity({ name: 'EVENTS' })
+@Entity({ name: 'events' })
 export class Events {
   @PrimaryGeneratedColumn({
     name: 'id',
