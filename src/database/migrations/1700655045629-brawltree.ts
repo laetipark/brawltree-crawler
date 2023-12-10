@@ -2,16 +2,6 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class Brawltree1700655045629 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`CREATE TABLE \`seasons\`
-                             (
-                                 \`id\`         tinyint unsigned NOT NULL,
-                                 \`begin_date\` timestamp        NOT NULL,
-                                 \`end_date\`   timestamp        NOT NULL,
-                                 PRIMARY KEY (\`id\`)
-                             ) ENGINE = InnoDB
-                               DEFAULT CHARSET = utf8mb4
-                               COLLATE = utf8mb4_unicode_ci;`);
-
     await queryRunner.query(`CREATE TABLE \`brawlers\`
                              (
                                  \`id\`          char(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci     NOT NULL,
@@ -287,6 +277,5 @@ export class Brawltree1700655045629 implements MigrationInterface {
     await queryRunner.query(`DROP TABLE \`maps\`;`);
     await queryRunner.query(`DROP TABLE \`brawler_items\`;`);
     await queryRunner.query(`DROP TABLE \`brawlers\`;`);
-    await queryRunner.query(`DROP TABLE \`seasons\`;`);
   }
 }

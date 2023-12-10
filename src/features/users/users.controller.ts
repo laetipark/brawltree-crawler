@@ -1,6 +1,6 @@
 import { Controller, Param, Patch, Post } from '@nestjs/common';
 import UsersService from '~/users/services/users.service';
-import SuccessResponse from '~/interfaces/enum/success.response';
+import SuccessResponse from '../../common/enum/success.response';
 import UserExportsService from '~/users/services/user-exports.service';
 
 @Controller('brawlian')

@@ -12,7 +12,7 @@ import { UserBattles } from '~/users/entities/user-battles.entity';
 import { Maps } from '~/maps/entities/maps.entity';
 import { CreateBrawlerDto } from '~/brawlers/dto/create-brawler.dto';
 import { CreateBrawlerItemDto } from '~/brawlers/dto/create-brawler-item.dto';
-import { BrawlerItemType, BrawlerType } from '~/interfaces/types/brawler.type';
+import { BrawlerItemType, BrawlerType } from '../../common/types/brawler.type';
 import brawlerJSON from '~/public/json/brawlers.json';
 
 @Injectable()

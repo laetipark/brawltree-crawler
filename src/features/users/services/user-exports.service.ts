@@ -6,7 +6,7 @@ import UserBattlesService from '~/users/services/user-battles.service';
 import { Users } from '~/users/entities/users.entity';
 import { catchError, firstValueFrom, map } from 'rxjs';
 import { CreateUserProfileDto } from '~/users/dto/create-user-profile.dto';
-import { UserResponseType } from '~/interfaces/types/user-response.type';
+import { UserResponseType } from '../../../common/types/user-response.type';
 import SeasonsService from '~/seasons/seasons.service';
 import {
   UserBrawlerItems,
@@ -67,7 +67,7 @@ export default class UserExportsService {
    * @param user 멤버 json
    */
   async updateUserProfile(user: UserResponseType) {
-    const season = await this.seasonsService.selectRecentSeason();
+    const season = await this.seasonsService.getRecentSeason();
 
     const brawlerItems = await this.dataSource.transaction(async (manager) => {
       const userBattlesRepository = manager.withRepository(this.userBattles);

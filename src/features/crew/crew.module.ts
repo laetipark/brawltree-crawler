@@ -11,8 +11,6 @@ import {
   UserBrawlers,
 } from '~/users/entities/user-brawlers.entity';
 import { UserFriends, UserRecords } from './entities/crew.entity';
-import { Seasons } from '~/seasons/entities/seasons.entity';
-
 import CrewService from './crew.service';
 import { UserProfile } from '~/users/entities/user-profile.entity';
 import { UserBattles } from '~/users/entities/user-battles.entity';
@@ -34,7 +32,6 @@ import { UtilsModule } from '~/utils/utils.module';
       UserBrawlerItems,
       UserRecords,
       UserFriends,
-      Seasons,
     ]),
     UsersModule,
     MapsModule,

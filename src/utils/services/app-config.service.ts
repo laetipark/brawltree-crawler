@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ModeClassType } from '~/interfaces/types/mode-class.type';
+import { ModeClassType } from '../../common/types/mode-class.type';
 
 @Injectable()
 export default class AppConfigService {
