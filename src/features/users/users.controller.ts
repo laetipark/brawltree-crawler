@@ -14,7 +14,6 @@ export class UsersController {
    * @param id user tag */
   @Post('/:id')
   async insertUser(@Param('id') id: string) {
-    console.log('im here');
     const user = await this.userExportsService.getUser(id);
 
     await this.usersService.insertUser({

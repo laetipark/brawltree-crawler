@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { NotFoundException } from '@nestjs/common';
+import { Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import UserBattlesService from '~/users/services/user-battles.service';
@@ -262,7 +262,7 @@ export default class UserExportsService {
       await this.userBattlesService.insertUserBattles(battleLogs, userID);
       await this.userBattlesService.updateUserBrawlerBattles(userID);
     } catch (error) {
-      // FA
+      Logger.error(error.data, 'UserExports');
     }
   }
 

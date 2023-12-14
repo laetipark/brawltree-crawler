@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
@@ -25,9 +25,13 @@ export default class CrewService {
     private readonly userFriends: Repository<UserFriends>,
     @InjectRepository(UserRecords)
     private readonly userRecords: Repository<UserRecords>,
-    private readonly usersService: UserExportsService,
+    private readonly userExportsService: UserExportsService,
     private readonly httpService: HttpService,
-  ) {}
+  ) {
+    this.updateCrewMembers().then(() => {
+      Logger.log(`Crew Data Initialized`, 'Crew');
+    });
+  }
 
   /** Blossom Members Account update
    * @return Blossom Member ID Array */
@@ -98,10 +102,16 @@ export default class CrewService {
       /** member profile update
        * @param member 멤버 ID*/
       members.map(async (member) => {
-        const user = await this.usersService.getUser(member.replace('#', ''));
+        try {
+          const user = await this.userExportsService.getUser(
+            member.replace('#', ''),
+          );
 
-        if (user !== undefined) {
-          await this.usersService.updateUserProfile(user);
+          if (user !== undefined) {
+            await this.userExportsService.updateUserProfile(user);
+          }
+        } catch (error) {
+          Logger.error(error.data, 'Crew');
         }
       }),
     );
@@ -124,15 +134,15 @@ export default class CrewService {
             .addSelect('ub.playerID', 'friendID')
             .addSelect('ub.matchType', 'matchType')
             .addSelect('ub.matchGrade', 'matchGrade')
-            .addSelect('ub.playerName', 'name')
+            .addSelect('ub.playerName', 'friendName')
             .addSelect('COUNT(*)', 'matchCount')
             .addSelect(
               'COUNT(CASE WHEN ub.gameResult = -1 THEN 1 END)',
-              'victoryCount',
+              'victoriesCount',
             )
             .addSelect(
               'COUNT(CASE WHEN ub.gameResult = 1 THEN 1 END)',
-              'defeatCount',
+              'defeatsCount',
             )
             .addSelect(
               'ROUND(SUM(' +
@@ -151,12 +161,12 @@ export default class CrewService {
               ids: members,
             })
             .andWhere('(ub.matchType = 0 OR (ub.matchType = 3))')
-            .groupBy('userID')
-            .addGroupBy('friendID')
-            .addGroupBy('matchType')
-            .addGroupBy('matchGrade')
-            .addGroupBy('name')
-            .addGroupBy('mode')
+            .groupBy('ub.userID')
+            .addGroupBy('ub.playerID')
+            .addGroupBy('ub.matchType')
+            .addGroupBy('ub.matchGrade')
+            .addGroupBy('ub.playerName')
+            .addGroupBy('m.mode')
             .getRawMany()
             .then((result) => {
               result.length > 0 &&
@@ -200,15 +210,15 @@ export default class CrewService {
             .addSelect('COUNT(*)', 'matchCount')
             .addSelect(
               'COUNT(CASE WHEN ub.gameResult = -1 THEN 1 END)',
-              'victoryCount',
+              'victoriesCount',
             )
             .addSelect(
               'COUNT(CASE WHEN ub.gameResult = 1 THEN 1 END)',
-              'defeatCount',
+              'defeatsCount',
             )
             .addSelect('m.mode', 'mode')
             .innerJoin(Maps, 'm', 'ub.mapID = m.id')
-            .where('(ub.userID = :id1 AND ub.playerID = :id1', {
+            .where('ub.userID = :id1 AND ub.playerID = :id1', {
               id1: member,
             })
             .orWhere(
@@ -218,10 +228,10 @@ export default class CrewService {
                 id2: member,
               },
             )
-            .groupBy('userID')
-            .addGroupBy('matchType')
-            .addGroupBy('matchGrade')
-            .addGroupBy('mode')
+            .groupBy('ub.userID')
+            .addGroupBy('ub.matchType')
+            .addGroupBy('ub.matchGrade')
+            .addGroupBy('m.mode')
             .getRawMany()
             .then((result) => {
               result.length > 0 &&
@@ -247,9 +257,6 @@ export default class CrewService {
   async updateCrewMembers() {
     if (isMainThread) {
       const members = await this.updateMembers();
-      const date = new Date();
-      date.setSeconds(0);
-      date.setMilliseconds(0);
 
       await this.updateMemberProfiles(members);
       await this.updateMemberFriends(members);
