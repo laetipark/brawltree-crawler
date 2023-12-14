@@ -57,7 +57,7 @@ export class UserRecords extends Common {
     unsigned: true,
     default: () => 0,
   })
-  victoryCount: number;
+  victoriesCount: number;
 
   @Column({
     name: 'defeats_count',

@@ -18,10 +18,13 @@ import crewJSON from '~/public/json/crew.json';
 export default class CrewService {
   constructor(
     private readonly dataSource: DataSource,
-    @InjectRepository(Users) private users: Repository<Users>,
-    @InjectRepository(UserBattles) private userBattles: Repository<UserBattles>,
-    @InjectRepository(UserFriends) private userFriends: Repository<UserFriends>,
-    @InjectRepository(UserRecords) private userRecords: Repository<UserRecords>,
+    @InjectRepository(Users) private readonly users: Repository<Users>,
+    @InjectRepository(UserBattles)
+    private readonly userBattles: Repository<UserBattles>,
+    @InjectRepository(UserFriends)
+    private readonly userFriends: Repository<UserFriends>,
+    @InjectRepository(UserRecords)
+    private readonly userRecords: Repository<UserRecords>,
     private readonly usersService: UserExportsService,
     private readonly httpService: HttpService,
   ) {}
@@ -191,8 +194,8 @@ export default class CrewService {
             .addSelect('ub.matchType', 'matchType')
             .addSelect('ub.matchGrade', 'matchGrade')
             .addSelect(
-              'SUM(CASE WHEN ub.matchType = 0 THEN ub.matchChange + ub.matchChangeRaw ELSE 0 END)',
-              'matchChange',
+              'SUM(CASE WHEN ub.matchType = 0 THEN ub.trophyChange + ub.trophyChange ELSE 0 END)',
+              'trophyChange',
             )
             .addSelect('COUNT(*)', 'matchCount')
             .addSelect(
