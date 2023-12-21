@@ -26,7 +26,7 @@ export default class WorkersService {
       const workerPromises = [];
 
       // workers threads promises 생성
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 4; i++) {
         const workerPromise = new Promise((resolve) => {
           const worker = new Worker(path.join(__dirname, '../../main'));
           this.workers.push(worker);

@@ -23,7 +23,7 @@ export default class WorkerService {
   /** Worker 사용자에 대한 전투 기록 변경 순환 */
   async fetchWorkerUsers() {
     const getUserLists = (users: string[]) => {
-      const chunkSize = Math.ceil(users.length / 20);
+      const chunkSize = Math.ceil(users.length / 10);
       const chunk = [];
 
       for (let i = 0; i < users.length; i += chunkSize) {
@@ -65,7 +65,13 @@ export default class WorkerService {
           );
       await this.sleep(2 * 1000);
     } catch (error) {
-      Logger.error(JSON.stringify(error.response?.data), `Worker`);
+      Logger.error(
+        {
+          data: error.response?.data,
+          status: error.response?.status,
+        },
+        `Worker`,
+      );
       const errorTime = error.response?.status === 404 ? 50 : 0;
 
       // 10(60)분 후에 fetchUserBattles 실행

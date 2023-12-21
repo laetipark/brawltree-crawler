@@ -40,7 +40,7 @@ export default class UserExportsService {
    * @param userID 사용자 ID */
   async getUser(userID: string) {
     return firstValueFrom(
-      this.httpService.get(`players/%23${userID}`).pipe(
+      this.httpService.get(`/players/%23${userID}`).pipe(
         map((res) => {
           return res.data;
         }),
@@ -270,7 +270,7 @@ export default class UserExportsService {
   setUserBattleResponse(user: string) {
     return {
       id: user,
-      request: this.httpService.get(`players/%23${user}/battlelog`),
+      request: this.httpService.get(`/players/%23${user}/battlelog`),
     };
   }
 
