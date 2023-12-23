@@ -2,6 +2,7 @@ import { Controller, Param, Patch, Post } from '@nestjs/common';
 import UsersService from '~/users/services/users.service';
 import SuccessResponse from '../../common/enum/success.response';
 import UserExportsService from '~/users/services/user-exports.service';
+import { firstValueFrom } from 'rxjs';
 
 @Controller('brawlian')
 export class UsersController {
@@ -34,12 +35,11 @@ export class UsersController {
   @Patch('/:id')
   async updateUser(@Param('id') id: string) {
     const user = await this.userExportsService.getUser(id);
+    const battleResponse = this.userExportsService.setUserBattleResponse(id);
+    const battleLogs = (await firstValueFrom(battleResponse.request)).data;
 
     await this.userExportsService.updateUserProfile(user);
-    await this.userExportsService.updateUserBattlesByResponse(
-      this.userExportsService.setUserBattleResponse(id),
-      id,
-    );
+    await this.userExportsService.updateUserBattlesByResponse(battleLogs, id);
 
     return {
       message: SuccessResponse.USER_UPDATED,

@@ -45,9 +45,11 @@ export default class WorkerService {
     }
   }
 
-  async fetchUserBattles(user: string) {
-    const response = this.userExportsService.setUserBattleResponse(user);
+  async fetchUserBattles(userID: string) {
+    const response = this.userExportsService.setUserBattleResponse(userID);
     try {
+      const user = await this.userExportsService.getUser(userID);
+      await this.userExportsService.updateUserProfile(user);
       const battleLogs = (await firstValueFrom(response.request)).data;
 
       // 사용자 전투 기록 추가
@@ -58,7 +60,7 @@ export default class WorkerService {
             /** 20분 후에 manageUserRequests 메서드 실행 */
             setTimeout(
               () => {
-                this.fetchUserBattles(user);
+                this.fetchUserBattles(userID);
               },
               20 * 60 * 1000,
             ),
@@ -77,7 +79,7 @@ export default class WorkerService {
       // 10(60)분 후에 fetchUserBattles 실행
       setTimeout(
         () => {
-          this.fetchUserBattles(user);
+          this.fetchUserBattles(userID);
         },
         (10 + errorTime) * 60 * 1000,
       );

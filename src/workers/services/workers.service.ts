@@ -22,11 +22,12 @@ export default class WorkersService {
       const users = await this.userExportsService.getUserIDs();
       await this.userExportsService.updateUserCycle();
 
-      const chunkSize = Math.ceil(users.length / 5);
+      const threadNumber = 5;
+      const chunkSize = Math.ceil(users.length / threadNumber);
       const workerPromises = [];
 
       // workers threads promises 생성
-      for (let i = 0; i < 4; i++) {
+      for (let i = 0; i < threadNumber - 1; i++) {
         const workerPromise = new Promise((resolve) => {
           const worker = new Worker(path.join(__dirname, '../../main'));
           this.workers.push(worker);
