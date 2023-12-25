@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { firstValueFrom } from 'rxjs';
 import { isMainThread } from 'worker_threads';
+import AppConfigService from '~/utils/services/app-config.service';
 import DateService from '~/utils/services/date.service';
 
 import { Events } from '~/maps/entities/events.entity';
@@ -12,19 +13,18 @@ import { Maps } from '~/maps/entities/maps.entity';
 import { MapRotation } from '~/maps/entities/map-rotation.entity';
 import { CreateMapDto } from '~/maps/dto/create-map.dto';
 
-import rotationPL from '~/public/json/power_league.json';
-
 @Injectable()
 export default class MapsService {
   constructor(
-    private dataSource: DataSource,
+    private readonly dataSource: DataSource,
     @InjectRepository(Events)
-    private events: Repository<Events>,
+    private readonly events: Repository<Events>,
     @InjectRepository(Maps)
-    private maps: Repository<Maps>,
+    private readonly maps: Repository<Maps>,
     @InjectRepository(MapRotation)
-    private mapRotation: Repository<MapRotation>,
-    private dateService: DateService,
+    private readonly mapRotation: Repository<MapRotation>,
+    private readonly dateService: DateService,
+    private readonly configService: AppConfigService,
     private readonly httpService: HttpService,
   ) {
     this.updateMaps().then(() => {
@@ -40,7 +40,7 @@ export default class MapsService {
       const trophyLeagueMaps = await eventsRepository
         .createQueryBuilder('e')
         .select('e.mapID', 'mapID')
-        .where('e.id IN (1, 2, 3, 4, 5, 6, 33)')
+        .where('e.id IN (1, 2, 3, 4, 5, 6, 7, 10, 33)')
         .getRawMany()
         .then((result) => {
           return result.map((map) => {
@@ -51,7 +51,7 @@ export default class MapsService {
           });
         });
 
-      const powerLeagueMaps = rotationPL
+      const powerLeagueMaps = (await this.getRotationPL())
         .filter((item) => typeof item === 'object' && 'mapID' in item)
         .map((item: { mapID: string }) => {
           return {
@@ -197,6 +197,21 @@ export default class MapsService {
       await this.insertRotation();
       await this.updateRotation();
       await this.deleteRotation();
+    }
+  }
+
+  private async getRotationPL() {
+    try {
+      const response = await firstValueFrom(
+        this.httpService
+          .get('/database/power_league.json', {
+            baseURL: this.configService.getCdnUrl(),
+          })
+          .pipe(),
+      );
+      return response.data;
+    } catch (error) {
+      Logger.error(error, 'getRotationPL');
     }
   }
 }

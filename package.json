@@ -18,7 +18,7 @@
     "seed:run": "cross-env MIGRATION_TYPE=seeds npm run typeorm:migration migration:run",
     "start": "nest start",
     "start:debug": "nest start --debug --watch",
-    "start:dev": "nest start --watch",
+    "start:dev": "cross-env NODE_ENV=development nest start --watch",
     "start:prod": "pm2 start ./ecosystem.config.cjs",
     "test": "jest",
     "test:cov": "jest --coverage",

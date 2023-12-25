@@ -21,14 +21,14 @@
       "~/brawlers/*": [
         "./src/features/brawlers/*"
       ],
+      "~/common/*": [
+        "./src/common/*"
+      ],
       "~/config/*": [
         "./src/config/*"
       ],
       "~/database/*": [
         "./src/database/*"
-      ],
-      "~/interfaces/*": [
-        "./src/interfaces/*"
       ],
       "~/maps/*": [
         "./src/features/maps/*"
@@ -44,7 +44,7 @@
       ],
       "~/utils/*": [
         "./src/utils/*"
-      ],
+      ]
     }
   }
 }

@@ -23,7 +23,8 @@ const duoModes = ['duoShowdown'];
 
 export default () => ({
   axios: {
-    baseURL: `https://api.brawlstars.com/v1`,
+    baseURL: 'https://api.brawlstars.com/v1',
+    cdnURL: 'https://cdn.brawltree.me',
     headers: {
       'Content-Type': 'application/json',
       Authorization: 'Bearer ' + process.env.API_KEY,
@@ -57,6 +58,6 @@ export default () => ({
     timezone: process.env.DATABASE_TIMEZONE,
     entities: ['dist/**/**/*.entity.{ts,js}'],
     synchronize: false,
-    logging: process.env.NODE_ENV === 'development',
+    logging: false,
   },
 });

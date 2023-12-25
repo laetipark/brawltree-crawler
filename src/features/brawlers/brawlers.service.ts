@@ -12,21 +12,22 @@ import { UserBattles } from '~/users/entities/user-battles.entity';
 import { Maps } from '~/maps/entities/maps.entity';
 import { CreateBrawlerDto } from '~/brawlers/dto/create-brawler.dto';
 import { CreateBrawlerItemDto } from '~/brawlers/dto/create-brawler-item.dto';
-import { BrawlerItemType, BrawlerType } from '../../common/types/brawler.type';
-import brawlerJSON from '~/public/json/brawlers.json';
+import { BrawlerItemType, BrawlerType } from '~/common/types/brawler.type';
+import AppConfigService from '~/utils/services/app-config.service';
 
 @Injectable()
 export default class BrawlersService {
   constructor(
     private readonly dataSource: DataSource,
     @InjectRepository(Brawlers)
-    private brawlers: Repository<Brawlers>,
+    private readonly brawlers: Repository<Brawlers>,
     @InjectRepository(BattleStats)
-    private battleStats: Repository<BattleStats>,
+    private readonly battleStats: Repository<BattleStats>,
     @InjectRepository(BrawlerItems)
-    private brawlerItems: Repository<BrawlerItems>,
+    private readonly brawlerItems: Repository<BrawlerItems>,
     @InjectRepository(UserBattles)
-    private userBattles: Repository<UserBattles>,
+    private readonly userBattles: Repository<UserBattles>,
+    private readonly configService: AppConfigService,
     private readonly httpService: HttpService,
   ) {
     this.updateBrawlers().then(() => {
@@ -38,6 +39,8 @@ export default class BrawlersService {
   async insertBrawler() {
     const brawlers: CreateBrawlerDto[] = [];
     const brawlerItems: CreateBrawlerItemDto[] = [];
+    const brawlersResponse = await this.getBrawlers();
+
     await firstValueFrom(
       this.httpService.get('/brawlers').pipe(
         map((res) => {
@@ -46,19 +49,19 @@ export default class BrawlersService {
               id: brawler.id,
               name: brawler.name,
               rarity:
-                brawlerJSON.items.find(
+                brawlersResponse.items.find(
                   (item) => String(item?.id) === String(brawler.id),
                 )?.rarity || null,
               role:
-                brawlerJSON.items.find(
+                brawlersResponse.items.find(
                   (item) => String(item?.id) === String(brawler.id),
                 )?.class || null,
               gender:
-                brawlerJSON.items.find(
+                brawlersResponse.items.find(
                   (item) => String(item?.id) === String(brawler.id),
                 )?.gender || null,
               icon:
-                brawlerJSON.items.find(
+                brawlersResponse.items.find(
                   (item) => item?.id.toString() === brawler.id,
                 )?.icon || null,
             });
@@ -135,6 +138,21 @@ export default class BrawlersService {
     if (isMainThread) {
       await this.insertBrawler();
       await this.updateBattleStats();
+    }
+  }
+
+  private async getBrawlers() {
+    try {
+      const response = await firstValueFrom(
+        this.httpService
+          .get('/database/brawlers.json', {
+            baseURL: this.configService.getCdnUrl(),
+          })
+          .pipe(),
+      );
+      return response.data;
+    } catch (error) {
+      Logger.error(error, 'getBrawlers');
     }
   }
 }

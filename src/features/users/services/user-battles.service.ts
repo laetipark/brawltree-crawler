@@ -24,11 +24,13 @@ const resultNameArray = ['victory', 'draw', 'defeat'];
 @Injectable()
 export default class UserBattlesService {
   constructor(
-    private dataSource: DataSource,
-    @InjectRepository(Users) private readonly users: Repository<Users>,
-    @InjectRepository(UserBattles) private userBattles: Repository<UserBattles>,
+    private readonly dataSource: DataSource,
+    @InjectRepository(Users)
+    private readonly users: Repository<Users>,
+    @InjectRepository(UserBattles)
+    private readonly userBattles: Repository<UserBattles>,
     @InjectRepository(UserBrawlerBattles)
-    private userBrawlerBattles: Repository<UserBrawlerBattles>,
+    private readonly userBrawlerBattles: Repository<UserBrawlerBattles>,
     private readonly mapsService: MapsService,
     private readonly dateService: DateService,
     private readonly configService: AppConfigService,
@@ -189,17 +191,17 @@ export default class UserBattlesService {
 
               /** @type number 게임 모드 번호
                * 3: 트리오 모드 / 2: 듀오 모드 / 1: 솔로 모드 / 0: 듀얼 */
-              const modeCode: number = (
-                await this.configService.getModeClass()
-              ).tripleModes.includes(item.event.mode)
+              const modeCode: number = this.configService
+                .getModeClass()
+                .tripleModes.includes(item.event.mode)
                 ? 3
-                : (await this.configService.getModeClass()).duoModes.includes(
-                      item.event.mode,
-                    )
+                : this.configService
+                      .getModeClass()
+                      .duoModes.includes(item.event.mode)
                   ? 2
-                  : (
-                        await this.configService.getModeClass()
-                      ).soloModes.survive.includes(item.event.mode)
+                  : this.configService
+                        .getModeClass()
+                        .soloModes.survive.includes(item.event.mode)
                     ? 1
                     : 0;
               const trophyChange =
