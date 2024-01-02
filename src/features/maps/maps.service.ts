@@ -40,7 +40,7 @@ export default class MapsService {
       const trophyLeagueMaps = await eventsRepository
         .createQueryBuilder('e')
         .select('e.mapID', 'mapID')
-        .where('e.id IN (1, 2, 3, 4, 5, 6, 7, 10, 33)')
+        .where('e.id not IN (20, 21, 22, 23, 24, 25, 26)')
         .getRawMany()
         .then((result) => {
           return result.map((map) => {
@@ -114,10 +114,9 @@ export default class MapsService {
       const responseEvent = await firstValueFrom(
         this.httpService.get('/events/rotation').pipe(),
       );
-
       const maps = responseEvent.data;
 
-      for (const item of maps) {
+      maps.map((item: any) => {
         const mapID = item.event.id;
         const mapMode = item.event.mode;
         const mapName = item.event.map;
@@ -128,7 +127,7 @@ export default class MapsService {
 
         const slotID = item.slotId;
 
-        await this.maps.upsert(
+        this.maps.upsert(
           {
             id: mapID,
             mode: mapMode,
@@ -137,7 +136,7 @@ export default class MapsService {
           ['id'],
         );
 
-        await this.events.upsert(
+        this.events.upsert(
           {
             id: slotID,
             startTime: beginTime,
@@ -147,7 +146,7 @@ export default class MapsService {
           },
           ['mapID'],
         );
-      }
+      });
     } catch (error) {
       Logger.error(error.response?.data, error.response?.status);
 
@@ -156,25 +155,38 @@ export default class MapsService {
   }
 
   async deleteRotation() {
+    const events = (
+      await firstValueFrom(
+        this.httpService
+          .get('/database/trophy_league.json', {
+            baseURL: this.configService.getCdnUrl(),
+          })
+          .pipe(),
+      )
+    ).data.type;
+
     await this.events
       .createQueryBuilder()
       .delete()
       .where(
-        'endTime < DATE_FORMAT(DATE_SUB(NOW(), INTERVAL :date HOUR), "%Y-%m-%d-%H") AND id IN (4, 6, 33)',
+        'endTime < DATE_FORMAT(DATE_SUB(NOW(), INTERVAL :hour HOUR), "%Y-%m-%d-%H") AND id IN (:ids)',
         {
-          date: 360,
+          ids: events.ids,
+          hour: events.hour,
         },
       )
       .orWhere(
-        'endTime < DATE_FORMAT(DATE_SUB(NOW(), INTERVAL :date HOUR), "%Y-%m-%d-%H") AND id NOT IN (4, 6, 33)',
+        'endTime < DATE_FORMAT(DATE_SUB(NOW(), INTERVAL :hour HOUR), "%Y-%m-%d-%H") AND id IN (:ids)',
         {
-          date: 168,
+          ids: events.ids,
+          hour: events.hour,
         },
       )
       .orWhere(
-        'endTime < DATE_FORMAT(DATE_SUB(NOW(), INTERVAL :date HOUR), "%Y-%m-%d-%H") AND id = 8',
+        'endTime < DATE_FORMAT(DATE_SUB(NOW(), INTERVAL :hour HOUR), "%Y-%m-%d-%H") AND id IN (:ids)',
         {
-          date: 144,
+          ids: events.ids,
+          hour: events.hour,
         },
       )
       .orWhere(

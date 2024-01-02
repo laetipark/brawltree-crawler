@@ -341,12 +341,7 @@ export default class UserBattlesService {
         );
 
         // 사용자 전투 기록 추가
-        await userBattlesRepository
-          .createQueryBuilder()
-          .insert()
-          .values(battles)
-          .orIgnore()
-          .execute();
+        await userBattlesRepository.save(battles);
 
         return lastBattleDateResponse;
       },

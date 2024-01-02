@@ -65,15 +65,9 @@ export default class WorkerService {
               20 * 60 * 1000,
             ),
           );
-      await this.sleep(2 * 1000);
+      await this.sleep(5 * 1000);
     } catch (error) {
-      Logger.error(
-        {
-          data: error.response?.data,
-          status: error.response?.status,
-        },
-        `Worker`,
-      );
+      Logger.error(error.response?.status, `Worker`);
       const errorTime = error.response?.status === 404 ? 50 : 0;
 
       // 10(60)분 후에 fetchUserBattles 실행
@@ -83,6 +77,7 @@ export default class WorkerService {
         },
         (10 + errorTime) * 60 * 1000,
       );
+      await this.sleep(5 * 1000);
     }
   }
 

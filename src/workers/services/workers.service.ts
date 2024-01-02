@@ -86,6 +86,28 @@ export default class WorkersService {
     }
   }
 
+  /** worker thread 중지 */
+  async stopWorkers() {
+    for (const worker of this.workers) {
+      await worker.terminate(); // worker thread 중지
+    }
+    console.log('다시 시작');
+  }
+
+  @Cron('30 0 * * *') // 매일 00:30에 실행되도록 설정
+  async restartWorkers() {
+    if (isMainThread) {
+      Logger.log('Stopping workers...', 'Workers');
+      await this.stopWorkers(); // worker 중지
+
+      // 일정 시간이 지난 후에 worker를 다시 시작하려면 setTimeout 등을 사용하여 구현할 수 있습니다.
+      setTimeout(() => {
+        Logger.log('Starting workers...', 'Workers');
+        this.startCrawling(); // worker 재시작
+      }, 60000);
+    }
+  }
+
   /** 사용자에 isCycle이 false인 데이터
    * 주기 설정 후 true로 변경 */
   @Cron('0-59/10 * * * *')

@@ -1,12 +1,12 @@
 import { HttpService } from '@nestjs/axios';
-import { Logger, NotFoundException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import UserBattlesService from '~/users/services/user-battles.service';
 import { Users } from '~/users/entities/users.entity';
 import { catchError, firstValueFrom, map } from 'rxjs';
 import { CreateUserProfileDto } from '~/users/dto/create-user-profile.dto';
-import { UserResponseType } from '../../../common/types/user-response.type';
+import { UserResponseType } from '~/common/types/user-response.type';
 import SeasonsService from '~/seasons/seasons.service';
 import {
   UserBrawlerItems,
@@ -261,9 +261,7 @@ export default class UserExportsService {
       /** @type Date 전투 기록 변경 후 최근 전투 시간 반환 */
       await this.userBattlesService.insertUserBattles(battleLogs, userID);
       await this.userBattlesService.updateUserBrawlerBattles(userID);
-    } catch (error) {
-      Logger.error(error.data, 'UserExports');
-    }
+    } catch (_) {}
   }
 
   /** 사용자 전투 기록 응답 반환 */
