@@ -3,7 +3,7 @@ import { firstValueFrom } from 'rxjs';
 import UserExportsService from '~/users/services/user-exports.service';
 
 @Injectable()
-export default class WorkerService {
+export class WorkerService {
   // 사용자 ID 목록
   private userIDs: string[] = [];
 

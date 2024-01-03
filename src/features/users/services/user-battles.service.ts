@@ -341,7 +341,12 @@ export default class UserBattlesService {
         );
 
         // 사용자 전투 기록 추가
-        await userBattlesRepository.save(battles);
+        await userBattlesRepository.upsert(battles, [
+          'userID',
+          'playerID',
+          'brawlerID',
+          'battleTime',
+        ]);
 
         return lastBattleDateResponse;
       },
