@@ -1,4 +1,4 @@
-import { Controller, Param, Patch, Post } from '@nestjs/common';
+import { Controller, Logger, Param, Patch, Post } from '@nestjs/common';
 import UsersService from '~/users/services/users.service';
 import SuccessResponse from '../../common/enum/success.response';
 import UserExportsService from '~/users/services/user-exports.service';
@@ -24,6 +24,7 @@ export class UsersController {
       crewName: null,
     });
 
+    Logger.log(SuccessResponse.USER_INSERTED);
     return {
       message: SuccessResponse.USER_INSERTED,
       data: { id },
@@ -41,6 +42,7 @@ export class UsersController {
     await this.userExportsService.updateUserProfile(user);
     await this.userExportsService.updateUserBattlesByResponse(battleLogs, id);
 
+    Logger.log(SuccessResponse.USER_UPDATED);
     return {
       message: SuccessResponse.USER_UPDATED,
       data: { id },
