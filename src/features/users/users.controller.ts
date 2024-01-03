@@ -24,7 +24,7 @@ export class UsersController {
       crewName: null,
     });
 
-    Logger.log(SuccessResponse.USER_INSERTED);
+    Logger.log(SuccessResponse.USER_INSERTED, `brawlian/${id}`);
     return {
       message: SuccessResponse.USER_INSERTED,
       data: { id },
@@ -42,7 +42,7 @@ export class UsersController {
     await this.userExportsService.updateUserProfile(user);
     await this.userExportsService.updateUserBattlesByResponse(battleLogs, id);
 
-    Logger.log(SuccessResponse.USER_UPDATED);
+    Logger.log(SuccessResponse.USER_UPDATED, `brawlian/${id}`);
     return {
       message: SuccessResponse.USER_UPDATED,
       data: { id },
