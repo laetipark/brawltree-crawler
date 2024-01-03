@@ -3,11 +3,11 @@ import { Cron } from '@nestjs/schedule';
 import path from 'path';
 import { isMainThread, parentPort, Worker } from 'worker_threads';
 
-import WorkerService from './worker.service';
+import { WorkerService } from './worker.service';
 import UserExportsService from '~/users/services/user-exports.service';
 
 @Injectable()
-export default class WorkersService {
+export class WorkersService {
   private readonly workers: Worker[] = [];
 
   constructor(
@@ -27,7 +27,7 @@ export default class WorkersService {
       const workerPromises = [];
 
       // workers threads promises 생성
-      for (let i = 0; i < threadNumber - 1; i++) {
+      for (let i = 0; i < threadNumber; i++) {
         const workerPromise = new Promise((resolve) => {
           const worker = new Worker(path.join(__dirname, '../../main'));
           this.workers.push(worker);
@@ -55,9 +55,6 @@ export default class WorkersService {
 
       const results = await Promise.all(workerPromises);
       Logger.log(`🌸 | All worker:create completed: ${results}`, 'Workers');
-
-      await this.workerProcess.setUserIds(users.slice(chunkSize * 4));
-      await this.workerProcess.fetchWorkerUsers();
     } else {
       // worker thread 메시지 이벤트
       parentPort.on('message', async (message) => {
@@ -91,7 +88,6 @@ export default class WorkersService {
     for (const worker of this.workers) {
       await worker.terminate(); // worker thread 중지
     }
-    console.log('다시 시작');
   }
 
   @Cron('30 0 * * *') // 매일 00:30에 실행되도록 설정
