@@ -13,6 +13,7 @@ import { MapsModule } from '~/maps/maps.module';
 import { SeasonsModule } from '~/seasons/seasons.module';
 import { CrewModule } from './features/crew/crew.module';
 import { UtilsModule } from '~/utils/utils.module';
+import { SchedulerModule } from './features/scheduler/scheduler.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { UtilsModule } from '~/utils/utils.module';
     SeasonsModule,
     WorkersModule,
     UtilsModule,
+    SchedulerModule,
   ],
   controllers: [AppController],
   providers: [AppService],

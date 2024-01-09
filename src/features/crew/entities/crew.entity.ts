@@ -98,7 +98,7 @@ export class UserFriends extends Common {
     unsigned: true,
     default: () => 0,
   })
-  victoryCount: number;
+  victoriesCount: number;
 
   @Column({
     name: 'defeats_count',
@@ -106,7 +106,7 @@ export class UserFriends extends Common {
     unsigned: true,
     default: () => 0,
   })
-  defeatCount: number;
+  defeatsCount: number;
 
   @Column({
     name: 'friend_point',

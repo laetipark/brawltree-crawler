@@ -1,10 +1,8 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { firstValueFrom, map } from 'rxjs';
-import { isMainThread } from 'worker_threads';
 
 import { UserFriends, UserRecords } from './entities/crew.entity';
 import { UserBattles } from '~/users/entities/user-battles.entity';
@@ -27,11 +25,7 @@ export default class CrewService {
     private readonly userRecords: Repository<UserRecords>,
     private readonly userExportsService: UserExportsService,
     private readonly httpService: HttpService,
-  ) {
-    this.updateCrewMembers().then(() => {
-      Logger.log(`Crew Data Initialized`, 'Crew');
-    });
-  }
+  ) {}
 
   /** Blossom Members Account update
    * @return Blossom Member ID Array */
@@ -177,13 +171,24 @@ export default class CrewService {
         }),
       );
 
+      console.log(
+        friends,
+        await userFriendsRepository.upsert(friends, [
+          'userID',
+          'friendID',
+          'matchType',
+          'matchGrade',
+          'mode',
+        ]),
+      );
       friends &&
-        (await userFriendsRepository
-          .createQueryBuilder()
-          .insert()
-          .values(friends)
-          .orIgnore()
-          .execute());
+        (await userFriendsRepository.upsert(friends, [
+          'userID',
+          'friendID',
+          'matchType',
+          'matchGrade',
+          'mode',
+        ]));
     });
   }
 
@@ -243,24 +248,22 @@ export default class CrewService {
       );
 
       records &&
-        (await userRecordsRepository
-          .createQueryBuilder()
-          .insert()
-          .values(records)
-          .orIgnore()
-          .execute());
+        (await userRecordsRepository.upsert(records, [
+          'userID',
+          'matchType',
+          'matchGrade',
+          'mode',
+        ]));
     });
   }
 
-  /** 크루 멤버 주기적 정보 갱신 */
-  @Cron('0-59/20 * * * *')
-  async updateCrewMembers() {
-    if (isMainThread) {
-      const members = await this.updateMembers();
+  /** 사용자 시즌 정보 삭제 */
+  async deleteUserRecords() {
+    await this.userRecords.delete({});
+  }
 
-      await this.updateMemberProfiles(members);
-      await this.updateMemberFriends(members);
-      await this.updateMemberRecords(members);
-    }
+  /** 사용자 친구 정보 삭제 */
+  async deleteUserFriends() {
+    await this.userFriends.delete({});
   }
 }

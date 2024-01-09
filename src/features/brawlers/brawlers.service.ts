@@ -1,10 +1,8 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { firstValueFrom, map } from 'rxjs';
-import { isMainThread } from 'worker_threads';
 
 import { BrawlerItems, Brawlers } from './entities/brawlers.entity';
 import { BattleStats } from '~/brawlers/entities/battle-stats.entity';
@@ -29,11 +27,7 @@ export default class BrawlersService {
     private readonly userBattles: Repository<UserBattles>,
     private readonly configService: AppConfigService,
     private readonly httpService: HttpService,
-  ) {
-    this.updateBrawlers().then(() => {
-      Logger.log(`Brawler Data Initialized`, 'Brawlers');
-    });
-  }
+  ) {}
 
   /** 브롤러 정보 추가 */
   async insertBrawler() {
@@ -132,13 +126,9 @@ export default class BrawlersService {
     ]);
   }
 
-  /** 브롤러 관련 정보 주기적 갱신 */
-  @Cron('0 0-23/1 * * *')
-  async updateBrawlers() {
-    if (isMainThread) {
-      await this.insertBrawler();
-      await this.updateBattleStats();
-    }
+  /** 브롤러 전투 기록 삭제 */
+  async deleteBattleStats() {
+    await this.battleStats.delete({});
   }
 
   private async getBrawlers() {

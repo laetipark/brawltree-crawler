@@ -1,10 +1,8 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { firstValueFrom } from 'rxjs';
-import { isMainThread } from 'worker_threads';
 import AppConfigService from '~/utils/services/app-config.service';
 import DateService from '~/utils/services/date.service';
 
@@ -26,11 +24,7 @@ export default class MapsService {
     private readonly dateService: DateService,
     private readonly configService: AppConfigService,
     private readonly httpService: HttpService,
-  ) {
-    this.updateMaps().then(() => {
-      Logger.log(`Maps Data Initialized`, 'Maps');
-    });
-  }
+  ) {}
 
   async updateRotation() {
     await this.dataSource.transaction(async (manager) => {
@@ -38,9 +32,9 @@ export default class MapsService {
       const mapRotationRepository = manager.withRepository(this.mapRotation);
 
       const trophyLeagueMaps = await eventsRepository
-        .createQueryBuilder('e')
-        .select('e.mapID', 'mapID')
-        .where('e.id not IN (20, 21, 22, 23, 24, 25, 26)')
+        .createQueryBuilder('event')
+        .select('event.mapID', 'mapID')
+        .where('event.id not IN (20, 21, 22, 23, 24, 25, 26)')
         .getRawMany()
         .then((result) => {
           return result.map((map) => {
@@ -200,15 +194,6 @@ export default class MapsService {
       await this.maps.upsert(maps, ['id']);
     } catch (error) {
       Logger.error(error);
-    }
-  }
-
-  @Cron('0 * * * *')
-  async updateMaps() {
-    if (isMainThread) {
-      await this.insertRotation();
-      await this.updateRotation();
-      await this.deleteRotation();
     }
   }
 

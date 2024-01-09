@@ -9,6 +9,7 @@ import { CreateUserProfileDto } from '~/users/dto/create-user-profile.dto';
 import { UserResponseType } from '~/common/types/user-response.type';
 import SeasonsService from '~/seasons/seasons.service';
 import {
+  UserBrawlerBattles,
   UserBrawlerItems,
   UserBrawlers,
 } from '~/users/entities/user-brawlers.entity';
@@ -27,6 +28,8 @@ export default class UserExportsService {
     private readonly userBattles: Repository<UserBattles>,
     @InjectRepository(UserBrawlers)
     private readonly userBrawlers: Repository<UserBrawlers>,
+    @InjectRepository(UserBrawlerBattles)
+    private readonly userBrawlerBattles: Repository<UserBrawlerBattles>,
     @InjectRepository(UserBrawlerItems)
     private readonly userBrawlerItems: Repository<UserBrawlerItems>,
     @InjectRepository(BrawlerItems)
@@ -272,6 +275,12 @@ export default class UserExportsService {
     };
   }
 
+  /** 사용자 소유 브롤러 전투 기록 삭제 */
+  async deleteUserBrawlerBattles() {
+    await this.userBrawlerBattles.delete({});
+  }
+
+  /** 사용자 소유 브롤러 아이템 정보 변경 */
   private async updateUserBrawlerItems({ brawlerGears, brawlerItems }) {
     await this.brawlerItems
       .createQueryBuilder()
