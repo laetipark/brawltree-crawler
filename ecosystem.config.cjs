@@ -10,5 +10,15 @@ module.exports = {
         NODE_ENV: 'production',
       },
     },
+    {
+      name: 'brawltree-crawler',
+      script: 'node',
+      args: 'dist/crawler.js',
+      autorestart: false,
+      watch: false,
+      env: {
+        NODE_ENV: 'production',
+      },
+    },
   ],
 };

@@ -38,5 +38,6 @@ import { UtilsModule } from '~/utils/utils.module';
     UtilsModule,
   ],
   providers: [CrewService],
+  exports: [CrewService],
 })
 export class CrewModule {}

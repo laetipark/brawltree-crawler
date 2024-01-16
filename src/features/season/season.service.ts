@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { SeasonDto } from '~/seasons/dto/season.dto';
+import { SeasonDto } from './dto/season.dto';
 
 @Injectable()
-export default class SeasonsService {
+export default class SeasonService {
   constructor() {}
 
   /** 현재 시즌 정보 반환 */
-  async getRecentSeason(): Promise<SeasonDto> {
+  getRecentSeason(): SeasonDto {
     const date = new Date();
     // 주어진 날짜에 해당하는 월의 첫째날을 찾음
     const thisMonth = new Date(date.getFullYear(), date.getMonth(), 1);

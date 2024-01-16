@@ -15,7 +15,7 @@ export class UsersController {
    * @param id user tag */
   @Post('/:id')
   async insertUser(@Param('id') id: string) {
-    const user = await this.userExportsService.getUser(id);
+    const user = await this.userExportsService.fetchUserResponse(id);
 
     await this.usersService.insertUser({
       id: user.tag,
@@ -34,8 +34,8 @@ export class UsersController {
    * @param id user tag */
   @Patch('/:id')
   async updateUser(@Param('id') id: string) {
-    const user = await this.userExportsService.getUser(id);
-    const battleResponse = this.userExportsService.setUserBattleResponse(id);
+    const user = await this.userExportsService.fetchUserResponse(id);
+    const battleResponse = this.userExportsService.fetchUserBattleResponse(id);
     const battleLogs = (await firstValueFrom(battleResponse.request)).data;
 
     await this.userExportsService.updateUserProfile(user);

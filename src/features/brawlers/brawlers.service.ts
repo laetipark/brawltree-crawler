@@ -1,10 +1,8 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { firstValueFrom, map } from 'rxjs';
-import { isMainThread } from 'worker_threads';
 
 import { BrawlerItems, Brawlers } from './entities/brawlers.entity';
 import { BattleStats } from '~/brawlers/entities/battle-stats.entity';
@@ -29,11 +27,7 @@ export default class BrawlersService {
     private readonly userBattles: Repository<UserBattles>,
     private readonly configService: AppConfigService,
     private readonly httpService: HttpService,
-  ) {
-    this.updateBrawlers().then(() => {
-      Logger.log(`Brawler Data Initialized`, 'Brawlers');
-    });
-  }
+  ) {}
 
   /** 브롤러 정보 추가 */
   async insertBrawler() {
@@ -94,35 +88,31 @@ export default class BrawlersService {
 
   /** 전투 통계 갱신 */
   async updateBattleStats() {
-    const battleStats = await this.dataSource.transaction(async (manager) => {
-      const userBattlesRepository = manager.withRepository(this.userBattles);
-
-      return await userBattlesRepository
-        .createQueryBuilder('ub')
-        .select('ub.brawlerID', 'brawlerID')
-        .addSelect('ub.mapID', 'mapID')
-        .addSelect('ub.matchType', 'matchType')
-        .addSelect('ub.matchGrade', 'matchGrade')
-        .addSelect('COUNT(*)', 'matchCount')
-        .addSelect(
-          'COUNT(CASE WHEN ub.gameResult = -1 THEN 1 ELSE NULL END)',
-          'victoriesCount',
-        )
-        .addSelect(
-          'COUNT(CASE WHEN ub.gameResult = 1 THEN 1 ELSE NULL END)',
-          'defeatsCount',
-        )
-        .addSelect('m.mode', 'mode')
-        .innerJoin(Maps, 'm', 'ub.mapID = m.id')
-        .where('ub.matchType IN (0, 2, 3)')
-        .andWhere('ub.modeCode = 3')
-        .groupBy('ub.brawlerID')
-        .addGroupBy('ub.mapID')
-        .addGroupBy('ub.matchType')
-        .addGroupBy('ub.matchGrade')
-        .addGroupBy('m.mode')
-        .getRawMany();
-    });
+    const battleStats = await this.userBattles
+      .createQueryBuilder('ub')
+      .select('ub.brawlerID', 'brawlerID')
+      .addSelect('ub.mapID', 'mapID')
+      .addSelect('ub.matchType', 'matchType')
+      .addSelect('ub.matchGrade', 'matchGrade')
+      .addSelect('COUNT(*)', 'matchCount')
+      .addSelect(
+        'COUNT(CASE WHEN ub.gameResult = -1 THEN 1 ELSE NULL END)',
+        'victoriesCount',
+      )
+      .addSelect(
+        'COUNT(CASE WHEN ub.gameResult = 1 THEN 1 ELSE NULL END)',
+        'defeatsCount',
+      )
+      .addSelect('m.mode', 'mode')
+      .innerJoin(Maps, 'm', 'ub.mapID = m.id')
+      .where('ub.matchType IN (0, 2, 3)')
+      .andWhere('ub.modeCode = 3')
+      .groupBy('ub.brawlerID')
+      .addGroupBy('ub.mapID')
+      .addGroupBy('ub.matchType')
+      .addGroupBy('ub.matchGrade')
+      .addGroupBy('m.mode')
+      .getRawMany();
 
     await this.battleStats.upsert(battleStats, [
       'mapID',
@@ -132,23 +122,16 @@ export default class BrawlersService {
     ]);
   }
 
-  /** 브롤러 관련 정보 주기적 갱신 */
-  @Cron('0 0-23/1 * * *')
-  async updateBrawlers() {
-    if (isMainThread) {
-      await this.insertBrawler();
-      await this.updateBattleStats();
-    }
+  async updateSeason() {
+    await this.battleStats.delete({});
   }
 
   private async getBrawlers() {
     try {
       const response = await firstValueFrom(
-        this.httpService
-          .get('/database/brawlers.json', {
-            baseURL: this.configService.getCdnUrl(),
-          })
-          .pipe(),
+        this.httpService.get('/database/brawlers.json', {
+          baseURL: this.configService.getCdnUrl(),
+        }),
       );
       return response.data;
     } catch (error) {

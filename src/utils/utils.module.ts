@@ -5,10 +5,24 @@ import { HttpModule } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import http from 'http';
 import https from 'https';
+import AppConfig from '~/config/app.config';
+import { ScheduleModule } from '@nestjs/schedule';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Global()
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: `.${process.env.NODE_ENV}.env`,
+      load: [AppConfig],
+    }),
+    ScheduleModule.forRoot(),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => config.get('database'),
+    }),
     HttpModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -17,8 +31,7 @@ import https from 'https';
         httpAgent: new http.Agent({ keepAlive: true }),
         httpsAgent: new https.Agent({
           keepAlive: true,
-          maxSockets: 2,
-          maxFreeSockets: 256,
+          maxSockets: 5,
           timeout: 300000,
         }),
       }),

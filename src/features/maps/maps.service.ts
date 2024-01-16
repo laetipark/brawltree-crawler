@@ -1,10 +1,8 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { firstValueFrom } from 'rxjs';
-import { isMainThread } from 'worker_threads';
 import AppConfigService from '~/utils/services/app-config.service';
 import DateService from '~/utils/services/date.service';
 
@@ -15,6 +13,8 @@ import { CreateMapDto } from '~/maps/dto/create-map.dto';
 
 @Injectable()
 export default class MapsService {
+  private mapArray: CreateMapDto[] = [];
+
   constructor(
     private readonly dataSource: DataSource,
     @InjectRepository(Events)
@@ -26,11 +26,7 @@ export default class MapsService {
     private readonly dateService: DateService,
     private readonly configService: AppConfigService,
     private readonly httpService: HttpService,
-  ) {
-    this.updateMaps().then(() => {
-      Logger.log(`Maps Data Initialized`, 'Maps');
-    });
-  }
+  ) {}
 
   async updateRotation() {
     await this.dataSource.transaction(async (manager) => {
@@ -157,11 +153,9 @@ export default class MapsService {
   async deleteRotation() {
     const events = (
       await firstValueFrom(
-        this.httpService
-          .get('/database/trophy_league.json', {
-            baseURL: this.configService.getCdnUrl(),
-          })
-          .pipe(),
+        this.httpService.get('/database/trophy_league.json', {
+          baseURL: this.configService.getCdnUrl(),
+        }),
       )
     ).data.type;
 
@@ -169,24 +163,24 @@ export default class MapsService {
       .createQueryBuilder()
       .delete()
       .where(
-        'endTime < DATE_FORMAT(DATE_SUB(NOW(), INTERVAL :hour HOUR), "%Y-%m-%d-%H") AND id IN (:ids)',
+        'endTime < DATE_FORMAT(DATE_SUB(NOW(), INTERVAL :hour1 HOUR), "%Y-%m-%d-%H") AND id IN (:ids1)',
         {
-          ids: events.ids,
-          hour: events.hour,
+          ids1: events.fixed01.ids.length !== 0 ? events.fixed01.ids : '',
+          hour1: events.fixed01.hour,
         },
       )
       .orWhere(
-        'endTime < DATE_FORMAT(DATE_SUB(NOW(), INTERVAL :hour HOUR), "%Y-%m-%d-%H") AND id IN (:ids)',
+        'endTime < DATE_FORMAT(DATE_SUB(NOW(), INTERVAL :hour2 HOUR), "%Y-%m-%d-%H") AND id IN (:ids2)',
         {
-          ids: events.ids,
-          hour: events.hour,
+          ids2: events.fixed02.ids.length !== 0 ? events.fixed02.ids : '',
+          hour2: events.fixed02.hour,
         },
       )
       .orWhere(
-        'endTime < DATE_FORMAT(DATE_SUB(NOW(), INTERVAL :hour HOUR), "%Y-%m-%d-%H") AND id IN (:ids)',
+        'endTime < DATE_FORMAT(DATE_SUB(NOW(), INTERVAL :hour3 HOUR), "%Y-%m-%d-%H") AND id IN (:ids3)',
         {
-          ids: events.ids,
-          hour: events.hour,
+          ids3: events.rotated.ids.length !== 0 ? events.rotated.ids : '',
+          hour3: events.rotated.hour,
         },
       )
       .orWhere(
@@ -195,31 +189,25 @@ export default class MapsService {
       .execute();
   }
 
-  async insertMaps(maps: CreateMapDto[]) {
-    try {
-      await this.maps.upsert(maps, ['id']);
-    } catch (error) {
-      Logger.error(error);
-    }
+  async insertMaps() {
+    await this.maps.upsert(this.mapArray, ['id']);
+    this.mapArray = [];
   }
 
-  @Cron('0 * * * *')
-  async updateMaps() {
-    if (isMainThread) {
-      await this.insertRotation();
-      await this.updateRotation();
-      await this.deleteRotation();
-    }
+  setMaps(createMapDtos: CreateMapDto[]) {
+    this.mapArray = this.mapArray.concat(
+      createMapDtos.filter(
+        (item2) => !this.mapArray.some((item1) => item1.id === item2.id),
+      ),
+    );
   }
 
   private async getRotationPL() {
     try {
       const response = await firstValueFrom(
-        this.httpService
-          .get('/database/power_league.json', {
-            baseURL: this.configService.getCdnUrl(),
-          })
-          .pipe(),
+        this.httpService.get('/database/power_league.json', {
+          baseURL: this.configService.getCdnUrl(),
+        }),
       );
       return response.data;
     } catch (error) {

@@ -24,7 +24,6 @@ export abstract class SoftDeleteEntity extends BaseEntity {
     name: 'deleted_at',
     type: 'timestamp',
     default: () => null,
-    select: false,
   })
-  deletedAt: Date;
+  deletedAt: Date | null;
 }

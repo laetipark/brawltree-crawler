@@ -84,7 +84,13 @@ export default class UserBattlesService {
           });
         });
 
-      await userBrawlerBattlesRepository.save(brawlerBattles);
+      await userBrawlerBattlesRepository.upsert(brawlerBattles, [
+        'userID',
+        'brawlerID',
+        'mapID',
+        'matchType',
+        'matchGrade',
+      ]);
     });
   }
 
@@ -143,13 +149,7 @@ export default class UserBattlesService {
 
     // 사용자 tag와 사용자 마지막 전투 시간
     const userID = `#${id}`;
-    const user = await this.users
-      .createQueryBuilder('u')
-      .select('u.lastBattledOn', 'lastBattledOn')
-      .where('u.id = :id', {
-        id: userID,
-      })
-      .getRawOne();
+    const user = await this.users.findOne({ where: { id: userID } });
 
     /** 사용자 최근 전투 시간 반환
      * @return lastBattleDateResponse 최근 전투 시간 반환 */
@@ -336,27 +336,24 @@ export default class UserBattlesService {
 
         // 맵 정보 추가
         const mapIDs = Array.from(new Set(maps.map((item) => item.id)));
-        await this.mapsService.insertMaps(
+        this.mapsService.setMaps(
           mapIDs.map((id) => maps.find((item) => item.id === id)),
         );
 
         // 사용자 전투 기록 추가
-        await userBattlesRepository.save(battles);
-
+        await userBattlesRepository.upsert(battles, [
+          'userID',
+          'playerID',
+          'brawlerID',
+          'battleTime',
+        ]);
         return lastBattleDateResponse;
       },
     );
 
+    user.isCycle = false;
+    user.lastBattledOn = lastBattleDate;
     // 사용자 최근 전투 시간 변경
-    await this.users
-      .createQueryBuilder()
-      .update()
-      .set({
-        lastBattledOn: lastBattleDate,
-      })
-      .where('id = :id', {
-        id: userID,
-      })
-      .execute();
+    await this.users.upsert(user, ['id']);
   }
 }

@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { BrawlersModule } from '~/brawlers/brawlers.module';
 import { MapsModule } from '~/maps/maps.module';
-import { SeasonsModule } from '~/seasons/seasons.module';
+import { SeasonModule } from '~/season/season.module';
 import { UtilsModule } from '~/utils/utils.module';
 import { UsersController } from '~/users/users.controller';
 import UsersService from '~/users/services/users.service';
@@ -33,7 +33,7 @@ import { BrawlerItems } from '~/brawlers/entities/brawlers.entity';
     ]),
     BrawlersModule,
     MapsModule,
-    SeasonsModule,
+    SeasonModule,
     UtilsModule,
   ],
   controllers: [UsersController],

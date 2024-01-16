@@ -27,6 +27,9 @@
       "~/config/*": [
         "./src/config/*"
       ],
+      "~/crew/*": [
+        "./src/features/crew/*"
+      ],
       "~/database/*": [
         "./src/database/*"
       ],
@@ -36,8 +39,11 @@
       "~/public/*": [
         "./src/public/*"
       ],
-      "~/seasons/*": [
-        "./src/features/seasons/*"
+      "~/season/*": [
+        "./src/features/season/*"
+      ],
+      "~/scheduler/*": [
+        "./src/scheduler/*"
       ],
       "~/users/*": [
         "./src/features/users/*"

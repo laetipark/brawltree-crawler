@@ -1,20 +1,22 @@
 import { HttpService } from '@nestjs/axios';
-import { NotFoundException } from '@nestjs/common';
+import { Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, LessThan, Repository } from 'typeorm';
 import UserBattlesService from '~/users/services/user-battles.service';
 import { Users } from '~/users/entities/users.entity';
 import { catchError, firstValueFrom, map } from 'rxjs';
 import { CreateUserProfileDto } from '~/users/dto/create-user-profile.dto';
 import { UserResponseType } from '~/common/types/user-response.type';
-import SeasonsService from '~/seasons/seasons.service';
+import SeasonService from '~/season/season.service';
 import {
+  UserBrawlerBattles,
   UserBrawlerItems,
   UserBrawlers,
 } from '~/users/entities/user-brawlers.entity';
 import { UserBattles } from '~/users/entities/user-battles.entity';
 import { UserProfile } from '~/users/entities/user-profile.entity';
 import { BrawlerItems } from '~/brawlers/entities/brawlers.entity';
+import { SeasonDto } from '~/season/dto/season.dto';
 
 export default class UserExportsService {
   constructor(
@@ -27,18 +29,20 @@ export default class UserExportsService {
     private readonly userBattles: Repository<UserBattles>,
     @InjectRepository(UserBrawlers)
     private readonly userBrawlers: Repository<UserBrawlers>,
+    @InjectRepository(UserBrawlerBattles)
+    private readonly userBrawlerBattles: Repository<UserBrawlerBattles>,
     @InjectRepository(UserBrawlerItems)
     private readonly userBrawlerItems: Repository<UserBrawlerItems>,
     @InjectRepository(BrawlerItems)
     private readonly brawlerItems: Repository<BrawlerItems>,
     private readonly userBattlesService: UserBattlesService,
-    private readonly seasonsService: SeasonsService,
+    private readonly seasonsService: SeasonService,
     private readonly httpService: HttpService,
   ) {}
 
   /** 사용자 프로필 반환
    * @param userID 사용자 ID */
-  async getUser(userID: string) {
+  fetchUserResponse(userID: string) {
     return firstValueFrom(
       this.httpService.get(`/players/%23${userID}`).pipe(
         map((res) => {
@@ -52,7 +56,7 @@ export default class UserExportsService {
   }
 
   /** 전체 사용자 ID 반환 */
-  async getUserIDs() {
+  async getUserIDs(): Promise<string[]> {
     return await this.users
       .createQueryBuilder('u')
       .select('REPLACE(u.id, "#", "")', 'userID')
@@ -67,7 +71,7 @@ export default class UserExportsService {
    * @param user 멤버 json
    */
   async updateUserProfile(user: UserResponseType) {
-    const season = await this.seasonsService.getRecentSeason();
+    const season = this.seasonsService.getRecentSeason();
 
     const brawlerItems = await this.dataSource.transaction(async (manager) => {
       const userBattlesRepository = manager.withRepository(this.userBattles);
@@ -231,18 +235,12 @@ export default class UserExportsService {
   }
 
   /** 모든 사용자 isCycle 값 변경 */
-  async updateUserCycle() {
-    await this.users
-      .createQueryBuilder()
-      .update()
-      .set({
-        isCycle: true,
-      })
-      .execute();
+  async updateUserIsCycle(userID: string) {
+    await this.users.update({ id: userID }, { isCycle: true });
   }
 
   /** isCycle false인 사용자 ID들 반환 */
-  async getUserEmptyCycle() {
+  async getUserIDsIsNotCycle(): Promise<string[]> {
     return await this.users
       .createQueryBuilder('u')
       .select('REPLACE(u.id, "#", "")', 'userID')
@@ -258,32 +256,45 @@ export default class UserExportsService {
    * @param userID 요청 순환 여부 */
   async updateUserBattlesByResponse(battleLogs: any, userID: string) {
     try {
-      /** @type Date 전투 기록 변경 후 최근 전투 시간 반환 */
+      /** 최근 전투 시간 반환 */
       await this.userBattlesService.insertUserBattles(battleLogs, userID);
       await this.userBattlesService.updateUserBrawlerBattles(userID);
-    } catch (_) {}
+    } catch (err) {
+      Logger.error(err);
+    }
   }
 
   /** 사용자 전투 기록 응답 반환 */
-  setUserBattleResponse(user: string) {
+  fetchUserBattleResponse(user: string) {
     return {
       id: user,
       request: this.httpService.get(`/players/%23${user}/battlelog`),
     };
   }
 
+  deleteUser(userID: string) {
+    this.users
+      .softDelete({
+        id: `#${userID}`,
+      })
+      .then((result) =>
+        Logger.log(
+          `${userID} has been SoftDeleted ${result.affected}`,
+          'DeleteUser',
+        ),
+      );
+  }
+
+  async updateSeason() {
+    const season: SeasonDto = this.seasonsService.getRecentSeason();
+    await this.userBattles.delete({
+      battleTime: LessThan(season.beginDate),
+    });
+    await this.userBrawlerBattles.delete({});
+  }
+
   private async updateUserBrawlerItems({ brawlerGears, brawlerItems }) {
-    await this.brawlerItems
-      .createQueryBuilder()
-      .insert()
-      .values(brawlerGears)
-      .orIgnore()
-      .execute();
-    await this.userBrawlerItems
-      .createQueryBuilder()
-      .insert()
-      .values(brawlerItems)
-      .orIgnore()
-      .execute();
+    await this.brawlerItems.upsert(brawlerGears, ['id', 'brawlerID']);
+    await this.userBrawlerItems.upsert(brawlerItems, ['itemID']);
   }
 }
