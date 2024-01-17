@@ -154,7 +154,7 @@ export default class CrewService {
           })
           .andWhere('(ub.matchType = 0 OR (ub.matchType = 3))')
           .andWhere('ub.battleTime > :date', {
-            date: season.beginDate,
+            date: season.beginTime,
           })
           .groupBy('ub.userID')
           .addGroupBy('ub.playerID')
@@ -213,7 +213,7 @@ export default class CrewService {
             id1: member,
           })
           .andWhere('ub.battleTime > :date', {
-            date: season.beginDate,
+            date: season.beginTime,
           })
           .orWhere(
             '(ub.userID = :id2 AND ub.playerID = :id2 AND ' +

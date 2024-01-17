@@ -1,7 +1,7 @@
 import { HttpService } from '@nestjs/axios';
 import { Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, LessThan, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import UserBattlesService from '~/users/services/user-battles.service';
 import { Users } from '~/users/entities/users.entity';
 import { catchError, firstValueFrom, map } from 'rxjs';
@@ -118,7 +118,7 @@ export default class UserExportsService {
             brawlerID: brawlerID,
           })
           .andWhere('ub.battleTime > :date', {
-            date: season.beginDate,
+            date: season.beginTime,
           })
           .andWhere('ub.matchType = 0')
           .orderBy(`ub.battleTime`, 'ASC')
@@ -286,11 +286,30 @@ export default class UserExportsService {
   }
 
   async updateSeason() {
-    const season: SeasonDto = this.seasonsService.getRecentSeason();
-    await this.userBattles.delete({
-      battleTime: LessThan(season.beginDate),
-    });
     await this.userBrawlerBattles.delete({});
+  }
+
+  async deleteUserBattles(season: SeasonDto) {
+    const beginTime = season.beginTime;
+    beginTime.setHours(season.beginTime.getHours() + 9);
+    const battleTimes: string[] = await this.userBattles
+      .createQueryBuilder('user')
+      .select('user.battleTime', 'battleTime')
+      .where('UNIX_TIMESTAMP(user.battleTime) < UNIX_TIMESTAMP(:date)', {
+        date: `${beginTime.toISOString().slice(0, 19).replace('T', ' ')}`,
+      })
+      .orderBy('user.battleTime', 'ASC')
+      .limit(5000)
+      .getRawMany()
+      .then((result) => result.map((item) => item.battleTime));
+
+    await this.userBattles
+      .createQueryBuilder()
+      .delete()
+      .where('battleTime IN (:ids)', {
+        ids: battleTimes.length > 0 ? battleTimes : ['2000-01-01 18:00:00'],
+      })
+      .execute();
   }
 
   private async updateUserBrawlerItems({ brawlerGears, brawlerItems }) {

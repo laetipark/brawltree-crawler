@@ -20,10 +20,10 @@ export class SchedulerService {
   ) {
     this.season = this.seasonsService.getRecentSeason();
     this.updateBrawlers().then(() => {
-      Logger.log(`Brawler Data Initialized`, 'Brawlers');
+      Logger.log('Brawler Data Initialized', 'Brawlers');
     });
     this.updateRotation().then(() => {
-      Logger.log(`Maps Data Initialized`, 'Maps');
+      Logger.log('Maps Data Initialized', 'Maps');
     });
   }
 
@@ -32,11 +32,13 @@ export class SchedulerService {
   async updateBrawlers() {
     await this.brawlersService.insertBrawler();
     await this.brawlersService.updateBattleStats();
+    Logger.log('Brawlers Data Updated', 'UpdateBrawlers');
   }
 
   @Cron('30 * * * *')
   async updateMaps() {
     await this.mapsService.insertMaps();
+    Logger.log('Maps Data Updated', 'UpdateMaps');
   }
 
   @Cron('0 * * * *')
@@ -44,6 +46,13 @@ export class SchedulerService {
     await this.mapsService.insertRotation();
     await this.mapsService.updateRotation();
     await this.mapsService.deleteRotation();
+    Logger.log('Rotation Data Updated', 'UpdateRotation');
+  }
+
+  @Cron('25-45/10 * * * *')
+  async updateUserBattles() {
+    await this.usersService.deleteUserBattles(this.season);
+    Logger.log('User Battles Data Updated', 'UpdateUserBattles');
   }
 
   @Cron('5 0 18 * * 4')
@@ -52,6 +61,7 @@ export class SchedulerService {
     await this.crewService.updateSeason();
     await this.brawlersService.updateSeason();
     await this.usersService.updateSeason();
+    Logger.log('Season Data Updated', 'UpdateSeason');
   }
 
   /** 크루 멤버 주기적 정보 갱신 */
@@ -62,5 +72,6 @@ export class SchedulerService {
     await this.crewService.updateCrewProfiles(members);
     await this.crewService.updateCrewFriends(members, this.season);
     await this.crewService.updateCrewRecords(members, this.season);
+    Logger.log('Crew Members Data Updated', 'UpdateCrewMembers');
   }
 }

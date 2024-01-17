@@ -10,6 +10,7 @@ import { UserBattles } from '~/users/entities/user-battles.entity';
 import { UserBrawlerBattles } from '~/users/entities/user-brawlers.entity';
 import { CreateUserBattleDto } from '~/users/dto/create-userBattle.dto';
 import { CreateMapDto } from '~/maps/dto/create-map.dto';
+import SeasonService from '~/season/season.service';
 
 const typeNameArray = [
   'ranked',
@@ -33,6 +34,7 @@ export default class UserBattlesService {
     private readonly userBrawlerBattles: Repository<UserBrawlerBattles>,
     private readonly mapsService: MapsService,
     private readonly dateService: DateService,
+    private readonly seasonsService: SeasonService,
     private readonly configService: AppConfigService,
   ) {}
 
@@ -172,15 +174,20 @@ export default class UserBattlesService {
 
         if (lastBattleDate !== lastBattleDateResponse) {
           for (const item of rawBattles) {
-            if (item.event.id !== 0 && item.battle.type !== undefined) {
+            // 전투 시작 시각
+            const battleTime = this.dateService.getDate(item.battleTime);
+
+            if (
+              item.event.id !== 0 &&
+              item.battle.type !== undefined &&
+              this.seasonsService.getRecentSeason().beginTime < battleTime
+            ) {
               maps.push({
                 id: item.event.id,
                 mode: item.event.mode,
                 name: item.event.map,
               });
 
-              // 전투 시작 시각
-              const battleTime = this.dateService.getDate(item.battleTime);
               // 전투 시간
               const duration =
                 item.battle.duration != null && item.battle.duration > 0
