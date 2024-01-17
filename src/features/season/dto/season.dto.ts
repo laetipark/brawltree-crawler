@@ -2,8 +2,8 @@ import { IsDateString } from 'class-validator';
 
 export class SeasonDto {
   @IsDateString()
-  beginDate: Date;
+  beginTime: Date;
 
   @IsDateString()
-  endDate: Date;
+  endTime: Date;
 }
