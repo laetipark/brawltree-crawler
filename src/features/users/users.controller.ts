@@ -14,7 +14,7 @@ export class UsersController {
   /** 사용자 정보 삽입
    * @param id user tag */
   @Post('/:id')
-  async insertUser(@Param('id') id: string) {
+  async postUser(@Param('id') id: string) {
     const user = await this.userExportsService.fetchUserResponse(id);
 
     await this.usersService.insertUser({
@@ -30,10 +30,10 @@ export class UsersController {
     };
   }
 
-  /** 사용자 정보 변경
+  /** 사용자 정보 갱신
    * @param id user tag */
   @Patch('/:id')
-  async updateUser(@Param('id') id: string) {
+  async patchUser(@Param('id') id: string) {
     const user = await this.userExportsService.fetchUserResponse(id);
     const battleResponse = this.userExportsService.fetchUserBattleResponse(id);
     const battleLogs = (await firstValueFrom(battleResponse.request)).data;

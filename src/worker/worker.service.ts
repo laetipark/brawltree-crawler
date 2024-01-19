@@ -33,17 +33,19 @@ export default class WorkerService {
       );
       await this.sleep(2000);
     } catch (error) {
-      Logger.error(error, 'Worker');
-      if (errorStack > 0) {
-        this.userExportsService.deleteUser(userID);
-      } else {
-        // 10(60)분 후에 fetchUserBattles 실행
-        setTimeout(
-          () => {
-            this.updateUser(userID, errorStack + 1);
-          },
-          10 * 60 * 1000,
-        );
+      Logger.error(`${error}: ${errorStack}`, 'Worker');
+      if (error.status === 404) {
+        if (errorStack > 10) {
+          this.userExportsService.deleteUser(userID);
+        } else {
+          // 10(60)분 후에 fetchUserBattles 실행
+          setTimeout(
+            () => {
+              this.updateUser(userID, errorStack + 1);
+            },
+            10 * 60 * 1000,
+          );
+        }
       }
     }
   }
