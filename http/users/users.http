@@ -1,0 +1,6 @@
+### 사용자 정보 삽입
+POST http://localhost:1453/brawlian/28Y0UCJGQ
+
+
+### 사용자 정보 갱신
+PATCH http://localhost:1453/brawlian/28Y0UCJGQ
