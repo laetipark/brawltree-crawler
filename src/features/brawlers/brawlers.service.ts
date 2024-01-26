@@ -1,10 +1,14 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { firstValueFrom, map } from 'rxjs';
 
-import { BrawlerItems, Brawlers } from './entities/brawlers.entity';
+import {
+  BrawlerItems,
+  Brawlers,
+  BrawlerSkills,
+} from './entities/brawlers.entity';
 import { BattleStats } from '~/brawlers/entities/battle-stats.entity';
 import { UserBattles } from '~/users/entities/user-battles.entity';
 import { Maps } from '~/maps/entities/maps.entity';
@@ -12,17 +16,19 @@ import { CreateBrawlerDto } from '~/brawlers/dto/create-brawler.dto';
 import { CreateBrawlerItemDto } from '~/brawlers/dto/create-brawler-item.dto';
 import { BrawlerItemType, BrawlerType } from '~/common/types/brawler.type';
 import AppConfigService from '~/utils/services/app-config.service';
+import { CreateBrawlerSkillDto } from '~/brawlers/dto/create-brawler-skill.dto';
 
 @Injectable()
 export default class BrawlersService {
   constructor(
-    private readonly dataSource: DataSource,
     @InjectRepository(Brawlers)
     private readonly brawlers: Repository<Brawlers>,
     @InjectRepository(BattleStats)
     private readonly battleStats: Repository<BattleStats>,
     @InjectRepository(BrawlerItems)
     private readonly brawlerItems: Repository<BrawlerItems>,
+    @InjectRepository(BrawlerSkills)
+    private readonly brawlerSkills: Repository<BrawlerSkills>,
     @InjectRepository(UserBattles)
     private readonly userBattles: Repository<UserBattles>,
     private readonly configService: AppConfigService,
@@ -33,31 +39,30 @@ export default class BrawlersService {
   async insertBrawler() {
     const brawlers: CreateBrawlerDto[] = [];
     const brawlerItems: CreateBrawlerItemDto[] = [];
+    const brawlerSkills: CreateBrawlerSkillDto[] = [];
     const brawlersResponse = await this.getBrawlers();
+    const brawlerItemsResponse = await this.getBrawlerItems();
 
     await firstValueFrom(
       this.httpService.get('/brawlers').pipe(
         map((res) => {
           res.data.items.map((brawler: BrawlerType) => {
+            const brawlerData = brawlersResponse.find(
+              (item) => item?.id === brawler.id,
+            );
+
             brawlers.push({
               id: brawler.id,
               name: brawler.name,
-              rarity:
-                brawlersResponse.items.find(
-                  (item) => String(item?.id) === String(brawler.id),
-                )?.rarity || null,
-              role:
-                brawlersResponse.items.find(
-                  (item) => String(item?.id) === String(brawler.id),
-                )?.class || null,
-              gender:
-                brawlersResponse.items.find(
-                  (item) => String(item?.id) === String(brawler.id),
-                )?.gender || null,
-              icon:
-                brawlersResponse.items.find(
-                  (item) => item?.id.toString() === brawler.id,
-                )?.icon || null,
+              rarity: brawlerData?.rarity || null,
+              role: brawlerData?.role || null,
+              gender: brawlerData?.gender || null,
+              icon: brawlerData?.icon || null,
+            });
+
+            brawlerSkills.push({
+              brawlerID: brawler.id,
+              values: brawlerData.skill,
             });
 
             brawler.starPowers.map((starPower: BrawlerItemType) => {
@@ -66,6 +71,9 @@ export default class BrawlersService {
                 brawlerID: brawler.id,
                 kind: 'starPower',
                 name: starPower.name,
+                values: brawlerItemsResponse.find(
+                  (item) => item.id === starPower.id,
+                ).values,
               });
             });
 
@@ -75,6 +83,9 @@ export default class BrawlersService {
                 brawlerID: brawler.id,
                 kind: 'gadget',
                 name: gadget.name,
+                values: brawlerItemsResponse.find(
+                  (item) => item.id === gadget.id,
+                ).values,
               });
             });
           });
@@ -83,6 +94,7 @@ export default class BrawlersService {
     );
 
     await this.brawlers.upsert(brawlers, ['id']);
+    await this.brawlerSkills.upsert(brawlerSkills, ['brawlerID']);
     await this.brawlerItems.upsert(brawlerItems, ['id', 'brawlerID']);
   }
 
@@ -136,6 +148,19 @@ export default class BrawlersService {
       return response.data;
     } catch (error) {
       Logger.error(error, 'getBrawlers');
+    }
+  }
+
+  private async getBrawlerItems() {
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get('database/brawler_items.json', {
+          baseURL: this.configService.getCdnUrl(),
+        }),
+      );
+      return response.data;
+    } catch (error) {
+      Logger.error(error, 'getBrawlerItems');
     }
   }
 }

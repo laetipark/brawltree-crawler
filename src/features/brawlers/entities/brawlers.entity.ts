@@ -60,6 +60,9 @@ export class Brawlers extends BaseEntity {
   @OneToMany(() => BrawlerItems, (brawler) => brawler.brawler)
   brawlerItems: BrawlerItems[];
 
+  @OneToMany(() => BrawlerSkills, (brawler) => brawler.brawler)
+  brawlerSkills: BrawlerSkills[];
+
   @OneToMany(() => BattleStats, (brawler) => brawler.brawler)
   battleStats: BattleStats[];
 
@@ -90,8 +93,24 @@ export class BrawlerItems extends SoftDeleteEntity {
   @Column({ type: 'varchar', length: 30 })
   name: string;
 
+  @Column({ type: 'json' })
+  values: object;
+
   @OneToMany(() => UserBrawlerItems, (brawler) => brawler.brawlerItem)
   userBrawlerItems: UserBrawlerItems[];
+
+  @ManyToOne(() => Brawlers, (brawler) => brawler.brawlerItems)
+  @JoinColumn({ name: 'brawler_id', referencedColumnName: 'id' })
+  brawler: Brawlers;
+}
+
+@Entity({ name: 'brawler_skills' })
+export class BrawlerSkills extends SoftDeleteEntity {
+  @PrimaryColumn({ name: 'brawler_id', type: 'char', length: 8 })
+  brawlerID: string;
+
+  @Column({ type: 'json' })
+  values: object;
 
   @ManyToOne(() => Brawlers, (brawler) => brawler.brawlerItems)
   @JoinColumn({ name: 'brawler_id', referencedColumnName: 'id' })

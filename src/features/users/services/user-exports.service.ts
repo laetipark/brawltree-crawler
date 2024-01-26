@@ -17,6 +17,8 @@ import { UserBattles } from '~/users/entities/user-battles.entity';
 import { UserProfile } from '~/users/entities/user-profile.entity';
 import { BrawlerItems } from '~/brawlers/entities/brawlers.entity';
 import { SeasonDto } from '~/season/dto/season.dto';
+import { CreateBrawlerItemDto } from '~/brawlers/dto/create-brawler-item.dto';
+import AppConfigService from '~/utils/services/app-config.service';
 
 export default class UserExportsService {
   constructor(
@@ -37,6 +39,7 @@ export default class UserExportsService {
     private readonly brawlerItems: Repository<BrawlerItems>,
     private readonly userBattlesService: UserBattlesService,
     private readonly seasonsService: SeasonService,
+    private readonly configService: AppConfigService,
     private readonly httpService: HttpService,
   ) {}
 
@@ -164,7 +167,7 @@ export default class UserExportsService {
       // 사용자 브롤러와 사용자 브롤러 아이템 정보 저장
       const brawlers = [];
       const brawlerItems = [];
-      const brawlerGears = [];
+      const brawlerGears: CreateBrawlerItemDto[] = [];
 
       user.brawlers.map(async (brawler) => {
         const brawlerID = brawler.id;
@@ -188,6 +191,13 @@ export default class UserExportsService {
         const gears = brawler.gears;
         const starPowers = brawler.starPowers;
         const gadgets = brawler.gadgets;
+        const brawlerItemAssets = (
+          await firstValueFrom(
+            this.httpService.get('database/brawler_items.json', {
+              baseURL: this.configService.getCdnUrl(),
+            }),
+          )
+        ).data;
 
         gears.map(async ({ id, name }) => {
           brawlerItems.push({
@@ -200,6 +210,7 @@ export default class UserExportsService {
             brawlerID: brawlerID,
             kind: 'gear',
             name: name,
+            values: brawlerItemAssets.find((item) => item.id === id).values,
           });
         });
 

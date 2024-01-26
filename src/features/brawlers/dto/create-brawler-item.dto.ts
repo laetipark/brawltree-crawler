@@ -1,4 +1,4 @@
-import { IsString } from 'class-validator';
+import { IsJSON, IsString } from 'class-validator';
 
 export class CreateBrawlerItemDto {
   @IsString()
@@ -12,4 +12,7 @@ export class CreateBrawlerItemDto {
 
   @IsString()
   name: string;
+
+  @IsJSON()
+  values: object;
 }
