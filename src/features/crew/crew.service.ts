@@ -171,14 +171,16 @@ export default class CrewService {
           });
       }),
     );
+    console.log(friends);
 
     friends &&
-      (await this.userFriends
-        .createQueryBuilder()
-        .insert()
-        .values(friends)
-        .orIgnore()
-        .execute());
+      (await this.userFriends.upsert(friends, [
+        'userID',
+        'matchType',
+        'matchGrade',
+        'mode',
+        'friendID',
+      ]));
   }
 
   /** Blossom Members UserRecords update
@@ -237,12 +239,12 @@ export default class CrewService {
     );
 
     records &&
-      (await this.userRecords
-        .createQueryBuilder()
-        .insert()
-        .values(records)
-        .orIgnore()
-        .execute());
+      (await this.userRecords.upsert(records, [
+        'userID',
+        'matchType',
+        'matchGrade',
+        'mode',
+      ]));
   }
 
   async updateSeason() {

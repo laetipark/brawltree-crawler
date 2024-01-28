@@ -13,24 +13,30 @@ export class Brawltree1700655045629 implements MigrationInterface {
                                  \`created_at\`  timestamp                                                    NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                  \`updated_at\`  timestamp                                                    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                                  PRIMARY KEY (\`id\`)
-                             ) ENGINE = InnoDB
-                               DEFAULT CHARSET = utf8mb4
-                               COLLATE = utf8mb4_unicode_ci;`);
+                             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`);
 
-    await queryRunner.query(`CREATE TABLE \`brawler_items\`
+    await queryRunner.query(`CREATE TABLE \`brawler_skills\`
                              (
-                                 \`id\`         char(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci     NOT NULL,
-                                 \`brawler_id\` char(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci     NOT NULL,
-                                 \`kind\`       varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-                                 \`name\`       varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-                                 \`values\`     json                                                                  DEFAULT NULL,
-                                 \`created_at\` timestamp                                                    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                 \`updated_at\` timestamp                                                    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                 \`brawler_id\` char(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+                                 \`values\`     json                                                              DEFAULT NULL,
+                                 \`created_at\` timestamp                                                NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                 \`updated_at\` timestamp                                                NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                                  \`deleted_at\` timestamp NULL DEFAULT NULL,
-                                 PRIMARY KEY (\`id\`, \`brawler_id\`),
+                                 PRIMARY KEY (\`brawler_id\`),
                                  KEY            \`brawler_items_brawler_id_idx\` (\`brawler_id\`) USING BTREE,
-                                 KEY            \`brawler_items_kind_idx\` (\`kind\`) USING BTREE,
-                                 CONSTRAINT \`brawler_items_fk1\` FOREIGN KEY (\`brawler_id\`) REFERENCES \`brawlers\` (\`id\`) ON DELETE CASCADE
+                                 CONSTRAINT \`brawler_skills_brawlers_fk1\` FOREIGN KEY (\`brawler_id\`) REFERENCES \`brawlers\` (\`id\`) ON DELETE CASCADE
+                             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`);
+
+    await queryRunner.query(`CREATE TABLE \`brawler_skills\`
+                             (
+                                 \`brawler_id\` char(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+                                 \`values\`     json                                                              DEFAULT NULL,
+                                 \`created_at\` timestamp                                                NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                 \`updated_at\` timestamp                                                NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                 \`deleted_at\` timestamp NULL DEFAULT NULL,
+                                 PRIMARY KEY (\`brawler_id\`),
+                                 KEY            \`brawler_items_brawler_id_idx\` (\`brawler_id\`) USING BTREE,
+                                 CONSTRAINT \`brawler_skills_brawlers_fk1\` FOREIGN KEY (\`brawler_id\`) REFERENCES \`brawlers\` (\`id\`) ON DELETE CASCADE
                              ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`);
 
     await queryRunner.query(`CREATE TABLE \`maps\`
@@ -41,9 +47,7 @@ export class Brawltree1700655045629 implements MigrationInterface {
                                  \`created_at\` timestamp                                                    NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                  \`updated_at\` timestamp                                                    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                                  PRIMARY KEY (\`id\`)
-                             ) ENGINE = InnoDB
-                               DEFAULT CHARSET = utf8mb4
-                               COLLATE = utf8mb4_unicode_ci;`);
+                             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`);
 
     await queryRunner.query(`CREATE TABLE \`map_rotation\`
                              (
@@ -51,9 +55,7 @@ export class Brawltree1700655045629 implements MigrationInterface {
                                  \`is_trophy_league\` tinyint(1) DEFAULT NULL,
                                  \`is_power_league\`  tinyint(1) DEFAULT NULL,
                                  PRIMARY KEY (\`map_id\`)
-                             ) ENGINE = InnoDB
-                               DEFAULT CHARSET = utf8mb4
-                               COLLATE = utf8mb4_unicode_ci;`);
+                             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`);
 
     await queryRunner.query(`CREATE TABLE \`events\`
                              (
@@ -65,9 +67,7 @@ export class Brawltree1700655045629 implements MigrationInterface {
                                  PRIMARY KEY (\`id\`, \`start_time\`),
                                  KEY            \`events_fk1\` (\`map_id\`),
                                  CONSTRAINT \`events_fk1\` FOREIGN KEY (\`map_id\`) REFERENCES \`maps\` (\`id\`)
-                             ) ENGINE = InnoDB
-                               DEFAULT CHARSET = utf8mb4
-                               COLLATE = utf8mb4_unicode_ci;`);
+                             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`);
 
     await queryRunner.query(`CREATE TABLE \`users\`
                              (
@@ -80,9 +80,7 @@ export class Brawltree1700655045629 implements MigrationInterface {
                                  \`updated_at\`      timestamp                                                    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                                  \`deleted_at\`      timestamp NULL DEFAULT NULL,
                                  PRIMARY KEY (\`id\`)
-                             ) ENGINE = InnoDB
-                               DEFAULT CHARSET = utf8mb4
-                               COLLATE = utf8mb4_unicode_ci;`);
+                             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`);
 
     await queryRunner.query(`CREATE TABLE \`user_profile\`
                              (
@@ -139,13 +137,11 @@ export class Brawltree1700655045629 implements MigrationInterface {
                                  KEY                     \`user_battles_battle_time_idx\` (\`battle_time\` DESC),
                                  KEY                     \`user_battles_match_type_idx\` (\`match_type\`) USING BTREE,
                                  KEY                     \`user_battles_map_id_idx\` (\`map_id\`) USING BTREE,
-                                 KEY                     \`user_battles_brawler_trophy_begin_idx\` (\`brawler_id\`, \`battle_time\`) USING BTREE,
-                                 KEY                     \`user_battles_battle_trio_idx\` (\`battle_time\` DESC, \`team_number\`) USING BTREE,
+                                 KEY                     \`user_battles_brawler_trophy_begin_idx\` (\`brawler_id\`,\`battle_time\`) USING BTREE,
+                                 KEY                     \`user_battles_battle_trio_idx\` (\`battle_time\` DESC,\`team_number\`) USING BTREE,
                                  CONSTRAINT \`user_battles_fk1\` FOREIGN KEY (\`user_id\`) REFERENCES \`users\` (\`id\`) ON DELETE CASCADE ON UPDATE RESTRICT,
                                  CONSTRAINT \`user_battles_fk2\` FOREIGN KEY (\`brawler_id\`) REFERENCES \`brawlers\` (\`id\`) ON DELETE CASCADE ON UPDATE RESTRICT
-                             ) ENGINE = InnoDB
-                               DEFAULT CHARSET = utf8mb4
-                               COLLATE = utf8mb4_unicode_ci;`);
+                             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`);
 
     await queryRunner.query(`CREATE TABLE \`user_brawlers\`
                              (
@@ -181,9 +177,7 @@ export class Brawltree1700655045629 implements MigrationInterface {
                                  KEY                 \`user_brawler_battles_fk2\` (\`map_id\`),
                                  CONSTRAINT \`user_brawler_battles_fk1\` FOREIGN KEY (\`brawler_id\`) REFERENCES \`brawlers\` (\`id\`) ON DELETE CASCADE,
                                  CONSTRAINT \`user_brawler_battles_fk2\` FOREIGN KEY (\`map_id\`) REFERENCES \`maps\` (\`id\`) ON DELETE CASCADE
-                             ) ENGINE = InnoDB
-                               DEFAULT CHARSET = utf8mb4
-                               COLLATE = utf8mb4_unicode_ci;`);
+                             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`);
 
     await queryRunner.query(`CREATE TABLE \`user_brawler_items\`
                              (
@@ -194,12 +188,10 @@ export class Brawltree1700655045629 implements MigrationInterface {
                                  \`updated_at\` timestamp                                                    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                                  PRIMARY KEY (\`user_id\`, \`brawler_id\`, \`item_id\`),
                                  KEY            \`user_brawler_items_fk1\` (\`brawler_id\`),
-                                 KEY            \`user_brawler_items_fk2\` (\`item_id\`, \`brawler_id\`),
+                                 KEY            \`user_brawler_items_fk2\` (\`item_id\`,\`brawler_id\`),
                                  CONSTRAINT \`user_brawler_items_fk1\` FOREIGN KEY (\`brawler_id\`) REFERENCES \`brawlers\` (\`id\`) ON DELETE CASCADE ON UPDATE RESTRICT,
                                  CONSTRAINT \`user_brawler_items_fk2\` FOREIGN KEY (\`item_id\`, \`brawler_id\`) REFERENCES \`brawler_items\` (\`id\`, \`brawler_id\`) ON DELETE CASCADE
-                             ) ENGINE = InnoDB
-                               DEFAULT CHARSET = utf8mb4
-                               COLLATE = utf8mb4_unicode_ci;`);
+                             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`);
 
     await queryRunner.query(`CREATE TABLE \`battle_stats\`
                              (
@@ -216,9 +208,7 @@ export class Brawltree1700655045629 implements MigrationInterface {
                                  PRIMARY KEY (\`map_id\`, \`brawler_id\`, \`match_type\`, \`match_grade\`),
                                  KEY                 \`battle_stats_fk1\` (\`brawler_id\`),
                                  CONSTRAINT \`battle_stats_fk1\` FOREIGN KEY (\`brawler_id\`) REFERENCES \`brawlers\` (\`id\`) ON DELETE CASCADE
-                             ) ENGINE = InnoDB
-                               DEFAULT CHARSET = utf8mb4
-                               COLLATE = utf8mb4_unicode_ci;`);
+                             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;`);
 
     await queryRunner.query(`CREATE TABLE \`user_friends\`
                              (
@@ -275,6 +265,7 @@ export class Brawltree1700655045629 implements MigrationInterface {
     await queryRunner.query(`DROP TABLE \`map_rotation\`;`);
     await queryRunner.query(`DROP TABLE \`maps\`;`);
     await queryRunner.query(`DROP TABLE \`brawler_items\`;`);
+    await queryRunner.query(`DROP TABLE \`brawler_skills\`;`);
     await queryRunner.query(`DROP TABLE \`brawlers\`;`);
   }
 }
