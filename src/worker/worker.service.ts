@@ -31,7 +31,6 @@ export default class WorkerService {
         battleLogs,
         response.id,
       );
-      await this.sleep(2000);
     } catch (error) {
       Logger.error(`${error}: ${errorStack}`, 'Worker');
       if (error.status === 404) {
@@ -71,6 +70,7 @@ export default class WorkerService {
     const fetchUsers = async (users: string[]) => {
       for (const user of users) {
         await this.updateUser(user, 0);
+        await this.sleep(5000);
       }
     };
 

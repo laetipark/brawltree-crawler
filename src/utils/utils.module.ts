@@ -3,8 +3,7 @@ import DateService from '~/utils/services/date.service';
 import AppConfigService from '~/utils/services/app-config.service';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import http from 'http';
-import https from 'https';
+import * as https from 'https';
 import AppConfig from '~/config/app.config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -28,9 +27,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       useFactory: async (configService: ConfigService) => ({
         baseURL: configService.get<string>('axios.baseURL'),
         headers: configService.get<any>('axios.headers'),
-        httpAgent: new http.Agent({ keepAlive: true }),
         httpsAgent: new https.Agent({
-          keepAlive: true,
           maxSockets: 5,
           timeout: 300000,
         }),
