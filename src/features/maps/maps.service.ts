@@ -155,6 +155,9 @@ export default class MapsService {
       await firstValueFrom(
         this.httpService.get('/database/trophy_league.json', {
           baseURL: this.configService.getCdnUrl(),
+          headers: {
+            'Content-Type': 'application/json',
+          },
         }),
       )
     ).data.type;
@@ -207,6 +210,9 @@ export default class MapsService {
       const response = await firstValueFrom(
         this.httpService.get('/database/power_league.json', {
           baseURL: this.configService.getCdnUrl(),
+          headers: {
+            'Content-Type': 'application/json',
+          },
         }),
       );
       return response.data;

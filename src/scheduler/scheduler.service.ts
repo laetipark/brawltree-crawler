@@ -59,8 +59,9 @@ export class SchedulerService {
   async updateSeason() {
     this.season = this.seasonsService.getRecentSeason();
     await this.crewService.updateSeason();
-    await this.brawlersService.updateSeason();
     await this.usersService.updateSeason();
+    await this.brawlersService.updateSeason();
+    await this.brawlersService.updateBattleStats();
     Logger.log('Season Data Updated', 'UpdateSeason');
   }
 

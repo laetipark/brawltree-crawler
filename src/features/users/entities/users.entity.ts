@@ -3,7 +3,7 @@ import { SoftDeleteEntity } from '~/database/entities/base.entity';
 import { UserProfile } from '~/users/entities/user-profile.entity';
 import { UserBattles } from '~/users/entities/user-battles.entity';
 import { UserBrawlers } from './user-brawlers.entity';
-import { UserFriends, UserRecords } from '../../crew/entities/crew.entity';
+import { UserFriends, UserRecords } from '~/crew/entities/crew.entity';
 
 @Entity({ name: 'users' })
 export class Users extends SoftDeleteEntity {

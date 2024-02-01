@@ -18,9 +18,12 @@ import { UserProfile } from '~/users/entities/user-profile.entity';
 import { BrawlerItems } from '~/brawlers/entities/brawlers.entity';
 import { SeasonDto } from '~/season/dto/season.dto';
 import { CreateBrawlerItemDto } from '~/brawlers/dto/create-brawler-item.dto';
-import AppConfigService from '~/utils/services/app-config.service';
+import BrawlersService from '~/brawlers/brawlers.service';
+import { Cron } from '@nestjs/schedule';
 
 export default class UserExportsService {
+  private brawlerItemsData = [];
+
   constructor(
     private readonly dataSource: DataSource,
     @InjectRepository(Users)
@@ -38,10 +41,12 @@ export default class UserExportsService {
     @InjectRepository(BrawlerItems)
     private readonly brawlerItems: Repository<BrawlerItems>,
     private readonly userBattlesService: UserBattlesService,
+    private readonly brawlersService: BrawlersService,
     private readonly seasonsService: SeasonService,
-    private readonly configService: AppConfigService,
     private readonly httpService: HttpService,
-  ) {}
+  ) {
+    this.updateBrawlerItems().then(() => {});
+  }
 
   /** 사용자 프로필 반환
    * @param userID 사용자 ID */
@@ -191,13 +196,7 @@ export default class UserExportsService {
         const gears = brawler.gears;
         const starPowers = brawler.starPowers;
         const gadgets = brawler.gadgets;
-        const brawlerItemAssets = (
-          await firstValueFrom(
-            this.httpService.get('database/brawler_items.json', {
-              baseURL: this.configService.getCdnUrl(),
-            }),
-          )
-        ).data;
+        const brawlerItemAssets = this.brawlerItemsData;
 
         gears.map(async ({ id, name }) => {
           brawlerItems.push({
@@ -321,6 +320,11 @@ export default class UserExportsService {
         ids: battleTimes.length > 0 ? battleTimes : ['2000-01-01 18:00:00'],
       })
       .execute();
+  }
+
+  @Cron('30 * * * *')
+  async updateBrawlerItems() {
+    this.brawlerItemsData = await this.brawlersService.getBrawlerItems();
   }
 
   private async updateUserBrawlerItems({ brawlerGears, brawlerItems }) {

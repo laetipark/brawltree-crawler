@@ -171,7 +171,6 @@ export default class CrewService {
           });
       }),
     );
-    console.log(friends);
 
     friends &&
       (await this.userFriends.upsert(friends, [

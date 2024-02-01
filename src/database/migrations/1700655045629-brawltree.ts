@@ -120,7 +120,7 @@ export class Brawltree1700655045629 implements MigrationInterface {
                                  \`mode_code\`           tinyint                                                      NOT NULL,
                                  \`match_type\`          tinyint                                                      NOT NULL,
                                  \`match_grade\`         tinyint                                                      NOT NULL,
-                                 \`duration\`            tinyint unsigned DEFAULT NULL,
+                                 \`duration\`            smallint unsigned DEFAULT NULL,
                                  \`game_rank\`           tinyint                                                               DEFAULT NULL,
                                  \`game_result\`         tinyint                                                      NOT NULL,
                                  \`trophy_change\`       tinyint                                                      NOT NULL,

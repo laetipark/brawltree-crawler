@@ -138,29 +138,35 @@ export default class BrawlersService {
     await this.battleStats.delete({});
   }
 
-  private async getBrawlers() {
+  async getBrawlerItems() {
     try {
       const response = await firstValueFrom(
-        this.httpService.get('/database/brawlers.json', {
+        this.httpService.get('/database/brawler_items.json', {
           baseURL: this.configService.getCdnUrl(),
-        }),
-      );
-      return response.data;
-    } catch (error) {
-      Logger.error(error, 'getBrawlers');
-    }
-  }
-
-  private async getBrawlerItems() {
-    try {
-      const response = await firstValueFrom(
-        this.httpService.get('database/brawler_items.json', {
-          baseURL: this.configService.getCdnUrl(),
+          headers: {
+            'Content-Type': 'application/json',
+          },
         }),
       );
       return response.data;
     } catch (error) {
       Logger.error(error, 'getBrawlerItems');
+    }
+  }
+
+  private async getBrawlers() {
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get('/database/brawlers.json', {
+          baseURL: this.configService.getCdnUrl(),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }),
+      );
+      return response.data;
+    } catch (error) {
+      Logger.error(error, 'getBrawlers');
     }
   }
 }
