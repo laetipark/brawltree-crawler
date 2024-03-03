@@ -3,8 +3,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { firstValueFrom } from 'rxjs';
-import AppConfigService from '~/utils/services/app-config.service';
-import DateService from '~/utils/services/date.service';
+import { UtilConfigService } from '~/utils/config/services/util-config.service';
+import { DateService } from '~/utils/config/services/date.service';
 
 import { Events } from '~/maps/entities/events.entity';
 import { Maps } from '~/maps/entities/maps.entity';
@@ -24,7 +24,7 @@ export default class MapsService {
     @InjectRepository(MapRotation)
     private readonly mapRotation: Repository<MapRotation>,
     private readonly dateService: DateService,
-    private readonly configService: AppConfigService,
+    private readonly configService: UtilConfigService,
     private readonly httpService: HttpService,
   ) {}
 
@@ -112,7 +112,7 @@ export default class MapsService {
       );
       const maps = responseEvent.data;
 
-      maps.map((item: any) => {
+      maps.map(async (item: any) => {
         const mapID = item.event.id;
         const mapMode = item.event.mode;
         const mapName = item.event.map;
@@ -123,7 +123,7 @@ export default class MapsService {
 
         const slotID = item.slotId;
 
-        this.maps.upsert(
+        await this.maps.upsert(
           {
             id: mapID,
             mode: mapMode,
@@ -132,7 +132,7 @@ export default class MapsService {
           ['id'],
         );
 
-        this.events.upsert(
+        await this.events.upsert(
           {
             id: slotID,
             startTime: beginTime,
@@ -197,12 +197,14 @@ export default class MapsService {
     this.mapArray = [];
   }
 
-  setMaps(createMapDtos: CreateMapDto[]) {
+  async setMaps(createMapDtos: CreateMapDto[]) {
     this.mapArray = this.mapArray.concat(
       createMapDtos.filter(
         (item2) => !this.mapArray.some((item1) => item1.id === item2.id),
       ),
     );
+
+    await this.insertMaps();
   }
 
   private async getRotationPL() {

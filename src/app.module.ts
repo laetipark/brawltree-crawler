@@ -6,8 +6,12 @@ import { BrawlersModule } from '~/brawlers/brawlers.module';
 import { MapsModule } from '~/maps/maps.module';
 import { SeasonModule } from '~/season/season.module';
 import { CrewModule } from '~/crew/crew.module';
-import { UtilsModule } from '~/utils/utils.module';
 import { SchedulerModule } from '~/scheduler/scheduler.module';
+import { UtilTypeOrmModule } from '~/utils/typeorm/typeorm.module';
+import { UtilAxiosModule } from '~/utils/axios/axios.module';
+import { UtilCacheModule } from '~/utils/cache/cache.module';
+import { UtilConfigModule } from '~/utils/config/config.module';
+import { UtilScheduleModule } from '~/utils/schedule/schedule.module';
 
 @Module({
   controllers: [AppController],
@@ -18,7 +22,11 @@ import { SchedulerModule } from '~/scheduler/scheduler.module';
     MapsModule,
     SeasonModule,
     SchedulerModule,
-    UtilsModule,
+    UtilAxiosModule,
+    UtilCacheModule,
+    UtilConfigModule,
+    UtilScheduleModule,
+    UtilTypeOrmModule,
   ],
   providers: [AppService],
 })

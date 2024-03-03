@@ -6,8 +6,9 @@ import { Events } from '~/maps/entities/events.entity';
 import { Brawlers } from '~/brawlers/entities/brawlers.entity';
 import MapsService from '~/maps/maps.service';
 import { BattleStats } from '~/brawlers/entities/battle-stats.entity';
-import { UtilsModule } from '~/utils/utils.module';
 import { MapRotation } from '~/maps/entities/map-rotation.entity';
+import { UtilConfigModule } from '~/utils/config/config.module';
+import { UtilAxiosModule } from '~/utils/axios/axios.module';
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { MapRotation } from '~/maps/entities/map-rotation.entity';
       MapRotation,
       Events,
     ]),
-    UtilsModule,
+    UtilConfigModule,
+    UtilAxiosModule,
   ],
   providers: [MapsService],
   exports: [MapsService],

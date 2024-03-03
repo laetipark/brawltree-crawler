@@ -1,4 +1,4 @@
-export default class DateService {
+export class DateService {
   getDate(date: string): Date {
     return new Date(
       Date.UTC(

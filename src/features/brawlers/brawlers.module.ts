@@ -9,7 +9,8 @@ import { UserBattles } from '~/users/entities/user-battles.entity';
 import BrawlersService from '~/brawlers/brawlers.service';
 import { BattleStats } from '~/brawlers/entities/battle-stats.entity';
 import { Maps } from '~/maps/entities/maps.entity';
-import { UtilsModule } from '~/utils/utils.module';
+import { UtilConfigModule } from '~/utils/config/config.module';
+import { UtilAxiosModule } from '~/utils/axios/axios.module';
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { UtilsModule } from '~/utils/utils.module';
       Maps,
       UserBattles,
     ]),
-    UtilsModule,
+    UtilAxiosModule,
+    UtilConfigModule,
   ],
   providers: [BrawlersService],
   exports: [BrawlersService],

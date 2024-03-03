@@ -16,7 +16,7 @@ import { UserProfile } from '~/users/entities/user-profile.entity';
 import { UserBattles } from '~/users/entities/user-battles.entity';
 import { UsersModule } from '~/users/users.module';
 import { MapsModule } from '~/maps/maps.module';
-import { UtilsModule } from '~/utils/utils.module';
+import { UtilAxiosModule } from '~/utils/axios/axios.module';
 
 @Module({
   imports: [
@@ -35,7 +35,7 @@ import { UtilsModule } from '~/utils/utils.module';
     ]),
     UsersModule,
     MapsModule,
-    UtilsModule,
+    UtilAxiosModule,
   ],
   providers: [CrewService],
   exports: [CrewService],

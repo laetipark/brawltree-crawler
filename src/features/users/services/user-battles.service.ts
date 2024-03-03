@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 
 import MapsService from '~/maps/maps.service';
-import DateService from '~/utils/services/date.service';
-import AppConfigService from '~/utils/services/app-config.service';
+import { DateService } from '~/utils/config/services/date.service';
+import { UtilConfigService } from '~/utils/config/services/util-config.service';
 import { Users } from '~/users/entities/users.entity';
 import { UserBattles } from '~/users/entities/user-battles.entity';
 import { UserBrawlerBattles } from '~/users/entities/user-brawlers.entity';
@@ -35,7 +35,7 @@ export default class UserBattlesService {
     private readonly mapsService: MapsService,
     private readonly dateService: DateService,
     private readonly seasonsService: SeasonService,
-    private readonly configService: AppConfigService,
+    private readonly configService: UtilConfigService,
   ) {}
 
   /** 사용자 브롤러 전투 정보 업데이트
@@ -343,7 +343,7 @@ export default class UserBattlesService {
 
         // 맵 정보 추가
         const mapIDs = Array.from(new Set(maps.map((item) => item.id)));
-        this.mapsService.setMaps(
+        await this.mapsService.setMaps(
           mapIDs.map((id) => maps.find((item) => item.id === id)),
         );
 

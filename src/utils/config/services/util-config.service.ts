@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { ModeClassType } from '~/common/types/mode-class.type';
 
 @Injectable()
-export default class AppConfigService {
+export class UtilConfigService {
   constructor(private readonly configService: ConfigService) {}
 
   /** 게임 모드 반환 */

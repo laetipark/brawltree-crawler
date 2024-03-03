@@ -35,11 +35,11 @@ export class SchedulerService {
     Logger.log('Brawlers Data Updated', 'UpdateBrawlers');
   }
 
-  @Cron('30 * * * *')
-  async updateMaps() {
-    await this.mapsService.insertMaps();
-    Logger.log('Maps Data Updated', 'UpdateMaps');
-  }
+  // @Cron('30 * * * *')
+  // async updateMaps() {
+  //   await this.mapsService.insertMaps();
+  //   Logger.log('Maps Data Updated', 'UpdateMaps');
+  // }
 
   @Cron('0 * * * *')
   async updateRotation() {

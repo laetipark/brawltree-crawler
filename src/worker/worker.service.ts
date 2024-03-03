@@ -32,7 +32,7 @@ export default class WorkerService {
         response.id,
       );
     } catch (error) {
-      Logger.error(`${error}: ${errorStack}`, 'Worker');
+      Logger.error(`${error}, ${userID}: ${errorStack}`, 'Worker');
       if (error.status === 404) {
         if (errorStack > 10) {
           this.userExportsService.deleteUser(userID);

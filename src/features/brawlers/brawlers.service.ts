@@ -15,7 +15,7 @@ import { Maps } from '~/maps/entities/maps.entity';
 import { CreateBrawlerDto } from '~/brawlers/dto/create-brawler.dto';
 import { CreateBrawlerItemDto } from '~/brawlers/dto/create-brawler-item.dto';
 import { BrawlerItemType, BrawlerType } from '~/common/types/brawler.type';
-import AppConfigService from '~/utils/services/app-config.service';
+import { UtilConfigService } from '~/utils/config/services/util-config.service';
 import { CreateBrawlerSkillDto } from '~/brawlers/dto/create-brawler-skill.dto';
 
 @Injectable()
@@ -31,7 +31,7 @@ export default class BrawlersService {
     private readonly brawlerSkills: Repository<BrawlerSkills>,
     @InjectRepository(UserBattles)
     private readonly userBattles: Repository<UserBattles>,
-    private readonly configService: AppConfigService,
+    private readonly configService: UtilConfigService,
     private readonly httpService: HttpService,
   ) {}
 
@@ -62,7 +62,7 @@ export default class BrawlersService {
 
             brawlerSkills.push({
               brawlerID: brawler.id,
-              values: brawlerData.skill,
+              values: brawlerData?.skill || null,
             });
 
             brawler.starPowers.map((starPower: BrawlerItemType) => {
@@ -71,9 +71,9 @@ export default class BrawlersService {
                 brawlerID: brawler.id,
                 kind: 'starPower',
                 name: starPower.name,
-                values: brawlerItemsResponse.find(
-                  (item) => item.id === starPower.id,
-                ).values,
+                values:
+                  brawlerItemsResponse.find((item) => item.id === starPower.id)
+                    ?.values || null,
               });
             });
 
@@ -83,9 +83,9 @@ export default class BrawlersService {
                 brawlerID: brawler.id,
                 kind: 'gadget',
                 name: gadget.name,
-                values: brawlerItemsResponse.find(
-                  (item) => item.id === gadget.id,
-                ).values,
+                values:
+                  brawlerItemsResponse.find((item) => item.id === gadget.id)
+                    ?.values || null,
               });
             });
           });
