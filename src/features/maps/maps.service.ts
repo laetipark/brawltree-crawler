@@ -1,6 +1,8 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, Logger } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Cache } from 'cache-manager';
 import { DataSource, Repository } from 'typeorm';
 import { firstValueFrom } from 'rxjs';
 import { UtilConfigService } from '~/utils/config/services/util-config.service';
@@ -13,7 +15,7 @@ import { CreateMapDto } from '~/maps/dto/create-map.dto';
 
 @Injectable()
 export default class MapsService {
-  private mapArray: CreateMapDto[] = [];
+  private addMaps: CreateMapDto[] = [];
 
   constructor(
     private readonly dataSource: DataSource,
@@ -23,6 +25,7 @@ export default class MapsService {
     private readonly maps: Repository<Maps>,
     @InjectRepository(MapRotation)
     private readonly mapRotation: Repository<MapRotation>,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly dateService: DateService,
     private readonly configService: UtilConfigService,
     private readonly httpService: HttpService,
@@ -192,19 +195,62 @@ export default class MapsService {
       .execute();
   }
 
-  async insertMaps() {
-    await this.maps.upsert(this.mapArray, ['id']);
-    this.mapArray = [];
+  async upsertMaps() {
+    const maps = await this.cacheManager.get<CreateMapDto[]>('maps');
+    const mapList = await this.cacheManager.get<CreateMapDto[]>('addMaps');
+
+    if (mapList) {
+      if (maps) {
+        await this.cacheManager.set(
+          'maps',
+          maps.concat(
+            mapList.filter(
+              (item2) => !maps.some((item1) => item1.id === String(item2.id)),
+            ),
+          ),
+        );
+      } else {
+        await this.cacheManager.set('maps', mapList);
+      }
+
+      await this.maps.upsert(mapList, ['id']);
+      await this.cacheManager.del('addMaps');
+    }
   }
 
   async setMaps(createMapDtos: CreateMapDto[]) {
-    this.mapArray = this.mapArray.concat(
-      createMapDtos.filter(
-        (item2) => !this.mapArray.some((item1) => item1.id === item2.id),
-      ),
-    );
+    const maps = await this.cacheManager.get<CreateMapDto[]>('maps');
+    const mapList = await this.cacheManager.get<CreateMapDto[]>('addMaps');
 
-    await this.insertMaps();
+    if (mapList) {
+      await this.cacheManager.set(
+        'addMaps',
+        mapList.concat(
+          createMapDtos.filter((item2) => {
+            console.log(!mapList.some((item1) => item1.id === item2.id));
+            console.log(!maps.some((item1) => item1.id === String(item2.id)));
+            return (
+              !mapList.some((item1) => item1.id === item2.id) &&
+              !maps.some((item1) => item1.id === String(item2.id))
+            );
+          }),
+        ),
+      );
+    } else {
+      const addMaps = createMapDtos.concat(
+        createMapDtos.filter(
+          (item2) => !maps.some((item1) => item1.id === String(item2.id)),
+        ),
+      );
+
+      addMaps && (await this.cacheManager.set('addMaps', addMaps));
+    }
+  }
+
+  async updateMaps() {
+    const maps = await this.maps.find();
+    await this.cacheManager.set('maps', maps);
+    console.log(maps);
   }
 
   private async getRotationPL() {

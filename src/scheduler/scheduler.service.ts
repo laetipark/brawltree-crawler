@@ -19,27 +19,36 @@ export class SchedulerService {
     private readonly usersService: UserExportsService,
   ) {
     this.season = this.seasonsService.getRecentSeason();
+    this.updateMaps().then(() => {
+      Logger.log('Maps Data Initialized', 'Maps');
+    });
     this.updateBrawlers().then(() => {
       Logger.log('Brawler Data Initialized', 'Brawlers');
     });
     this.updateRotation().then(() => {
-      Logger.log('Maps Data Initialized', 'Maps');
+      Logger.log('Maps Data Initialized', 'Rotation');
     });
   }
 
   /** 브롤러 관련 정보 주기적 갱신 */
-  @Cron('0 0 * * *')
+  @Cron('0 0-23/6 * * *')
   async updateBrawlers() {
     await this.brawlersService.insertBrawler();
     await this.brawlersService.updateBattleStats();
     Logger.log('Brawlers Data Updated', 'UpdateBrawlers');
   }
 
-  // @Cron('30 * * * *')
-  // async updateMaps() {
-  //   await this.mapsService.insertMaps();
-  //   Logger.log('Maps Data Updated', 'UpdateMaps');
-  // }
+  @Cron('0 * * * *')
+  async upsertMaps() {
+    await this.mapsService.upsertMaps();
+    Logger.log('Maps Data Updated', 'UpsertMaps');
+  }
+
+  @Cron('0 0 * * *')
+  async updateMaps() {
+    await this.mapsService.updateMaps();
+    Logger.log('Maps Data Updated', 'UpdateMaps');
+  }
 
   @Cron('0 * * * *')
   async updateRotation() {

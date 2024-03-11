@@ -11,9 +11,19 @@ module.exports = {
       },
     },
     {
-      name: 'brawltree-crawler',
+      name: 'brawltree-worker',
       script: 'node',
-      args: 'dist/crawler.js',
+      args: 'dist/worker.js',
+      autorestart: false,
+      watch: false,
+      env: {
+        NODE_ENV: 'production',
+      },
+    },
+    {
+      name: 'brawltree-scheduler',
+      script: 'node',
+      args: 'dist/scheduler.js',
       autorestart: false,
       watch: false,
       env: {

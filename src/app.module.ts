@@ -6,7 +6,6 @@ import { BrawlersModule } from '~/brawlers/brawlers.module';
 import { MapsModule } from '~/maps/maps.module';
 import { SeasonModule } from '~/season/season.module';
 import { CrewModule } from '~/crew/crew.module';
-import { SchedulerModule } from '~/scheduler/scheduler.module';
 import { UtilTypeOrmModule } from '~/utils/typeorm/typeorm.module';
 import { UtilAxiosModule } from '~/utils/axios/axios.module';
 import { UtilCacheModule } from '~/utils/cache/cache.module';
@@ -21,7 +20,6 @@ import { UtilScheduleModule } from '~/utils/schedule/schedule.module';
     BrawlersModule,
     MapsModule,
     SeasonModule,
-    SchedulerModule,
     UtilAxiosModule,
     UtilCacheModule,
     UtilConfigModule,
