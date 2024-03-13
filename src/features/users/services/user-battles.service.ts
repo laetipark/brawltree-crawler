@@ -226,6 +226,16 @@ export default class UserBattlesService {
               const highestTrophies = Math.max(
                 ...teams.map((team) => {
                   if ([3, 2].includes(modeCode)) {
+                    if ([2, 3].includes(matchType)) {
+                      return Math.max(
+                        ...team
+                          .filter(({ brawler }) => brawler.trophies < 20)
+                          .map(({ brawler }) => {
+                            return brawler.trophies;
+                          }),
+                      );
+                    }
+
                     return Math.max(
                       ...team.map(({ brawler }) => {
                         return brawler.trophies;
@@ -342,10 +352,12 @@ export default class UserBattlesService {
         } // battleLogs 탐색 종료
 
         // 맵 정보 추가
-        const mapIDs = Array.from(new Set(maps.map((item) => item.id)));
-        await this.mapsService.setMaps(
-          mapIDs.map((id) => maps.find((item) => item.id === id)),
-        );
+        if (maps) {
+          const mapIDs = Array.from(new Set(maps.map((item) => item.id)));
+          await this.mapsService.setMaps(
+            mapIDs.map((id) => maps.find((item) => item.id === id)),
+          );
+        }
 
         // 사용자 전투 기록 추가
         await userBattlesRepository.upsert(battles, [

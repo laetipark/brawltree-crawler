@@ -222,35 +222,34 @@ export default class MapsService {
     const maps = await this.cacheManager.get<CreateMapDto[]>('maps');
     const mapList = await this.cacheManager.get<CreateMapDto[]>('addMaps');
 
-    if (mapList) {
-      await this.cacheManager.set(
-        'addMaps',
-        mapList.concat(
-          createMapDtos.filter((item2) => {
-            console.log(!mapList.some((item1) => item1.id === item2.id));
-            console.log(!maps.some((item1) => item1.id === String(item2.id)));
-            return (
-              !mapList.some((item1) => item1.id === item2.id) &&
-              !maps.some((item1) => item1.id === String(item2.id))
-            );
-          }),
-        ),
-      );
-    } else {
-      const addMaps = createMapDtos.concat(
-        createMapDtos.filter(
-          (item2) => !maps.some((item1) => item1.id === String(item2.id)),
-        ),
-      );
+    if (maps) {
+      if (mapList) {
+        await this.cacheManager.set(
+          'addMaps',
+          mapList.concat(
+            createMapDtos.filter((item2) => {
+              return (
+                !mapList.some((item1) => item1.id === item2.id) &&
+                !maps.some((item1) => item1.id === String(item2.id))
+              );
+            }),
+          ),
+        );
+      } else {
+        const addMaps = createMapDtos.concat(
+          createMapDtos.filter(
+            (item2) => !maps.some((item1) => item1.id === String(item2.id)),
+          ),
+        );
 
-      addMaps && (await this.cacheManager.set('addMaps', addMaps));
+        addMaps && (await this.cacheManager.set('addMaps', addMaps));
+      }
     }
   }
 
   async updateMaps() {
     const maps = await this.maps.find();
     await this.cacheManager.set('maps', maps);
-    console.log(maps);
   }
 
   private async getRotationPL() {
